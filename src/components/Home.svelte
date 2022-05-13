@@ -4,6 +4,8 @@
     <Post title={title} timestamp={timestamp} excerpt={excerpt} content={content} link={link} isPreview />
 {/each}
 
+{@html `<script src="/lazyLoadImages.js"></script>`}
+
 <script>
 	import Post from './Post.svelte';
 

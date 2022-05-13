@@ -4,7 +4,7 @@ const path = require('path');
 const { format: formatDate, parse: parseDate, isValid: isValidDate } = require('date-fns');
 
 const matter = require('gray-matter');
-const MarkdownIt = require('markdown-it');
+const { marked } = require('marked');
 
 const Prism = require('prismjs');
 
@@ -71,11 +71,10 @@ require('prismjs/components/prism-gherkin');
 
 // console.log('>>> PRISMJS languages:', Object.keys(Prism.languages));
 
-const md = new MarkdownIt({
-    html: true,
-    xhtmlOut: true,
-    linkify: false,
-    typographer: false,
+marked.setOptions({
+    gfm: true, // GitHub-flavoured Markdown
+    xhtml: true, // self-close single tags
+    smartypants: true, // dashes and ellipses
 
     highlight(code, language) {
         if (!Prism.languages[language]) {
@@ -128,8 +127,8 @@ const loadPost = (absoluteFilePath, postDir) => {
         title: frontMatter.title,
         link: postLink,
         timestamp: parsePostDate(postPath, frontMatter),
-        excerpt: md.render(excerpt).replace(/<lazyimg /g, '<lazy-img '),
-        content: md.render(content).replace(/<lazyimg /g, '<lazy-img '),
+        excerpt: marked.parse(excerpt), //.replace(/<lazyimg /g, '<lazy-img '),
+        content: marked.parse(content), //.replace(/<lazyimg /g, '<lazy-img '),
     };
 
     cache.set(postPath, {

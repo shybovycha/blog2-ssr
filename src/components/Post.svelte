@@ -11,9 +11,11 @@
     {/if}
 </article>
 
-<script>
-    import LazyImg from './LazyImg.svelte';
+{#if !isPreview}
+    {@html `<script src="/lazyLoadImages.js"></script>`}
+{/if}
 
+<script>
     export let title;
     export let content;
     export let excerpt;

@@ -13,8 +13,6 @@ registerSvelte({
     preserveComments: false,
 });
 
-// const LazyImg = require('../components/LazyImg.svelte').default;
-
 const Home = require('./components/Home.svelte').default;
 const Post = require('./components/Post.svelte').default;
 
