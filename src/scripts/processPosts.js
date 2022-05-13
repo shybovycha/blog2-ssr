@@ -106,6 +106,18 @@ const parsePostDate = (postPath, frontMatter) => {
     return new Date();
 };
 
+const processContent = (src, { excertpSeparator = null } = {}) => {
+    const options = excertpSeparator ? { excerpt: true, excerpt_separator: '<!--more-->' } : {};
+
+    const { data: frontMatter, excerpt, content } = matter(src, options);
+
+    return {
+        frontMatter,
+        excerpt: marked.parse(excerpt),
+        content: marked.parse(content),
+    };
+};
+
 const loadPost = (absoluteFilePath, postDir) => {
     const postPath = path.relative(postDir, absoluteFilePath);
     const timestamp = fs.statSync(absoluteFilePath).mtimeMs;
@@ -117,7 +129,7 @@ const loadPost = (absoluteFilePath, postDir) => {
     }
 
     const src = fs.readFileSync(absoluteFilePath, 'utf-8');
-    const { data: frontMatter, excerpt, content } = matter(src, { excerpt: true, excerpt_separator: '<!--more-->' });
+    const { frontMatter, excerpt, content } = processContent(src, { excertpSeparator: '<!--more-->' });
 
     const postLink = postPath.replace(/^(\d+)-(\d+)-(\d+)-(.+)\.md$/, '$1/$2/$3/$4.html');
 
@@ -125,8 +137,8 @@ const loadPost = (absoluteFilePath, postDir) => {
         title: frontMatter.title,
         link: postLink,
         timestamp: parsePostDate(postPath, frontMatter),
-        excerpt: marked.parse(excerpt), //.replace(/<lazyimg /g, '<lazy-img '),
-        content: marked.parse(content), //.replace(/<lazyimg /g, '<lazy-img '),
+        excerpt,
+        content,
     };
 
     cache.set(postPath, {
@@ -169,4 +181,5 @@ const loadPosts = (postDir) => {
 module.exports = {
     loadPosts,
     getFilesRec,
+    processContent,
 };

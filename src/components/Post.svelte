@@ -43,18 +43,4 @@
         background: var(--primary-accent-color);
         color: #fff
     }
-
-    article {
-        margin-bottom: 1em;
-        padding: 1em;
-        background: var(--article-background);
-        border-radius: 5px;
-        font-size: 18px
-    }
-
-    @media screen and (max-width: 1340px) {
-        article {
-            border-radius: 0
-        }
-    }
 </style>

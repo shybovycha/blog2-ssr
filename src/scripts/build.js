@@ -3,7 +3,7 @@ const path = require('path');
 
 const { chunk } = require('lodash');
 
-const { loadPosts, getFilesRec } = require('./processPosts');
+const { loadPosts, getFilesRec, processContent } = require('./processPosts');
 
 const registerSvelte = require('svelte/register');
 
@@ -15,16 +15,16 @@ registerSvelte({
 
 const HomePage = require('../components/HomePage.svelte').default;
 const PostPage = require('../components/PostPage.svelte').default;
+const StandalonePage = require('../components/StandalonePage.svelte').default;
 
 const PAGE_SIZE = 10;
 
 const BASE_DIR = path.join(__dirname, '..', '..');
 const OUTPUT_DIR = path.join(BASE_DIR, 'dist');
+const PAGES_DIR = path.join(BASE_DIR, 'pages');
 const POSTS_DIR = path.join(BASE_DIR, 'posts');
 const PUBLIC_DIR = path.join(BASE_DIR, 'public');
 const PRISM_THEME = 'prism';
-
-const posts = loadPosts(POSTS_DIR);
 
 // clean
 if (fs.existsSync(OUTPUT_DIR)) {
@@ -32,10 +32,12 @@ if (fs.existsSync(OUTPUT_DIR)) {
 }
 
 // index pages
-const pages = chunk(posts, PAGE_SIZE);
+const posts = loadPosts(POSTS_DIR);
 
-pages.forEach((posts, pageIdx) => {
-    const { html, css } = HomePage.render({ posts, pageIndex: pageIdx, numPages: pages.length });
+const postPages = chunk(posts, PAGE_SIZE);
+
+postPages.forEach((posts, pageIdx) => {
+    const { html, css } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length });
 
     const fileName = pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`;
     const filePath = path.join(OUTPUT_DIR, fileName);
@@ -54,6 +56,28 @@ posts.forEach((post) => {
     const { html, css } = PostPage.render({ ...post });
 
     const filePath = path.join(OUTPUT_DIR, post.link);
+    const dir = path.dirname(filePath);
+
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+
+    fs.writeFileSync(filePath, `<style>${css.code}</style>` + html);
+});
+
+// standalone pages
+const pages = getFilesRec(PAGES_DIR);
+
+pages.forEach((pageFilename) => {
+    const pageSrc = fs.readFileSync(pageFilename, 'utf-8');
+
+    const { content } = processContent(pageSrc);
+
+    const { html, css } = StandalonePage.render({ content });
+
+    const fileName = pageFilename.replace(PAGES_DIR, '').replace(/\..+$/, '.html');
+    const filePath = path.join(OUTPUT_DIR, fileName);
+
     const dir = path.dirname(filePath);
 
     if (!fs.existsSync(dir)) {
