@@ -8,8 +8,9 @@ const { loadPosts } = require('./processPosts');
 const registerSvelte = require('svelte/register');
 
 registerSvelte({
-    customElement: true,
+    // customElement: true,
     preserveComments: false,
+    css: true,
 });
 
 const Layout = require('../components/Layout.svelte').default;
@@ -29,7 +30,8 @@ const pageSize = 10;
 const pages = chunk(posts, pageSize);
 
 pages.forEach((posts, pageIdx) => {
-    const { html, css } = Layout.render({}, { $$slots: { content: () => Home.render({ posts }).html, footer: () => Paginator.render({ pageIndex: pageIdx, numPages: pages.length }) } });
+    // const { html, css } = Layout.render({}, { $$slots: { content: () => Home.render({ posts }).html, footer: () => Paginator.render({ pageIndex: pageIdx, numPages: pages.length }).html } });
+    const { html, css } = HomePage.render({ posts, pageIndex: pageIdx, numPages: pages.length });
 
     const fileName = pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`;
     const filePath = path.join(__dirname, '..', '..', 'dist', fileName);
@@ -42,7 +44,7 @@ pages.forEach((posts, pageIdx) => {
 
     // console.log('>>> CSS:', css);
 
-    fs.writeFileSync(filePath, html);
+    fs.writeFileSync(filePath, `<style>${css.code}</style>` + html);
 });
 
 // specific posts
@@ -58,5 +60,5 @@ posts.forEach((post) => {
 
     // console.log('>>> CSS:', css);
 
-    fs.writeFileSync(filePath, html);
+    fs.writeFileSync(filePath, `<style>${css.code}</style>` + html);
 });

@@ -1,5 +1,11 @@
 <article>
-    <h2><a href="/{link}">{ title }</a></h2>
+    <h2>
+        {#if isPreview}
+            <a href="/{link}">{ title }</a>
+        {:else}
+            { title }
+        {/if}
+    </h2>
 
     <Date date={timestamp} />
 
