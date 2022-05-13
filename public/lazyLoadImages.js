@@ -18,6 +18,4 @@ const observer = new IntersectionObserver(onIntersect, {
 
 const images = [...document.body.querySelectorAll('img[data-src]')];
 
-console.log(images);
-
 images.forEach(imgElt => observer.observe(imgElt));

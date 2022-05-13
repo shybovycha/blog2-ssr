@@ -1,6 +1,7 @@
 <article>
     <h2><a href="/{link}">{ title }</a></h2>
-    <time>{timestamp}</time>
+
+    <Date date={timestamp} />
 
     {#if excerpt && isPreview}
         <div class="excerpt">{@html excerpt}</div>
@@ -16,6 +17,8 @@
 {/if}
 
 <script>
+    import Date from './Date.svelte';
+
     export let title;
     export let content;
     export let excerpt;

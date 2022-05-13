@@ -24,7 +24,7 @@ const pageSize = 10;
 const pages = chunk(posts, pageSize);
 
 pages.forEach((posts, pageIdx) => {
-    const { html } = Home.render({ posts });
+    const { html } = Home.render({ posts, pageIndex: pageIdx, numPages: pages.length });
 
     const fileName = pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`;
     const filePath = path.join(__dirname, '..', 'dist', fileName);
