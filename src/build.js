@@ -8,10 +8,15 @@ const { loadPosts } = require('./processPosts');
 const registerSvelte = require('svelte/register');
 
 registerSvelte({
-    css: true,
     customElement: true,
     preserveComments: false,
 });
+
+const Layout = require('./components/Layout.svelte').default;
+const Paginator = require('./components/Paginator.svelte').default;
+
+const HomePage = require('./components/HomePage.svelte').default;
+const PostPage = require('./components/PostPage.svelte').default;
 
 const Home = require('./components/Home.svelte').default;
 const Post = require('./components/Post.svelte').default;
@@ -24,7 +29,7 @@ const pageSize = 10;
 const pages = chunk(posts, pageSize);
 
 pages.forEach((posts, pageIdx) => {
-    const { html } = Home.render({ posts, pageIndex: pageIdx, numPages: pages.length });
+    const { html, css } = HomePage.render({ posts, pageIndex: pageIdx, numPages: pages.length }, { $$slots: { content: 'hello' } });
 
     const fileName = pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`;
     const filePath = path.join(__dirname, '..', 'dist', fileName);
@@ -35,12 +40,14 @@ pages.forEach((posts, pageIdx) => {
         fs.mkdirSync(dir, { recursive: true });
     }
 
+    // console.log('>>> CSS:', css);
+
     fs.writeFileSync(filePath, html);
 });
 
 // specific posts
 posts.forEach((post) => {
-    const { html } = Post.render({ ...post });
+    const { html, css } = PostPage.render({ ...post });
 
     const filePath = path.join(__dirname, '..', 'dist', post.link);
     const dir = path.dirname(filePath);
@@ -48,6 +55,8 @@ posts.forEach((post) => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
+
+    // console.log('>>> CSS:', css);
 
     fs.writeFileSync(filePath, html);
 });
