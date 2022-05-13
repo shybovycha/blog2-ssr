@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css" />
+    <link rel="stylesheet" href="/prism.css" />
+
     <title>Document</title>
 </head>
 <body>
@@ -29,8 +37,6 @@
     {/if}
 
     {@html `<script src="/lazyLoadImages.js"></script>`}
-    {@html `<link rel="stylesheet" href="/shared.css" />`}
-    {@html `<link rel="stylesheet" href="/prism.css" />`}
 </body>
 </html>
 
