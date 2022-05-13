@@ -1,11 +1,11 @@
 <article>
-    <h2>
+    <h1>
         {#if isPreview}
             <a href="/{link}">{ title }</a>
         {:else}
             { title }
         {/if}
-    </h2>
+    </h1>
 
     <Date date={timestamp} />
 
@@ -30,23 +30,6 @@
 </script>
 
 <style>
-    img {
-        max-width: 100%
-    }
-
-    pre {
-        overflow: scroll
-    }
-
-    pre.highlight {
-        overflow: auto;
-        padding: .5em
-    }
-
-    button.btn {
-        border: none
-    }
-
     .btn {
         display: inline-flex;
         font-size: 18px;
@@ -69,50 +52,8 @@
         font-size: 18px
     }
 
-    h1 {
-        font-size: 36px
-    }
-
-    h2 {
-        font-size: 24px
-    }
-
-    h3 {
-        font-size: 20px
-    }
-
-    h1,
-    h2,
-    h3 {
-        margin-top: 0
-    }
-
-    kbd {
-        border-radius: 8px;
-        background: #fff;
-        padding: 10px;
-        box-shadow: 1px 4px #dedede;
-        text-shadow: 1px 3px #dedede;
-        display: inline-flex;
-        margin: 4px 0;
-        border: 1px solid #dedede
-    }
-
     @media screen and (max-width: 1340px) {
-        :root {
-            --left-side: 0px;
-            --right-side: 0px
-        }
-
-        body {
-            background: var(--background-color)
-        }
-
-        nav.top .links {
-            justify-content: space-around
-        }
-
-        main article {
+        article {
             border-radius: 0
         }
     }

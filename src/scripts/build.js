@@ -3,46 +3,48 @@ const path = require('path');
 
 const { chunk } = require('lodash');
 
-const { loadPosts } = require('./processPosts');
+const { loadPosts, getFilesRec } = require('./processPosts');
 
 const registerSvelte = require('svelte/register');
 
 registerSvelte({
-    // customElement: true,
+    customElement: false, // otherwise slots & CSS won't work
     preserveComments: false,
     css: true,
 });
 
-const Layout = require('../components/Layout.svelte').default;
-const Paginator = require('../components/Paginator.svelte').default;
-
 const HomePage = require('../components/HomePage.svelte').default;
 const PostPage = require('../components/PostPage.svelte').default;
 
-const Home = require('../components/Home.svelte').default;
-const Post = require('../components/Post.svelte').default;
+const PAGE_SIZE = 10;
 
-const posts = loadPosts();
+const BASE_DIR = path.join(__dirname, '..', '..');
+const OUTPUT_DIR = path.join(BASE_DIR, 'dist');
+const POSTS_DIR = path.join(BASE_DIR, 'posts');
+const PUBLIC_DIR = path.join(BASE_DIR, 'public');
+const PRISM_THEME = 'prism';
+
+const posts = loadPosts(POSTS_DIR);
+
+// clean
+if (fs.existsSync(OUTPUT_DIR)) {
+    fs.rmSync(OUTPUT_DIR, { recursive: true });
+}
 
 // index pages
-const pageSize = 10;
-
-const pages = chunk(posts, pageSize);
+const pages = chunk(posts, PAGE_SIZE);
 
 pages.forEach((posts, pageIdx) => {
-    // const { html, css } = Layout.render({}, { $$slots: { content: () => Home.render({ posts }).html, footer: () => Paginator.render({ pageIndex: pageIdx, numPages: pages.length }).html } });
     const { html, css } = HomePage.render({ posts, pageIndex: pageIdx, numPages: pages.length });
 
     const fileName = pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`;
-    const filePath = path.join(__dirname, '..', '..', 'dist', fileName);
+    const filePath = path.join(OUTPUT_DIR, fileName);
 
     const dir = path.dirname(filePath);
 
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
-
-    // console.log('>>> CSS:', css);
 
     fs.writeFileSync(filePath, `<style>${css.code}</style>` + html);
 });
@@ -51,14 +53,30 @@ pages.forEach((posts, pageIdx) => {
 posts.forEach((post) => {
     const { html, css } = PostPage.render({ ...post });
 
-    const filePath = path.join(__dirname, '..', '..', 'dist', post.link);
+    const filePath = path.join(OUTPUT_DIR, post.link);
     const dir = path.dirname(filePath);
 
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
 
-    // console.log('>>> CSS:', css);
-
     fs.writeFileSync(filePath, `<style>${css.code}</style>` + html);
 });
+
+// copy public files
+getFilesRec(PUBLIC_DIR).forEach((filePath) => {
+    const filename = path.basename(filePath);
+    const sourcePath = path.dirname(filePath.replace(PUBLIC_DIR, ''));
+    const outputDirPath = path.join(OUTPUT_DIR, sourcePath);
+    const outputPath = path.join(outputDirPath, filename);
+
+    if (!fs.existsSync(outputDirPath)) {
+        fs.mkdirSync(outputDirPath, { recursive: true });
+    }
+
+    fs.copyFileSync(filePath, outputPath);
+});
+
+// copy PrismJS theme CSS
+const prismThemePath = path.join(__dirname, '..', '..', 'node_modules', 'prismjs', 'themes', `${PRISM_THEME}.min.css`);
+fs.copyFileSync(prismThemePath, path.join(OUTPUT_DIR, 'prism.css'));

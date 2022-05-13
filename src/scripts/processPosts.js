@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const { format: formatDate, parse: parseDate, isValid: isValidDate } = require('date-fns');
+const { parse: parseDate, isValid: isValidDate } = require('date-fns');
 
 const matter = require('gray-matter');
 const { marked } = require('marked');
@@ -68,8 +68,6 @@ require('prismjs/components/prism-dot');
 require('prismjs/components/prism-scss');
 require('prismjs/components/prism-less');
 require('prismjs/components/prism-gherkin');
-
-// console.log('>>> PRISMJS languages:', Object.keys(Prism.languages));
 
 marked.setOptions({
     gfm: true, // GitHub-flavoured Markdown
@@ -158,12 +156,10 @@ const getFilesRec = (dir) => {
     return result;
 };
 
-const loadPosts = () => {
+const loadPosts = (postDir) => {
     if (cache.size > 0) {
         return Object.values(cache).sort((a, b) => b.timestamp - a.timestamp);
     }
-
-    const postDir = path.resolve(__dirname, '..', '..', 'posts');
 
     return getFilesRec(postDir)
         .map((file) => loadPost(file, postDir))
@@ -172,4 +168,5 @@ const loadPosts = () => {
 
 module.exports = {
     loadPosts,
+    getFilesRec,
 };
