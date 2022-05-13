@@ -163,7 +163,7 @@ const loadPosts = () => {
         return Object.values(cache).sort((a, b) => b.timestamp - a.timestamp);
     }
 
-    const postDir = path.resolve(__dirname, '../posts');
+    const postDir = path.resolve(__dirname, '..', '..', 'posts');
 
     return getFilesRec(postDir)
         .map((file) => loadPost(file, postDir))

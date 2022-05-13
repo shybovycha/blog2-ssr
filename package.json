@@ -14,6 +14,6 @@
   },
   "scripts": {
     "postinstall": "patch-package",
-    "build": "node src/build.js"
+    "build": "node src/scripts/build.js"
   }
 }
