@@ -119,7 +119,7 @@ const processContent = (src, { excertpSeparator = null } = {}) => {
 };
 
 const loadPost = (absoluteFilePath, postDir) => {
-    const postPath = path.relative(postDir, absoluteFilePath);
+    const postPath = absoluteFilePath.replace(postDir, '');
     const timestamp = fs.statSync(absoluteFilePath).mtimeMs;
 
     const cached = cache.get(postPath);
@@ -131,7 +131,9 @@ const loadPost = (absoluteFilePath, postDir) => {
     const src = fs.readFileSync(absoluteFilePath, 'utf-8');
     const { frontMatter, excerpt, content } = processContent(src, { excertpSeparator: '<!--more-->' });
 
-    const postLink = postPath.replace(/^(\d+)-(\d+)-(\d+)-(.+)\.md$/, '$1/$2/$3/$4.html');
+    const postLink = path.join(path.dirname(postPath), path.basename(postPath).replace(/^(\d+)-(\d+)-(\d+)-(.+)\.(md|html?)$/, '$1/$2/$3/$4.html'));
+
+    console.log('Processing post', postPath, '->', postLink);
 
     const post = {
         title: frontMatter.title,
