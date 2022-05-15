@@ -37,7 +37,8 @@ const posts = loadPosts(POSTS_DIR);
 const postPages = chunk(posts, PAGE_SIZE);
 
 postPages.forEach((posts, pageIdx) => {
-    const { html, css } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length });
+    const { css: { code: css } } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length });
+    const { html } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length, css });
 
     const fileName = pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`;
     const filePath = path.join(OUTPUT_DIR, fileName);
@@ -53,7 +54,8 @@ postPages.forEach((posts, pageIdx) => {
 
 // specific posts
 posts.forEach((post) => {
-    const { html, css } = PostPage.render({ ...post });
+    const { css: { code: css } } = PostPage.render({ ...post });
+    const { html } = PostPage.render({ ...post, css });
 
     const filePath = path.join(OUTPUT_DIR, post.link);
     const dir = path.dirname(filePath);
@@ -62,7 +64,7 @@ posts.forEach((post) => {
         fs.mkdirSync(dir, { recursive: true });
     }
 
-    fs.writeFileSync(filePath, `<style>${css.code}</style>` + html);
+    fs.writeFileSync(filePath, html);
 });
 
 // standalone pages
@@ -71,9 +73,10 @@ const pages = getFilesRec(PAGES_DIR);
 pages.forEach((pageFilename) => {
     const pageSrc = fs.readFileSync(pageFilename, 'utf-8');
 
-    const { content } = processContent(pageSrc);
+    const { excerpt: { title }, content } = processContent(pageSrc);
 
-    const { html, css } = StandalonePage.render({ content });
+    const { css: { code: css } } = StandalonePage.render({ content });
+    const { html } = StandalonePage.render({ content, css, title });
 
     const fileName = pageFilename.replace(PAGES_DIR, '').replace(/\..+$/, '.html');
     const filePath = path.join(OUTPUT_DIR, fileName);
@@ -84,7 +87,7 @@ pages.forEach((pageFilename) => {
         fs.mkdirSync(dir, { recursive: true });
     }
 
-    fs.writeFileSync(filePath, `<style>${css.code}</style>` + html);
+    fs.writeFileSync(filePath, html);
 });
 
 // copy public files

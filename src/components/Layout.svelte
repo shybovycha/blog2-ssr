@@ -12,9 +12,13 @@
     <link rel="stylesheet" href="/shared.css" />
     <link rel="stylesheet" href="/prism.css" />
 
-    <title>Document</title>
+    <title>{title}</title>
 </head>
 <body>
+    {#if css}
+        {@html `<style>${css}</style>`}
+    {/if}
+
     <nav class="top">
         <slot name="header">
             <div class="links">
@@ -121,3 +125,8 @@
         }
     }
 </style>
+
+<script>
+    export let title = 'Page';
+    export let css = '';
+</script>
