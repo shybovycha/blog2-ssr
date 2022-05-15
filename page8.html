@@ -1,0 +1,780 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }
+nav.bottom.svelte-14ldwbd.svelte-14ldwbd{grid-area:1/2/2/3;display:inline-grid;grid-template:1fr / 1fr 1fr 1fr
+    }footer nav.svelte-14ldwbd div.svelte-14ldwbd{display:flex;align-items:center
+    }footer nav.svelte-14ldwbd .prev.svelte-14ldwbd{grid-area:1/1/2/2;justify-content:flex-start
+    }footer nav.svelte-14ldwbd .current.svelte-14ldwbd{grid-area:1/2/2/3;justify-content:center
+    }footer nav.svelte-14ldwbd .next.svelte-14ldwbd{grid-area:1/3/2/4;justify-content:flex-end
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1><a href="/tumblr/2015-01-28-erlang-practice.md">Erlang practice</a></h1>
+
+    <time>28 Jan 2015 at 14:29</time>
+
+    <div class="excerpt"><h2 id="foreword">Foreword</h2>
+<p>First time I faced functional programming, I was impressed. Just a bit. That was back in 2012. The second time, I was studying real functional programming at the university. Today was the final test.</p>
+<p>We were taught many interesting things about functional programming and lot of things about Haskell. But there were only two lectures and two practices on Erlang. And nothing was told about its distributed programming abilities.</p>
+<p>I was a bit disappointed by this fact. So, I turned on my girlfriend’s laptop, installed Erlang and created this short intro to distributed programming in Erlang.</p>
+</div>
+
+        <a href="/tumblr/2015-01-28-erlang-practice.md" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/tumblr/2015-01-27-robo-created-in-a-cinema-4d-two-and-half-years.md">Robo created in a Cinema4d</a></h1>
+
+    <time>27 Jan 2015 at 16:09</time>
+
+    <div class="content"><p>This is a 3D model of a robot (called him Robo) which I made in Cinema4D some two and a half years ago.</p>
+<LazyImg src="/tumblr_files/tumblr_niufk6p7gs1qio88bo1_1280.jpg" alt="Robot model" />
+</div>
+</article><article><h1><a href="/tumblr/2015-01-11-connecting-lenovo-p780-to-adb-on-ubuntu.html">Connecting Lenovo P780 to ADB on Ubuntu</a></h1>
+
+    <time>11 Jan 2015 at 16:38</time>
+
+    <div class="content"><p>Ohhh&hellip; Today I&rsquo;ve faced one great trouble: recently I reinstalled my Ubuntu, so I lost all my configurations. And when I tried to connect my <em>Lenovo P780</em> to debug my Android application, I saw horrible error:</p>
+
+<pre><code>$ adb devices
+* daemon not running. starting it now on port 5037 *
+* daemon started successfully *
+List of devices attached
+????????????    no permissions
+</code></pre>
+
+<p>Hey! Where did my smartphone gone?!</p>
+
+<p>Fooling around in the internet, I found two simple steps to fix this:</p>
+
+<ol><li><p>find the <em>VendorID</em> and <em>ProductID</em> for your device running <code>lsusb</code> two times <em>(just find the difference line)</em>:
+a. when your device is disconnected
+b. when your device is connected</p>
+
+<p>This will give you two outputs:</p>
+
+<pre><code>$ # disconnected device
+
+$ lsusb
+Bus 002 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub
+Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 004: ID 064e:d213 Suyin Corp.
+Bus 001 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+
+$ # connected device (via USB)
+
+$ lsusb
+Bus 002 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub
+Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 004: ID 064e:d213 Suyin Corp.
+Bus 001 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 006: ID 0bb4:0c03 HTC (High Tech Computer Corp.)
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+</code></pre>
+
+<p>Note the row, which is present in the second output block and is absent in the first one:</p>
+
+<pre><code>Bus 003 Device 006: ID 0bb4:0c03 HTC (High Tech Computer Corp.)
+</code></pre>
+
+<p>For some reason, my phone is recognized as a HTC, but that does not bother me so much.
+We will need only two parts of that row:</p>
+
+<pre><code>0bb4:0c03
+</code></pre>
+
+<p>The <code>0bb4</code> is a <strong>VendorID</strong> and the <code>0c03</code> is the <strong>ProductID</strong> for my phone.</p></li>
+<li><p>Add the phone attributes to the system. Sudo-edit the file <code>/lib/udev/rules.d/69-libmtp.rules</code> and point it to your device. Add a line like this (without any newlines):</p>
+
+<pre><code>ATTR{idVendor}=="0bb4", ATTR{idProduct}=="0c03", SYMLINK+="libmtp-%k", MODE="0666", GROUP="audio", ENV{ID_MTP_DEVICE}="1", ENV{ID_MEDIA_PLAYER}="1"
+</code></pre>
+
+<p>That should enable your system to see the device later.</p></li>
+<li><p>Enable write permissions for your device. Sudo-edit the file <code>/etc/udev/rules.d/51-android.rules</code> <em>(you may need to create it)</em> and add one line there:</p>
+
+<pre><code>SUBSYSTEM=="usb", ATTRS{idVendor}=="0bb4", ATTRS{idProduct} =="0c03", MODE="0666", GROUP="plugdev"
+</code></pre></li>
+<li><p>To check if your phone is recognized by <code>adb</code>, restart ABD server and check its device list:</p>
+
+<pre><code>$ adb kill-server
+$ adb devices
+* daemon not running. starting it now on port 5037 *
+* daemon started successfully *
+List of devices attached
+0123456789ABCDEF    device
+</code></pre></li>
+</ol>
+</div>
+</article><article><h1><a href="/tumblr/2015-01-11-deploying-rails-project-to-heroku.html">Deploying Rails project to Heroku</a></h1>
+
+    <time>11 Jan 2015 at 14:45</time>
+
+    <div class="content"><p>First of all, set up the <strong>Heroku Toolbelt</strong>. It is required for all the communications with the server.</p>
+
+<p>The first step of communication with the Heroku servers is logging in. Just run <code>heroku login</code> and provide your credentials when asked.</p>
+
+<p>Then, you need to create your application or go to the folder where it is located and tune it a bit. Tuning is divided into the following steps:</p>
+
+<ul><li>tuning the <code>Gemfile</code> to include the required gems</li>
+<li>fixing the <code>database.yml</code> configurations</li>
+<li>setting the server to handle static assets correctly</li>
+</ul><p>But let&rsquo;s create out application on the Heroku servers first: <code>heroku create [app_name]</code>. If application name is not provided directly - it will be generated automatically.</p>
+
+<p>Now, our application needs two gems to be included for the <code>production</code> gems&rsquo; group:</p>
+
+<pre><code class="language-ruby">group <span class="token symbol">:production</span> <span class="token keyword">do</span>
+    gem <span class="token string-literal"><span class="token string">'pg'</span></span>
+    gem <span class="token string-literal"><span class="token string">'rails_12factor'</span></span>
+    gem <span class="token string-literal"><span class="token string">'puma'</span></span>
+<span class="token keyword">end</span>
+</code></pre>
+<p>The third gem is used as a webserver instead of WebRick, which is default <em>(puma is much, much faster!)</em>. The second one is required by Heroku. And the first one is used for PostgreSQL connectivity. If you do not wish to use database - skip it and a few next paragraphs.</p>
+
+<p>Then, let&rsquo;s add the database support for our application. It&rsquo;s done simply, running</p>
+
+<pre><code>heroku addons:add heroku-postgresql:hobby-dev
+</code></pre>
+
+<p><strong>Note:</strong> Heroku does not support <code>sqlite</code> since some times. This means you are forced to use either PostgreSQL or no database at all <em>(yes, it&rsquo;s possible! Yet, it works for simple or static web applications only&hellip;)</em>. You may want to change this if you would pay for your account. But this tutorial covers only free side of the Heroku deployment.</p>
+
+<p>Now, there are two ways to set database connection options in Rails:</p>
+
+<ol><li>set them directly at <code>config/database.yml</code> file</li>
+<li>set the environment variable <code>DATABASE_URL</code></li>
+</ol><p>We will cover both cases. For the first one, you will need this section within your <code>database.yml</code> file:</p>
+
+<pre><code class="language-yaml"><span class="token key atrule">production</span><span class="token punctuation">:</span>
+    <span class="token key atrule">adapter</span><span class="token punctuation">:</span> postgresql
+    <span class="token key atrule">encoding</span><span class="token punctuation">:</span> unicode
+    <span class="token key atrule">pool</span><span class="token punctuation">:</span> <span class="token number">5</span>
+    <span class="token key atrule">url</span><span class="token punctuation">:</span> URL_GOES_HERE
+</code></pre>
+<p>I will show how to get the <code>&lt;URL_GOES_HERE&gt;</code> value in a second. Just keep in mind to replace it with the correct value.</p>
+
+<p>The second option, the environment variable, is set via the Heroku Toolbelt <em>(did I tell you, it is used for almost every deploy operation you will perform?)</em>.</p>
+
+<p>First you take the database URL from Heroku server:</p>
+
+<pre><code class="language-bash">heroku config <span class="token operator">|</span> <span class="token function">grep</span> HEROKU_POSTGRESQL
+</code></pre>
+<p>Then, you copy the value you got <em>(it starts with <code>postgres://</code>)</em> and run the following:</p>
+
+<pre><code class="language-bash">heroku config:set <span class="token assign-left variable">DATABASE_URL</span><span class="token operator">=</span>URL_GOES_HERE
+</code></pre>
+<p>Now let&rsquo;s set our application to serve static assets. It is handy, because it is the easiest way to send images, stylesheets and javascripts to clients. Go to the <code>config/environments/production.rb</code> and change both <code>config.serve_static_assets</code> and <code>config.assets.compile</code> to <code>true</code>.</p>
+
+<p><strong>But beware:</strong> if your <code>app/assets</code> files directory contains files of other extensions than Rails&rsquo; <strong>Sprockets</strong> understands - Rails (and Heroku, particularly) will try to precompile them. And that may cause many troubles. You are recommended either to &ldquo;teach&rdquo; Sprockets to skip or precompile those files, <strong>or</strong> you should exclude them from project before deploying to Heroku.</p>
+
+<p>And the last two steps separate us from our goal: first, you should push your project to Heroku&rsquo; Git repository, it created for you with the application <em>(You do not use Git yet?! How dare you?!..)</em>.</p>
+
+<p>Now, if you use database, run migrations with <code>heroku run rake db:migrate</code>.</p>
+
+<p>And, finally, see your application running in the browser: <code>heroku open</code>.</p>
+
+<p><strong>Note:</strong> if you are using some assets from the outer web (GoogleFonts, for example) and are seeing your website through the <code>https</code> protocol, you should replace all those assets&rsquo; URL protocols with <code>https</code> too.</p>
+</div>
+</article><article><h1><a href="/tumblr/2015-01-09-microsoft-error-messages-cipher.md">Microsoft&#39; error messages cipher</a></h1>
+
+    <time>09 Jan 2015 at 20:43</time>
+
+    <div class="excerpt"><p>I have a T-SQL trigger creation script, which runs OK:</p>
+<pre><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">TRIGGER</span> data_modified <span class="token keyword">ON</span> Northwind<span class="token punctuation">.</span>dbo<span class="token punctuation">.</span>Customers <span class="token keyword">FOR</span> <span class="token keyword">INSERT</span><span class="token punctuation">,</span> <span class="token keyword">UPDATE</span><span class="token punctuation">,</span> <span class="token keyword">DELETE</span>
+<span class="token keyword">AS</span>
+
+<span class="token keyword">declare</span> <span class="token variable">@rows</span> <span class="token keyword">as</span> <span class="token keyword">int</span><span class="token punctuation">;</span>
+<span class="token keyword">set</span> <span class="token variable">@rows</span> <span class="token operator">=</span> @<span class="token variable">@ROWCOUNT</span><span class="token punctuation">;</span>
+
+<span class="token keyword">IF</span> <span class="token variable">@rows</span> <span class="token operator">=</span> <span class="token number">0</span>
+<span class="token keyword">BEGIN</span>
+    <span class="token keyword">print</span> <span class="token string">'no rows were affected'</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span><span class="token punctuation">;</span>
+<span class="token keyword">end</span>
+
+<span class="token keyword">if</span> <span class="token keyword">exists</span><span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> inserted<span class="token punctuation">)</span>
+<span class="token keyword">begin</span>
+    <span class="token keyword">if</span> <span class="token keyword">exists</span><span class="token punctuation">(</span><span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> deleted<span class="token punctuation">)</span>
+    <span class="token keyword">begin</span>
+        <span class="token keyword">print</span> <span class="token string">'updated '</span> <span class="token operator">+</span> <span class="token variable">@rows</span> <span class="token operator">+</span> <span class="token string">' rows'</span><span class="token punctuation">;</span>
+    <span class="token keyword">end</span>
+    <span class="token keyword">else</span>
+    <span class="token keyword">begin</span>
+        <span class="token keyword">print</span> <span class="token string">'inserted '</span> <span class="token operator">+</span> <span class="token variable">@rows</span> <span class="token operator">+</span> <span class="token string">' rows'</span><span class="token punctuation">;</span>
+    <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+<span class="token keyword">else</span>
+<span class="token keyword">begin</span>
+    <span class="token keyword">print</span> <span class="token string">'deleted '</span> <span class="token operator">+</span> <span class="token variable">@rows</span> <span class="token operator">+</span> <span class="token string">' rows'</span><span class="token punctuation">;</span>
+<span class="token keyword">end</span>
+</code></pre>
+<p>Yet, when I run some <code>INSERT</code> query, I got an error saying:</p>
+<pre><code>Msg 245, Level 16, State 1, Procedure data_modified, Line 21
+Conversion failed when converting the varchar value &#39;inserted &#39; to data type int.
+</code></pre>
+<p>Mysterious, isn’t it? Let’s dig in, shall we?</p>
+</div>
+
+        <a href="/tumblr/2015-01-09-microsoft-error-messages-cipher.md" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/tumblr/2014-12-18-setting-up-rails-webserver.md">Setting up Rails webserver</a></h1>
+
+    <time>18 Dec 2014 at 09:55</time>
+
+    <div class="content"><h2 id="foreword">Foreword</h2>
+<p>This tutorial I wrote when was quitting my previous job, almost one year ago. But it’s still handy!</p>
+<h3 id="abstract-rails-application-setup">Abstract Rails application setup</h3>
+<pre><code class="language-bash">$ <span class="token function">git</span> clone <span class="token punctuation">..</span>./project_name.git
+$ <span class="token builtin class-name">cd</span> project_name
+$ <span class="token punctuation">[</span>sudo<span class="token punctuation">]</span> bundle <span class="token function">install</span>
+$ <span class="token function">cat</span> config/database.yml
+$ <span class="token comment"># create database and/or change config/database.yml settings</span>
+$ rake db:migrate <span class="token assign-left variable">RAILS_ENV</span><span class="token operator">=</span>production
+$ rake db:seed <span class="token assign-left variable">RAILS_ENV</span><span class="token operator">=</span>production <span class="token comment"># don't worry if one fails</span>
+$ <span class="token comment"># start the server of your choice</span>
+</code></pre>
+<h3 id="puma-webserver">Puma webserver</h3>
+<h4 id="application-wide-settings">Application-wide settings</h4>
+<p>First you need to set up <strong>Puma</strong> for your specific project. For this purpose, add this
+line to the <code>Gemfile</code>:</p>
+<pre><code class="language-ruby">gem <span class="token string-literal"><span class="token string">'puma'</span></span>
+</code></pre>
+<p>Then, run <code>[sudo] bundle install</code>.</p>
+<p>When you are done, you should be able to create a Puma config file at <code>$PROJECT_DIR/config/puma.rb</code>:</p>
+<pre><code class="language-ruby"><span class="token keyword">def</span> <span class="token method-definition"><span class="token function">home_dir</span></span>
+    <span class="token string-literal"><span class="token string">'/home/user/$PROJECT_DIR/'</span></span>
+<span class="token keyword">end</span>
+
+<span class="token keyword">def</span> <span class="token method-definition"><span class="token function">path</span></span><span class="token punctuation">(</span>p<span class="token punctuation">)</span>
+    <span class="token builtin">File</span><span class="token punctuation">.</span>join<span class="token punctuation">(</span>home_dir<span class="token punctuation">,</span> p<span class="token punctuation">)</span>
+<span class="token keyword">end</span>
+
+directory home_dir
+environment <span class="token string-literal"><span class="token string">'development'</span></span>
+daemonize
+pidfile path<span class="token punctuation">(</span><span class="token string-literal"><span class="token string">'tmp/pids/puma.pid'</span></span><span class="token punctuation">)</span>
+state_path path<span class="token punctuation">(</span><span class="token string-literal"><span class="token string">'tmp/pids/puma.state'</span></span><span class="token punctuation">)</span>
+stdout_redirect path<span class="token punctuation">(</span><span class="token string-literal"><span class="token string">'log/puma.log'</span></span><span class="token punctuation">)</span><span class="token punctuation">,</span> path<span class="token punctuation">(</span><span class="token string-literal"><span class="token string">'log/error.puma.log'</span></span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token boolean">true</span>
+threads <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span>
+bind <span class="token string-literal"><span class="token string">'tcp://0.0.0.0:5100'</span></span>
+activate_control_app
+</code></pre>
+<p>More details here: <a href="https://github.com/puma/puma/blob/master/examples/config.rb">https://github.com/puma/puma/blob/master/examples/config.rb</a></p>
+<p>Now, add project root path to the <code>/etc/puma.conf</code> file, e. g.:</p>
+<pre><code>/home/user/project_name
+</code></pre>
+<h4 id="start-puma-at-boot">Start Puma at boot</h4>
+<p>There is a specific utility, called <strong>Jungle</strong>. It manages your applications’ instances at startup.</p>
+<h5 id="ububtu-based-systems">Ububtu-based systems</h5>
+<p>First of all, create <code>/etc/init/puma.conf</code> file and fill it with this:</p>
+<pre><code class="language-bash"><span class="token comment"># /etc/init/puma.conf - Puma config</span>
+
+<span class="token comment"># This example config should work with Ubuntu 12.04+.  It</span>
+<span class="token comment"># allows you to manage multiple Puma instances with</span>
+<span class="token comment"># Upstart, Ubuntu's native service management tool.</span>
+<span class="token comment">#</span>
+<span class="token comment"># See workers.conf for how to manage all Puma instances at once.</span>
+<span class="token comment">#</span>
+<span class="token comment"># Save this config as /etc/init/puma.conf then manage puma with:</span>
+<span class="token comment">#   sudo start puma app=PATH_TO_APP</span>
+<span class="token comment">#   sudo stop puma app=PATH_TO_APP</span>
+<span class="token comment">#   sudo status puma app=PATH_TO_APP</span>
+<span class="token comment">#</span>
+<span class="token comment"># or use the service command:</span>
+<span class="token comment">#   sudo service puma {start,stop,restart,status}</span>
+<span class="token comment">#</span>
+
+description <span class="token string">"Puma Background Worker"</span>
+
+<span class="token comment"># no "start on", we don't want to automatically start</span>
+stop on <span class="token punctuation">(</span>stopping puma-manager or runlevel <span class="token punctuation">[</span>06<span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+<span class="token comment"># change apps to match your deployment user if you want to use this as a less privileged user (recommended!)</span>
+setuid apps
+setgid apps
+
+respawn
+respawn limit <span class="token number">3</span> <span class="token number">30</span>
+
+instance <span class="token variable">${app}</span>
+
+script
+<span class="token comment"># this script runs in /bin/sh by default</span>
+<span class="token comment"># respawn as bash so we can source in rbenv/rvm</span>
+<span class="token comment"># quoted heredoc to tell /bin/sh not to interpret</span>
+<span class="token comment"># variables</span>
+<span class="token builtin class-name">exec</span> /bin/bash <span class="token operator">&amp;</span>lt<span class="token punctuation">;</span><span class="token operator">&amp;</span>lt<span class="token punctuation">;</span><span class="token string">'EOT'</span>
+  <span class="token comment"># set HOME to the setuid user's home, there doesn't seem to be a better, portable way</span>
+  <span class="token builtin class-name">export</span> <span class="token assign-left variable"><span class="token environment constant">HOME</span></span><span class="token operator">=</span><span class="token string">"<span class="token variable"><span class="token variable">$(</span><span class="token builtin class-name">eval</span> <span class="token builtin class-name">echo</span> ~<span class="token punctuation">$(</span>id -un<span class="token punctuation">)</span><span class="token variable">)</span></span>"</span>
+
+  <span class="token builtin class-name">cd</span> <span class="token variable">$app</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">[</span> -d <span class="token string">"<span class="token environment constant">$HOME</span>/.rbenv/bin"</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+    <span class="token builtin class-name">export</span> <span class="token assign-left variable"><span class="token environment constant">PATH</span></span><span class="token operator">=</span><span class="token string">"<span class="token environment constant">$HOME</span>/.rbenv/bin:<span class="token environment constant">$PATH</span>"</span>
+  <span class="token keyword">elif</span> <span class="token punctuation">[</span> -f  /etc/profile.d/rvm.sh <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+    <span class="token builtin class-name">source</span> /etc/profile.d/rvm.sh
+  <span class="token keyword">elif</span> <span class="token punctuation">[</span> -f /usr/local/rvm/scripts/rvm <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+    <span class="token builtin class-name">source</span> /etc/profile.d/rvm.sh
+  <span class="token keyword">elif</span> <span class="token punctuation">[</span> -f <span class="token string">"<span class="token environment constant">$HOME</span>/.rvm/scripts/rvm"</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+    <span class="token builtin class-name">source</span> <span class="token string">"<span class="token environment constant">$HOME</span>/.rvm/scripts/rvm"</span>
+  <span class="token keyword">elif</span> <span class="token punctuation">[</span> -f /usr/local/share/chruby/chruby.sh <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+    <span class="token builtin class-name">source</span> /usr/local/share/chruby/chruby.sh
+    <span class="token keyword">if</span> <span class="token punctuation">[</span> -f /usr/local/share/chruby/auto.sh <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+      <span class="token builtin class-name">source</span> /usr/local/share/chruby/auto.sh
+    <span class="token keyword">fi</span>
+    <span class="token comment"># if you aren't using auto, set your version here</span>
+    <span class="token comment"># chruby 2.0.0</span>
+  <span class="token keyword">fi</span>
+
+  logger -t puma <span class="token string">"Starting server: <span class="token variable">$app</span>"</span>
+
+  <span class="token builtin class-name">exec</span> bundle <span class="token builtin class-name">exec</span> puma -C config/puma.rb
+EOT
+end script
+</code></pre>
+<p>Now, create <code>/etc/init/puma-manager.conf</code> and fill it with this:</p>
+<pre><code class="language-bash"><span class="token comment"># /etc/init/puma-manager.conf - manage a set of Pumas</span>
+
+<span class="token comment"># This example config should work with Ubuntu 12.04+.  It</span>
+<span class="token comment"># allows you to manage multiple Puma instances with</span>
+<span class="token comment"># Upstart, Ubuntu's native service management tool.</span>
+<span class="token comment">#</span>
+<span class="token comment"># See puma.conf for how to manage a single Puma instance.</span>
+<span class="token comment">#</span>
+<span class="token comment"># Use "stop puma-manager" to stop all Puma instances.</span>
+<span class="token comment"># Use "start puma-manager" to start all instances.</span>
+<span class="token comment"># Use "restart puma-manager" to restart all instances.</span>
+<span class="token comment"># Crazy, right?</span>
+<span class="token comment">#</span>
+
+description <span class="token string">"Manages the set of puma processes"</span>
+
+<span class="token comment"># This starts upon bootup and stops on shutdown</span>
+start on runlevel <span class="token punctuation">[</span><span class="token number">2345</span><span class="token punctuation">]</span>
+stop on runlevel <span class="token punctuation">[</span>06<span class="token punctuation">]</span>
+
+<span class="token comment"># Set this to the number of Puma processes you want</span>
+<span class="token comment"># to run on this machine</span>
+<span class="token function">env</span> <span class="token assign-left variable">PUMA_CONF</span><span class="token operator">=</span><span class="token string">"/etc/puma.conf"</span>
+
+pre-start script
+  <span class="token keyword">for</span> <span class="token for-or-select variable">i</span> <span class="token keyword">in</span> <span class="token variable"><span class="token variable">`</span><span class="token function">cat</span> $PUMA_CONF<span class="token variable">`</span></span><span class="token punctuation">;</span> <span class="token keyword">do</span>
+    <span class="token assign-left variable">app</span><span class="token operator">=</span><span class="token variable"><span class="token variable">`</span><span class="token builtin class-name">echo</span> $i <span class="token operator">|</span> <span class="token function">cut</span> -d , -f <span class="token number">1</span><span class="token variable">`</span></span>
+    logger -t <span class="token string">"puma-manager"</span> <span class="token string">"Starting <span class="token variable">$app</span>"</span>
+    start puma <span class="token assign-left variable">app</span><span class="token operator">=</span><span class="token variable">$app</span>
+  <span class="token keyword">done</span>
+end script
+</code></pre>
+<p>And create a blank <code>/etc/puma.conf</code> file. This will be filled for each application separately.</p>
+<p><strong>Caveat:</strong></p>
+<p>You need to customise <code>/etc/init/puma.conf</code> to:</p>
+<ul>
+<li>Set the right user your app should be running on unless you want root to execute it!<ul>
+<li>Look for <code>setuid apps</code> and <code>setgid apps</code>, uncomment those lines and replace <code>apps</code> to whatever your deployment user is.</li>
+<li>Replace <code>apps</code> on the paths (or set the right paths to your user’s home) everywhere else.</li>
+</ul>
+</li>
+<li>Uncomment the source lines for <code>rbenv</code> or <code>rvm</code> support unless you use a system wide installation of Ruby.</li>
+</ul>
+<p>Now, start Jungle like this: <code>sudo start puma-manager</code>.
+And all your applications should be available when you reboot the machine.</p>
+<p>More details at <a href="https://github.com/puma/puma/tree/master/tools/jungle/">https://github.com/puma/puma/tree/master/tools/jungle/</a></p>
+<h5 id="debian-based-systems">Debian-based systems</h5>
+<p><strong>PENDING</strong></p>
+<h3 id="starting-up-and-shutting-down">Starting up and shutting down</h3>
+<p>To start up the application is easy enough. Just navigate yourself to project directory and run the following: <code>puma -C config/puma.rb</code>.</p>
+<p>If you want to shut down one, run this command in the project directory: <code>[sudo] pumactl -S tmp/pids/puma.state halt</code>.</p>
+</div>
+</article><article><h1><a href="/tumblr/2014-11-15-speeding-up-with-ruby-native-extensions.md">Speeding up with Ruby native extensions</a></h1>
+
+    <time>14 Nov 2014 at 23:21</time>
+
+    <div class="excerpt"><LazyImg alt="" src="/tumblr_files/tumblr_inline_nf1y0xXwtM1qh5oee.jpg"/>
+
+<h2 id="foreword">Foreword</h2>
+<p>At my job, our current project has many bottle-necks, where Ruby really sucks on its performance. We were thinking on how to optimize them, and finally come to usage of Ruby Native API.</p>
+<p>Our project uses Redis and MySQL hardly, so much of statistic data is stored in Redis. For speeding up. But one fine day made us use a <strong>reduce</strong> on a set of statistic data from Redis. And that’s where we got stuck on Ruby’ performance. Our server timed out in a minute of waiting for that reduce to complete.</p>
+</div>
+
+        <a href="/tumblr/2014-11-15-speeding-up-with-ruby-native-extensions.md" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/tumblr/2014-04-17-from-activemodel-to-activerecord.md">From ActiveModel to ActiveRecord</a></h1>
+
+    <time>17 Apr 2014 at 10:47</time>
+
+    <div class="content"><p>This short article covers some steps you need to implement to get your own <code>ActiveRecord</code> implementation.</p>
+
+<p>Sample <code>ActiveModel</code> looks like this:</p>
+
+<pre><code class="language-ruby"><span class="token keyword">class</span> <span class="token class-name">Posting</span>
+  <span class="token keyword">include</span> ActiveModel<span class="token double-colon punctuation">::</span>Validations
+
+  attr_accessor <span class="token symbol">:id</span><span class="token punctuation">,</span> <span class="token symbol">:title</span><span class="token punctuation">,</span> <span class="token symbol">:body</span><span class="token punctuation">,</span> <span class="token symbol">:tags</span>
+
+  validates <span class="token symbol">:title</span><span class="token punctuation">,</span> <span class="token symbol">:presence</span> <span class="token operator">=></span> <span class="token boolean">true</span>
+  validates <span class="token symbol">:body</span><span class="token punctuation">,</span> <span class="token symbol">:presence</span> <span class="token operator">=></span> <span class="token boolean">true</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">initialize</span></span><span class="token punctuation">(</span>attributes <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token comment"># ...</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">save</span></span>
+    set_default_values
+
+    <span class="token comment"># ...</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token keyword">self</span><span class="token punctuation">.</span><span class="token function">create</span></span><span class="token punctuation">(</span>attributes <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token keyword">new</span><span class="token punctuation">(</span>attributes<span class="token punctuation">)</span><span class="token punctuation">.</span>save
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">protected</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">set_default_values</span></span>
+    <span class="token comment"># ...</span>
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+</code></pre>
+<p>First trouble is that <code>ActiveModel</code> does not provide any attribute access API. Or I did not google enough. So we need to create our own!</p>
+
+<p>Let us have an instance variable <code>@attributes</code> where we will store our model&rsquo; data. We need to define getter and setter methods for all the attributes of our model. This may be done with the <code>attr_accessor</code> method. But when user sets the value for some attribute, we should store that in our <code>@attributes</code> variable. And here is the first step to our black magic: <strong>we will override the <code>attr_accessor</code> method</strong>.</p>
+
+<pre><code class="language-ruby"><span class="token keyword">module</span> <span class="token class-name">ActiveAttributes</span>
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">attr_accessor</span></span><span class="token punctuation">(</span><span class="token operator">*</span>args<span class="token punctuation">)</span>
+    args<span class="token punctuation">.</span><span class="token keyword">each</span> <span class="token keyword">do</span> <span class="token operator">|</span>k<span class="token operator">|</span>
+      <span class="token keyword">define_method</span><span class="token punctuation">(</span><span class="token string-literal"><span class="token string">"</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content">k</span><span class="token delimiter punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">.</span>to_sym<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token variable">@attributes</span><span class="token punctuation">[</span>k<span class="token punctuation">.</span>to_sym<span class="token punctuation">]</span> <span class="token punctuation">}</span>
+      <span class="token keyword">define_method</span><span class="token punctuation">(</span><span class="token string-literal"><span class="token string">"</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content">k</span><span class="token delimiter punctuation">}</span></span><span class="token string">="</span></span><span class="token punctuation">.</span>to_sym<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token operator">|</span>value<span class="token operator">|</span> <span class="token variable">@attributes</span><span class="token punctuation">[</span>k<span class="token punctuation">.</span>to_sym<span class="token punctuation">]</span> <span class="token operator">=</span> value <span class="token punctuation">}</span>
+    <span class="token keyword">end</span>
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+</code></pre>
+<p>I just wrapped the code into a single module. Remember: when you include the module in a class, all the module&rsquo; methods become class methods.</p>
+
+<p>Now we will include this module <strong>before <code>attr_accessor</code> calls</strong>. But beware: you need to declare an <code>@attributes</code> instance variable in the constructor!</p>
+
+<p>And let&rsquo;s just agree with the following convention: <strong>all our attribute names should be symbols</strong>.</p>
+
+<pre><code class="language-ruby"><span class="token keyword">class</span> <span class="token class-name">Posting</span>
+  <span class="token keyword">include</span> ActiveModel<span class="token double-colon punctuation">::</span>Validations
+  <span class="token keyword">include</span> ActiveAttributes
+
+  attr_accessor <span class="token symbol">:id</span><span class="token punctuation">,</span> <span class="token symbol">:title</span><span class="token punctuation">,</span> <span class="token symbol">:body</span><span class="token punctuation">,</span> <span class="token symbol">:tags</span>
+
+  validates <span class="token symbol">:title</span><span class="token punctuation">,</span> <span class="token symbol">:presence</span> <span class="token operator">=></span> <span class="token boolean">true</span>
+  validates <span class="token symbol">:body</span><span class="token punctuation">,</span> <span class="token symbol">:presence</span> <span class="token operator">=></span> <span class="token boolean">true</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">initialize</span></span><span class="token punctuation">(</span>attributes <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token variable">@attributes</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+    <span class="token comment"># ...</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">save</span></span>
+    set_default_values
+
+    <span class="token comment"># ...</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token keyword">self</span><span class="token punctuation">.</span><span class="token function">create</span></span><span class="token punctuation">(</span>attributes <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token keyword">new</span><span class="token punctuation">(</span>attributes<span class="token punctuation">)</span><span class="token punctuation">.</span>save
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">protected</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">set_default_values</span></span>
+    <span class="token comment"># ...</span>
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+</code></pre>
+<p>Now, we can implement our constructor. We now have all the attributes&rsquo; getters and setter and thus we can simply call them in our constructor:</p>
+
+<pre><code class="language-ruby"><span class="token keyword">class</span> <span class="token class-name">Posting</span>
+  <span class="token keyword">include</span> ActiveModel<span class="token double-colon punctuation">::</span>Validations
+  <span class="token keyword">include</span> ActiveAttributes
+
+  attr_accessor <span class="token symbol">:id</span><span class="token punctuation">,</span> <span class="token symbol">:title</span><span class="token punctuation">,</span> <span class="token symbol">:body</span><span class="token punctuation">,</span> <span class="token symbol">:tags</span>
+
+  validates <span class="token symbol">:title</span><span class="token punctuation">,</span> <span class="token symbol">:presence</span> <span class="token operator">=></span> <span class="token boolean">true</span>
+  validates <span class="token symbol">:body</span><span class="token punctuation">,</span> <span class="token symbol">:presence</span> <span class="token operator">=></span> <span class="token boolean">true</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">initialize</span></span><span class="token punctuation">(</span>attributes <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token variable">@attributes</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+    attributes<span class="token punctuation">.</span>symbolize_keys<span class="token punctuation">.</span><span class="token keyword">each</span> <span class="token keyword">do</span> <span class="token operator">|</span>k<span class="token punctuation">,</span> v<span class="token operator">|</span>
+      v<span class="token punctuation">.</span>symbolize_keys<span class="token operator">!</span> <span class="token keyword">if</span> v<span class="token punctuation">.</span>is_a<span class="token operator">?</span> <span class="token builtin">Hash</span>
+
+      send<span class="token punctuation">(</span><span class="token string-literal"><span class="token string">"</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content">k</span><span class="token delimiter punctuation">}</span></span><span class="token string">="</span></span><span class="token punctuation">,</span> v<span class="token punctuation">)</span> <span class="token keyword">if</span> respond_to<span class="token operator">?</span><span class="token punctuation">(</span><span class="token string-literal"><span class="token string">"</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content">k</span><span class="token delimiter punctuation">}</span></span><span class="token string">="</span></span><span class="token punctuation">.</span>to_sym<span class="token punctuation">)</span>
+    <span class="token keyword">end</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">save</span></span>
+    set_default_values
+
+    <span class="token comment"># ...</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token keyword">self</span><span class="token punctuation">.</span><span class="token function">create</span></span><span class="token punctuation">(</span>attributes <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token keyword">new</span><span class="token punctuation">(</span>attributes<span class="token punctuation">)</span><span class="token punctuation">.</span>save
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">protected</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">set_default_values</span></span>
+    <span class="token comment"># ...</span>
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+</code></pre>
+<p>Now let&rsquo;s implement some basic model persisting. First, we should not forget about our <strong>validations</strong> and add <code>valid?</code> test to the <code>save</code> method.</p>
+
+<p>Let&rsquo;s say our <code>save</code> method should return the model instance. Thus, we should put the model&rsquo; data into the database and get the <code>id</code> for that data (if we put the data with the <code>INSERT</code> statement).</p>
+
+<p>So there is an important caveat: <strong>in order to get the correct model <code>id</code>, you need to get it from database in the same transaction as the update/insert statement</strong>. The <code>mysql2</code> gem does support multiple query statements in a single transaction. But to perform such a query, you will need to set the <code>MULTI_STATEMENTS</code> flag when creating a <code>Mysql2::Connection</code> instance.</p>
+
+<pre><code class="language-ruby"><span class="token keyword">def</span> <span class="token method-definition"><span class="token function">save</span></span>
+  set_default_values
+
+  <span class="token keyword">return</span> <span class="token keyword">self</span> <span class="token keyword">unless</span> valid<span class="token operator">?</span>
+
+  <span class="token variable">@connection</span> <span class="token operator">=</span> Mysql2<span class="token double-colon punctuation">::</span><span class="token class-name">Client</span><span class="token punctuation">.</span><span class="token keyword">new</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token symbol">flags</span><span class="token operator">:</span> Mysql2<span class="token double-colon punctuation">::</span>Client<span class="token double-colon punctuation">::</span><span class="token constant">MULTI_STATEMENTS</span> <span class="token punctuation">}</span><span class="token punctuation">.</span>merge<span class="token punctuation">(</span><span class="token operator">...</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+  <span class="token comment"># ...</span>
+
+  <span class="token keyword">self</span>
+<span class="token keyword">rescue</span>
+  <span class="token keyword">self</span>
+<span class="token keyword">ensure</span>
+  <span class="token variable">@connection</span><span class="token punctuation">.</span>close
+<span class="token keyword">end</span>
+</code></pre>
+<p>Here I used the instance variable <code>@connection</code> to make it available within the <code>rescue</code> and <code>ensure</code> statements.</p>
+
+<p>Now we will use our instance variable, <code>@attributes</code> to create an SQL query:</p>
+
+<pre><code class="language-ruby"><span class="token keyword">def</span> <span class="token method-definition"><span class="token function">save</span></span>
+  set_default_values
+
+  <span class="token keyword">return</span> <span class="token keyword">self</span> <span class="token keyword">unless</span> valid<span class="token operator">?</span>
+
+  <span class="token variable">@connection</span> <span class="token operator">=</span> Mysql2<span class="token double-colon punctuation">::</span><span class="token class-name">Client</span><span class="token punctuation">.</span><span class="token keyword">new</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token symbol">flags</span><span class="token operator">:</span> Mysql2<span class="token double-colon punctuation">::</span>Client<span class="token double-colon punctuation">::</span><span class="token constant">MULTI_STATEMENTS</span> <span class="token punctuation">}</span><span class="token punctuation">.</span>merge<span class="token punctuation">(</span><span class="token operator">...</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> <span class="token variable">@attributes</span><span class="token punctuation">[</span><span class="token symbol">:id</span><span class="token punctuation">]</span><span class="token punctuation">.</span>blank<span class="token operator">?</span>
+    columns <span class="token operator">=</span> <span class="token variable">@attributes</span><span class="token punctuation">.</span>keys<span class="token punctuation">.</span>map <span class="token punctuation">{</span> <span class="token operator">|</span>k<span class="token operator">|</span> <span class="token string-literal"><span class="token string">"`</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> k<span class="token punctuation">.</span>to_s </span><span class="token delimiter punctuation">}</span></span><span class="token string">`"</span></span> <span class="token punctuation">}</span><span class="token punctuation">.</span>join <span class="token string-literal"><span class="token string">','</span></span>
+    values <span class="token operator">=</span> <span class="token variable">@attributes</span><span class="token punctuation">.</span>values<span class="token punctuation">.</span>map <span class="token keyword">do</span> <span class="token operator">|</span>v<span class="token operator">|</span>
+      <span class="token keyword">if</span> v<span class="token punctuation">.</span><span class="token keyword">nil</span><span class="token operator">?</span>
+        <span class="token string-literal"><span class="token string">'NULL'</span></span>
+      <span class="token keyword">else</span>
+        <span class="token string-literal"><span class="token string">"'</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> ActionController<span class="token double-colon punctuation">::</span>Base<span class="token punctuation">.</span>helpers<span class="token punctuation">.</span>sanitize<span class="token punctuation">(</span>v<span class="token punctuation">.</span>to_s<span class="token punctuation">)</span> </span><span class="token delimiter punctuation">}</span></span><span class="token string">'"</span></span>
+      <span class="token keyword">end</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>join <span class="token string-literal"><span class="token string">','</span></span>
+
+    query <span class="token operator">=</span> <span class="token string-literal"><span class="token string">"INSERT INTO postings</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> volume </span><span class="token delimiter punctuation">}</span></span><span class="token string"> (</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> columns </span><span class="token delimiter punctuation">}</span></span><span class="token string">) VALUES (</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> values </span><span class="token delimiter punctuation">}</span></span><span class="token string">)"</span></span>
+  <span class="token keyword">else</span>
+    mapping <span class="token operator">=</span> <span class="token variable">@attributes</span><span class="token punctuation">.</span>map <span class="token punctuation">{</span> <span class="token operator">|</span>k<span class="token punctuation">,</span> v<span class="token operator">|</span> <span class="token string-literal"><span class="token string">"`</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> k<span class="token punctuation">.</span>to_s </span><span class="token delimiter punctuation">}</span></span><span class="token string">` = #{ v.nil? ? 'NULL' : "'</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> ActionController<span class="token double-colon punctuation">::</span>Base<span class="token punctuation">.</span>helpers<span class="token punctuation">.</span>sanitize<span class="token punctuation">(</span>v<span class="token punctuation">)</span> </span><span class="token delimiter punctuation">}</span></span><span class="token string">'"</span></span> <span class="token punctuation">}</span>" <span class="token punctuation">}</span><span class="token punctuation">.</span>join <span class="token string-literal"><span class="token string">','</span></span>
+
+    query <span class="token operator">=</span> <span class="token string-literal"><span class="token string">"UPDATE postings</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> volume </span><span class="token delimiter punctuation">}</span></span><span class="token string"> SET </span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> mapping </span><span class="token delimiter punctuation">}</span></span><span class="token string"> WHERE id = </span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> <span class="token variable">@attributes</span><span class="token punctuation">[</span><span class="token symbol">:id</span><span class="token punctuation">]</span> </span><span class="token delimiter punctuation">}</span></span><span class="token string">"</span></span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">self</span>
+<span class="token keyword">rescue</span>
+  <span class="token keyword">self</span>
+<span class="token keyword">ensure</span>
+  <span class="token variable">@connection</span><span class="token punctuation">.</span>close
+<span class="token keyword">end</span>
+</code></pre>
+<p>I used the <code>ActionController::Base.helpers.sanitize</code> helper method to escape the query parameters.</p>
+
+<p>Now we should simply wrap our query into a transaction and get an <code>id</code> from the database.</p>
+
+<pre><code class="language-ruby"><span class="token keyword">def</span> <span class="token method-definition"><span class="token function">save</span></span>
+  set_default_values
+
+  <span class="token keyword">return</span> <span class="token keyword">self</span> <span class="token keyword">unless</span> valid<span class="token operator">?</span>
+
+  <span class="token variable">@connection</span> <span class="token operator">=</span> Mysql2<span class="token double-colon punctuation">::</span><span class="token class-name">Client</span><span class="token punctuation">.</span><span class="token keyword">new</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token symbol">flags</span><span class="token operator">:</span> Mysql2<span class="token double-colon punctuation">::</span>Client<span class="token double-colon punctuation">::</span><span class="token constant">MULTI_STATEMENTS</span> <span class="token punctuation">}</span><span class="token punctuation">.</span>merge<span class="token punctuation">(</span><span class="token operator">...</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+  <span class="token keyword">if</span> <span class="token variable">@attributes</span><span class="token punctuation">[</span><span class="token symbol">:id</span><span class="token punctuation">]</span><span class="token punctuation">.</span>blank<span class="token operator">?</span>
+    columns <span class="token operator">=</span> <span class="token variable">@attributes</span><span class="token punctuation">.</span>keys<span class="token punctuation">.</span>map <span class="token punctuation">{</span> <span class="token operator">|</span>k<span class="token operator">|</span> <span class="token string-literal"><span class="token string">"`</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> k<span class="token punctuation">.</span>to_s </span><span class="token delimiter punctuation">}</span></span><span class="token string">`"</span></span> <span class="token punctuation">}</span><span class="token punctuation">.</span>join <span class="token string-literal"><span class="token string">','</span></span>
+    values <span class="token operator">=</span> <span class="token variable">@attributes</span><span class="token punctuation">.</span>values<span class="token punctuation">.</span>map <span class="token keyword">do</span> <span class="token operator">|</span>v<span class="token operator">|</span>
+      <span class="token keyword">if</span> v<span class="token punctuation">.</span><span class="token keyword">nil</span><span class="token operator">?</span>
+        <span class="token string-literal"><span class="token string">'NULL'</span></span>
+      <span class="token keyword">else</span>
+        <span class="token string-literal"><span class="token string">"'</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> ActionController<span class="token double-colon punctuation">::</span>Base<span class="token punctuation">.</span>helpers<span class="token punctuation">.</span>sanitize<span class="token punctuation">(</span>v<span class="token punctuation">.</span>to_s<span class="token punctuation">)</span> </span><span class="token delimiter punctuation">}</span></span><span class="token string">'"</span></span>
+      <span class="token keyword">end</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>join <span class="token string-literal"><span class="token string">','</span></span>
+
+    query <span class="token operator">=</span> <span class="token string-literal"><span class="token string">"INSERT INTO postings</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> volume </span><span class="token delimiter punctuation">}</span></span><span class="token string"> (</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> columns </span><span class="token delimiter punctuation">}</span></span><span class="token string">) VALUES (</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> values </span><span class="token delimiter punctuation">}</span></span><span class="token string">)"</span></span>
+  <span class="token keyword">else</span>
+    mapping <span class="token operator">=</span> <span class="token variable">@attributes</span><span class="token punctuation">.</span>map <span class="token punctuation">{</span> <span class="token operator">|</span>k<span class="token punctuation">,</span> v<span class="token operator">|</span> <span class="token string-literal"><span class="token string">"`</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> k<span class="token punctuation">.</span>to_s </span><span class="token delimiter punctuation">}</span></span><span class="token string">` = #{ v.nil? ? 'NULL' : "'</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> ActionController<span class="token double-colon punctuation">::</span>Base<span class="token punctuation">.</span>helpers<span class="token punctuation">.</span>sanitize<span class="token punctuation">(</span>v<span class="token punctuation">)</span> </span><span class="token delimiter punctuation">}</span></span><span class="token string">'"</span></span> <span class="token punctuation">}</span>" <span class="token punctuation">}</span><span class="token punctuation">.</span>join <span class="token string-literal"><span class="token string">','</span></span>
+
+    query <span class="token operator">=</span> <span class="token string-literal"><span class="token string">"UPDATE postings</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> volume </span><span class="token delimiter punctuation">}</span></span><span class="token string"> SET </span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> mapping </span><span class="token delimiter punctuation">}</span></span><span class="token string"> WHERE id = </span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> <span class="token variable">@attributes</span><span class="token punctuation">[</span><span class="token symbol">:id</span><span class="token punctuation">]</span> </span><span class="token delimiter punctuation">}</span></span><span class="token string">"</span></span>
+  <span class="token keyword">end</span>
+
+  query <span class="token operator">=</span> <span class="token string-literal"><span class="token string">"START TRANSACTION; </span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content"> query </span><span class="token delimiter punctuation">}</span></span><span class="token string">; SELECT LAST_INSERT_ID() AS id; COMMIT;"</span></span>
+
+  <span class="token variable">@connection</span><span class="token punctuation">.</span>query<span class="token punctuation">(</span>query<span class="token punctuation">)</span>
+
+  <span class="token keyword">while</span> <span class="token variable">@connection</span><span class="token punctuation">.</span>next_result
+    result <span class="token operator">=</span> <span class="token variable">@connection</span><span class="token punctuation">.</span>store_result<span class="token punctuation">.</span>to_a <span class="token keyword">rescue</span> <span class="token keyword">nil</span>
+
+    <span class="token variable">@attributes</span><span class="token punctuation">[</span><span class="token symbol">:id</span><span class="token punctuation">]</span> <span class="token operator">=</span> result<span class="token punctuation">.</span>first<span class="token punctuation">[</span><span class="token string-literal"><span class="token string">'id'</span></span><span class="token punctuation">]</span> <span class="token keyword">if</span> result<span class="token punctuation">.</span>present<span class="token operator">?</span> <span class="token keyword">and</span> result<span class="token punctuation">.</span>first<span class="token punctuation">.</span>present<span class="token operator">?</span> <span class="token keyword">and</span> result<span class="token punctuation">.</span>first<span class="token punctuation">.</span>has_key<span class="token operator">?</span> <span class="token string-literal"><span class="token string">'id'</span></span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">self</span>
+<span class="token keyword">rescue</span>
+  <span class="token keyword">self</span>
+<span class="token keyword">ensure</span>
+  <span class="token variable">@connection</span><span class="token punctuation">.</span>close
+<span class="token keyword">end</span>
+</code></pre>
+<p>Quite big method, sure. Yet, it performs all the <em>UPDATEs</em> and <em>INSERTs</em> for us.</p>
+
+<p>Let&rsquo;s add some attribute with the default value, <code>created_at</code> and check how the whole class works:</p>
+
+<pre><code class="language-ruby"><span class="token keyword">require</span> <span class="token string-literal"><span class="token string">'date'</span></span>
+
+<span class="token comment"># ...</span>
+
+attr_accessor <span class="token symbol">:created_at</span>
+
+<span class="token comment"># ...</span>
+
+<span class="token keyword">protected</span>
+
+<span class="token keyword">def</span> <span class="token method-definition"><span class="token function">set_default_values</span></span>
+  <span class="token variable">@attributes</span><span class="token punctuation">[</span><span class="token symbol">:created_at</span><span class="token punctuation">]</span> <span class="token operator">=</span> DateTime<span class="token punctuation">.</span>now
+<span class="token keyword">end</span>
+</code></pre>
+<p>And the test:</p>
+
+<pre><code class="language-ruby">p <span class="token operator">=</span> <span class="token class-name">Posting</span><span class="token punctuation">.</span><span class="token keyword">new</span> title<span class="token operator">:</span> <span class="token string-literal"><span class="token string">"Hello, ActiveModel!"</span></span><span class="token punctuation">,</span> <span class="token symbol">body</span><span class="token operator">:</span> <span class="token string-literal"><span class="token string">"Hello, Database!"</span></span>
+
+p<span class="token punctuation">.</span>save
+
+puts p<span class="token punctuation">.</span>created_at
+</code></pre>
+</div>
+</article><article><h1><a href="/tumblr/2014-04-12-what-i-always-forget-about-when-having-an.md">What i always forget about when having an interview</a></h1>
+
+    <time>12 Apr 2014 at 16:52</time>
+
+    <div class="content"><h2>The Ruby interview</h2>
+
+<p>I am always being asked at least two questions. Just to verify that I know Ruby basics.</p>
+
+<ul><li><strong>What is the main difference between Module and Class?</strong></li>
+</ul><p>That is so simple and obvious! Yet it&rsquo;s too easy to forget&hellip; The answer is: <strong>you can not instantiate a Module</strong>. See, Modules in Ruby do not have constructors. Yeah, they may contain variables, but they do not have an <code>initialize</code> method.</p>
+
+<p>You could define one this way:</p>
+
+<pre><code class="language-ruby"><span class="token keyword">module</span> <span class="token class-name">Moo</span>
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">initialize</span></span><span class="token punctuation">(</span>x<span class="token punctuation">)</span>
+    <span class="token variable">@x</span> <span class="token operator">=</span> x
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+</code></pre>
+<p>But when you try to call <code>Moo.new</code> you will get a <code>method missing</code> error.  When you try to run <code>Moo.initialize</code> you will get a <code>private method called</code> error.</p>
+
+<p>So yes, there is no way to instantiate Modules.</p>
+
+<ul><li><strong>What&rsquo;s the difference between Proc, lambda and block?</strong></li>
+</ul><p>This is simple enough to remember as the answer contains only a few points:</p>
+
+<ol><li><code>Proc</code> is an object; <code>block</code> is not</li>
+<li><code>Proc</code> does not check the number of arguments; <code>lambda</code> does</li>
+<li><code>lambda</code> returns from itself; <code>Proc</code> returns from the outer (containing the <code>Proc</code> call) method</li>
+</ol><ul><li><strong>What is REST (application)?</strong></li>
+</ul><p>The answer on that question hardly depends on what the asking person means.</p>
+
+<p>So, I got two possible <em>correct answers</em>:</p>
+
+<p>a. That is the principle of web application development, when the application responds to a request, depending on which HTTP method was provided <em>(PUT, GET, POST, DELETE, OPTIONS)</em>.</p>
+
+<p>b. This is a way of encapsulation Resource and its Handlers. That is a bit hard to explain. Something like <em>&ldquo;you have to split your application to Resources&rdquo;</em>.</p>
+
+<ul><li><strong>Does Module is the ancestor of Class or does the Class is the child of Module?</strong></li>
+</ul><p>This question, actually, may be asked on <strong>Class</strong>, <strong>Module</strong> or <strong>Object</strong> classes. This question is interesting when you do not know the answer.</p>
+
+<p>The reality is plain however:</p>
+
+<pre><code class="language-ruby">irb<span class="token punctuation">(</span>main<span class="token punctuation">)</span><span class="token operator">:</span><span class="token number">005</span><span class="token operator">:</span><span class="token number">0</span><span class="token operator">></span> <span class="token builtin">Object</span><span class="token punctuation">.</span>superclass
+<span class="token operator">=></span> BasicObject
+irb<span class="token punctuation">(</span>main<span class="token punctuation">)</span><span class="token operator">:</span><span class="token number">006</span><span class="token operator">:</span><span class="token number">0</span><span class="token operator">></span> <span class="token builtin">Class</span><span class="token punctuation">.</span>superclass
+<span class="token operator">=></span> <span class="token builtin">Module</span>
+irb<span class="token punctuation">(</span>main<span class="token punctuation">)</span><span class="token operator">:</span><span class="token number">007</span><span class="token operator">:</span><span class="token number">0</span><span class="token operator">></span> <span class="token builtin">Module</span><span class="token punctuation">.</span>superclass
+<span class="token operator">=></span> <span class="token builtin">Object</span>
+irb<span class="token punctuation">(</span>main<span class="token punctuation">)</span><span class="token operator">:</span><span class="token number">008</span><span class="token operator">:</span><span class="token number">0</span><span class="token operator">></span> BasicObject<span class="token punctuation">.</span>superclass
+<span class="token operator">=></span> <span class="token keyword">nil</span>
+</code></pre>
+<p>So, you can even draw a chain:</p>
+
+<pre><code class="language-haskell"><span class="token constant">BasicObject</span> <span class="token operator">=></span> <span class="token constant">Object</span> <span class="token operator">=></span> <span class="token constant">Module</span> <span class="token operator">=></span> <span class="token constant">Class</span>
+</code></pre>
+<h2>Some hints</h2>
+
+<ul><li><p>Think oral. Show an interviewing person how your thought flow. That is the good practice. It shows that you <strong>can think</strong> not just <strong>remember</strong>. And you could get to some friendly talk when you say some magic <em>keyword</em> or tell something the interviewer is interested in.</p></li>
+<li><p>When I am asked of <strong>Rails best practices</strong>, or just creating my web application, I should never forget one core principle: web application controllers <em>(looking at Rails&rsquo; MVC)</em> should be <strong>thin</strong>. So, the most logic at <strong>Controller</strong>&rsquo;s action should get or set some data on <strong>Model</strong> and provide a response. Nothing more.</p></li>
+</ul>
+</div>
+</article><article><h1><a href="/tumblr/2014-04-03-understanding-the-beauty-of-jsf.html">Understanding the beauty of JSF</a></h1>
+
+    <time>03 Apr 2014 at 11:34</time>
+
+    <div class="content"><p>My web framework of choice is Ruby On Rails. It&rsquo;s perfect for me. Not because of its scalability or performance, but because of its architecture. You do not need to do lot of work to create a website or a webservice. Ruby Gems have all the power you will ever need. Ruby itself allows you to do even a black magic nicely.</p>
+
+<p>It&rsquo;s true to say that i am a RoR fan.</p>
+
+<p>So when i started learning JSF i thought <em>Gosh! It&rsquo;s ugly! It&rsquo;s totally impossible to work with!</em>. But in a while i realized that small yet mighty concept, i even did not imagine to be thinking of.</p>
+
+<p>See, when you write a website, you need two things to be done:</p>
+
+<ul><li><strong>give a user static content</strong>; user just should see something on a display!</li>
+<li><strong>take user data, process it and perform previous step</strong>; in order to make a dynamic website <em>(which is 90% of all the websites you&rsquo;ve seen, i guess)</em> you should use web forms and process them</li>
+</ul><p>The last thing i did not mention here (because i did not dive in it yet) is: <strong>just use that javascript</strong>. You would never provide user-friendly interface on the web until you get full control of what&rsquo;s going on client&rsquo; side. That&rsquo;s the purpose of JavaScript. Different hints and tips, asynchronous operations, messages and other cool stuff making your UI looking great is the JS part.</p>
+
+<p>But in other cases you use <strong>resources</strong>. That&rsquo;s the bundle of data, stored (maybe) in database and being controlled by user via the forms.</p>
+
+<p>Any form (yes, just <strong>any</strong>) could be described as relying on some resource. Login form? It uses <strong>User</strong> resource. Search form? It uses the <strong>SearchQuery</strong> resource. Post creation form? It serves <strong>Post</strong>!</p>
+
+<p>So, that powerful concept i was talking above is the principle <strong>a Managed Java Bean describes the Resource wired to the User Interface</strong>.</p>
+
+<p>See, when you show a form to a user - you get your database row maped onto a Java Bean. When user saves the form with the new data - that data gets stored in the same Bean and the method you&rsquo;ve set to <code>commandButton</code> or whatever is invoked.</p>
+
+<p>Just think of it! You are doing exactly the same with all those Rails, Play, Django or any other web framework, when you are creating a dynamic website!</p>
+</div>
+</article></main>
+
+    <footer class="svelte-1gr3n62"><nav class="bottom svelte-14ldwbd"><div class="prev svelte-14ldwbd"><a href="/page7.html" class="prev svelte-14ldwbd">← Previous page</a></div>
+
+    <div class="current svelte-14ldwbd">Page #8 of 9</div>
+
+    <div class="next svelte-14ldwbd"><a href="/page9.html" class="next svelte-14ldwbd">Next page →</a></div>
+</nav></footer>
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

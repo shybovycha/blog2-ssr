@@ -1,0 +1,356 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }
+nav.bottom.svelte-14ldwbd.svelte-14ldwbd{grid-area:1/2/2/3;display:inline-grid;grid-template:1fr / 1fr 1fr 1fr
+    }footer nav.svelte-14ldwbd div.svelte-14ldwbd{display:flex;align-items:center
+    }footer nav.svelte-14ldwbd .prev.svelte-14ldwbd{grid-area:1/1/2/2;justify-content:flex-start
+    }footer nav.svelte-14ldwbd .current.svelte-14ldwbd{grid-area:1/2/2/3;justify-content:center
+    }footer nav.svelte-14ldwbd .next.svelte-14ldwbd{grid-area:1/3/2/4;justify-content:flex-end
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1><a href="/irrlicht-newton-tutorials/2015-12-16-finishing-the-first-scene.md">Irrlicht Newton GD tutorial: finishing the first scene</a></h1>
+
+    <time>16 Dec 2015 at 08:00</time>
+
+    <div class="excerpt"><p>If you remember, we ended our coding excercises at place, where we almost created our first
+Newtonian body, but we did not actually have enough models.</p>
+<p>We discussed collision shapes a bit. So let’s create one for our brand new model!</p>
+<p>We have a nice ramp to work with. But how we can reconstruct the same shape in the
+terms of Newton? Newton offers a set of collision shapes for us:</p>
+<ul>
+<li><p>Sphere</p>
+  <LazyImg src="/images/irrlicht-newton-tutorials/collision_shapes/sphere.webp" alt="Sphere" class="img-responsive" />
+</li>
+<li><p>Box</p>
+  <LazyImg src="/images/irrlicht-newton-tutorials/collision_shapes/box.webp" alt="Box" class="img-responsive" />
+</li>
+<li><p>Cone</p>
+  <LazyImg src="/images/irrlicht-newton-tutorials/collision_shapes/cone.webp" alt="Cone" class="img-responsive" />
+</li>
+<li><p>Capsule</p>
+  <LazyImg src="/images/irrlicht-newton-tutorials/collision_shapes/capsule.webp" alt="Capsule" class="img-responsive" />
+</li>
+<li><p>Cylinder</p>
+  <LazyImg src="/images/irrlicht-newton-tutorials/collision_shapes/cylinder.webp" alt="Cylinder" class="img-responsive" />
+</li>
+<li><p>Chamfer Cylinder</p>
+  <LazyImg src="/images/irrlicht-newton-tutorials/collision_shapes/chamfer_cylinder.webp" alt="Chamfer Cylinder" class="img-responsive" />
+</li>
+<li><p>Convex Hull</p>
+  <LazyImg src="/images/irrlicht-newton-tutorials/collision_shapes/convex_hull.webp" alt="Convex Hull" class="img-responsive" />
+</li>
+<li><p>Trimesh</p>
+  <LazyImg src="/images/irrlicht-newton-tutorials/collision_shapes/trimesh.webp" alt="Trimesh" class="img-responsive" /></li>
+</ul>
+<p>Obviously, not sphere, cone, capsule, nor cylinder make sense for us.
+We could use box shape, but then we simply ignore our inner faces (inside walls):</p>
+<LazyImg src="/images/irrlicht-newton-tutorials/collision_shapes/ramp_box.webp" alt="Box collision shape for our ramp" class="img-responsive" />
+
+<p>A bit better, but still the same situation with convex hull shape:</p>
+<LazyImg src="/images/irrlicht-newton-tutorials/collision_shapes/ramp_convex.webp" alt="Convex hull collision shape for our ramp" class="img-responsive" />
+
+<p>Generally, the way we create our Newtonian body is:</p>
+<ol>
+<li>create collision shape</li>
+<li>create blank Newtonian body</li>
+<li>set body properties like collision shape, mass, inertia parameters, etc.</li>
+<li>store the pointer to the graphical entity for that body in the <code>userData</code> property</li>
+</ol>
+<p>And then Newton Game Dynamics will take your body into account when processing other objects
+in the <code>NewtonWorld</code>.</p>
+</div>
+
+        <a href="/irrlicht-newton-tutorials/2015-12-16-finishing-the-first-scene.md" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/irrlicht-newton-tutorials/2015-12-15-making-simple-level-with-blender.md">Irrlicht Newton GD tutorial: making simple level with Blender</a></h1>
+
+    <time>15 Dec 2015 at 17:06</time>
+
+    <div class="excerpt"><p>In this section we will have short but powerful introduction to Blender. We will cover
+just enough of model creation basics, you will need to create most of simple projects.</p>
+<p>No, we will not cover animation, shaders or modificators here, but just enough minimum
+to create this ramp floor for our tutorial:</p>
+<LazyImg src="/images/irrlicht-newton-tutorials/blender/ramp_render.webp" alt="The desired result" class="img-responsive" />
+
+<p>You will find lot of keyboard shortcuts here. And this is one of the most awesome
+features of Blender - you can work without menus or panels! Everything you need
+can be done with keyboard!</p>
+<p>So let’s dive in Blender now!</p>
+</div>
+
+        <a href="/irrlicht-newton-tutorials/2015-12-15-making-simple-level-with-blender.md" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2015/11/26/end-to-end-testing-with-webdriverio.html">End-to-end testing with WebdriverIO</a></h1>
+
+    <time>26 Nov 2015 at 16:03</time>
+
+    <div class="excerpt"><h2 id="small-intro">Small intro</h2>
+<p>Have you ever heard about end-to-end testing? Or maybe about testing automation?
+Those of you who had, may now be imaging Selenium. That’s right, in most of cases
+you will need to run <em>Selenium Server</em> and use <em>Selenium Webdriver</em> in your
+tests. Those come handy to run a standalone browser window, with no caches,
+filled-in fields or cookies and perform some operations in it.</p>
+<p>In this article I will tell you my story of writing E2E tests for Angular webapp.</p>
+<h2 id="a-brief-of-history">A brief of history</h2>
+<p>In my case, we first tried to use <em>Protractor</em> with <em>Chai.js</em>. That time we ended
+up with almost unsupportable bunch of code, succeeding in 100% of runs.</p>
+<p>Next time we eliminated <em>Chai</em> and reworked all our tests to use <em>Protractor</em> only.
+So the code became more clear <em>(I did not like the syntax, but it worked…)</em>,
+but after upgrading libraries <em>(including Protractor)</em>, the ratio of successfull
+test runs decreased to just 40%.</p>
+<p>We worked for two days, trying to fix those tests. And that’s how <em>webdriverio</em>
+came to our project.</p>
+<p>And here’s a short tutorial on how to implement E2E tests with <em>webdriverio</em> in
+a sample project.</p>
+</div>
+
+        <a href="/2015/11/26/end-to-end-testing-with-webdriverio.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2015/10/16/loooong-tasks-with-clojure.html">Loooong lists with Clojure</a></h1>
+
+    <time>16 Oct 2015 at 17:11</time>
+
+    <div class="excerpt"><h2 id="whaaaaat">Whaaaaat?</h2>
+<p>These days I was given a reeeeally interesting homework at the university. I was given a set of
+MD5 hashes, calculated from single words <em>(taken from Libre Office’ dictionaries)</em> with a given
+sault. And the task was to find all those words.</p>
+<p>So, the first idea which came to my mind was using an internet service for MD5 breaking. But…
+aaarrrggghhh! There’s a sault, so the webservice, looking for words over a dictionary fails to
+find mines…</p>
+<p>So the second idea was to take that dictionary from Libre Office and iterate through it. At the
+end, it worked =) And worked reeeally fast. But that is not an interesting part.</p>
+<p>I wandered if I could find those words in my dictionary, generated by my own code.</p>
+</div>
+
+        <a href="/2015/10/16/loooong-tasks-with-clojure.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2015/10/05/custom-logging-with-timbre.html">Custom logging with timbre</a></h1>
+
+    <time>05 Oct 2015 at 00:00</time>
+
+    <div class="excerpt"><h2 id="timbre">Timbre?</h2>
+<p>At my job we recently started researching logging tools to make our RESTful API, written in Clojure,
+writing logs in JSON format. We were using <strong>Log4j</strong> already, but decided to use another tool for
+this task, making it less painful. So we felt into <strong>timbre</strong>. Is seemed so easy to use, but it is
+really undocumented.</p>
+<p>According to timbre’s API, we needed to define our own <strong>appender</strong> for writing to a custom JSON file.
+And we found the <code>output-fn</code> option to configure this behaviour. But it is not documented at all,
+so we started looking for repositories, using timbre, examples and all the stuff. And finally,
+we ended up with our own solution.</p>
+<p>Underneath you will find description of our way to use timbre from scratch.</p>
+</div>
+
+        <a href="/2015/10/05/custom-logging-with-timbre.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2015/09/20/two-sides-of-web-application-part-1.html">Two sides of web application. Part 1: the tools</a></h1>
+
+    <time>20 Sep 2015 at 19:18</time>
+
+    <div class="excerpt"><LazyImg src="/images/two-sides-of-web-application/chocolate_tools.webp" />
+
+<h2 id="prologue">Prologue</h2>
+<p>How do we usually create a web application? We run a bootstrapping script, which provides us with a skeleton of our application and then we just extend it with the features we need.</p>
+<p>That’s exactly what we did at the last hackathon we were attending - we started with <code>rails new twf</code> and spent half of the day integrating our blank app with Angular, Paperclip, creating API methods and so on. But the effort we needed to accomplish our goal (quite a simple web app) was really huge.</p>
+<p>So I decided to find the best combination of backend and frontend technologies that would cause less pain.</p>
+<p>At the project I was recently introduced to, the line between frontend and backend is distinguished very clearly: we have an API, written in Clojure and thin frontend application, made with Angular that works on a generated set of static assets - HTMLs, CSS and JS files <em>(but under the hood we are using HAML and SCSS)</em>.</p>
+<p>The application I will be implementing throughout the whole article has the same architecture: it has RESTful API and MVVM on the frontend, made with Angular. I welcome you to the journey of research and new technologies!</p>
+</div>
+
+        <a href="/2015/09/20/two-sides-of-web-application-part-1.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2015/09/16/email-validation-regexp.html">Email validation regexp</a></h1>
+
+    <time>16 Sep 2015 at 00:00</time>
+
+    <div class="excerpt"><LazyImg src="/images/regex-compressed.webp" />
+
+<p>At my work we’ve lately been having a discussions on email validation. I recalled a post on <a href="http://habrahabr.ru/post/55820/">habrahabr</a>, showing different options, including <strong>effective</strong> and <strong>psycho</strong> solutions.</p>
+</div>
+
+        <a href="/2015/09/16/email-validation-regexp.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/irrlicht-newton-tutorials/2015-08-29-prepare-to-add-some-newtonianity.md">Irrlicht Newton GD tutorial: prepare to add some Newtonianity</a></h1>
+
+    <time>29 Aug 2015 at 17:06</time>
+
+    <div class="excerpt"><p>At this point we have an application with</p>
+<ul>
+<li><strong>1x Ninja</strong>, walking around</li>
+<li><strong>1x sphere</strong>, hanging in the center of the screen</li>
+<li><strong>1x cube</strong>, flying around the sphere</li>
+</ul>
+<p>That’s our “game”? Doubtely… So let’s make things move like in real world! Or just like that…</p>
+<h2 id="requirements">Requirements</h2>
+<p>First of all, <a href="https://github.com/MADEAPPS/newton-dynamics/archive/newton-3.13.zip"><strong>go and get</strong></a> the
+Newton GD files. And unpack it… right to the <code>source</code> directory of our project! That’s right!
+I’m not insane and I’m aware you are going to put <strong>a lot</strong> of files in your project. But have no
+fear - you may always add them to <code>.gitignore</code> and skip them from being tracked in your Git repo:</p>
+<pre><code>source/newton-dynamics-master/applications
+source/newton-dynamics-master/packages/projects
+source/newton-dynamics-master/packages/thirdParty
+source/newton-dynamics-master/coreLibrary_300/projects
+</code></pre>
+<p>You are using Git, right?.. Now, you place the Newton GD sources in your project directory and change
+your <code>CMakeLists.txt</code> file to look like this:</p>
+<pre><code class="language-cmake"><span class="token keyword">cmake_minimum_required</span><span class="token punctuation">(</span><span class="token property">VERSION</span> <span class="token number">3.1</span><span class="token punctuation">)</span>
+<span class="token keyword">project</span><span class="token punctuation">(</span>irrlicht_newton_game1<span class="token punctuation">)</span>
+
+<span class="token keyword">set</span><span class="token punctuation">(</span><span class="token variable">CMAKE_CXX_FLAGS</span> <span class="token string">"<span class="token interpolation"><span class="token punctuation">${</span><span class="token variable">CMAKE_CXX_FLAGS</span><span class="token punctuation">}</span></span> -std=c++11"</span><span class="token punctuation">)</span>
+
+<span class="token keyword">option</span><span class="token punctuation">(</span><span class="token string">"NEWTON_DEMOS_SANDBOX"</span> <span class="token string">"Build demos sandbox"</span> <span class="token boolean">OFF</span><span class="token punctuation">)</span>
+
+<span class="token keyword">set</span><span class="token punctuation">(</span>NEWTONGD_PATH source/newton-dynamics-master<span class="token punctuation">)</span>
+<span class="token keyword">set</span><span class="token punctuation">(</span>NEWTONGD_INCLUDE_DIRS
+        <span class="token punctuation">${</span>NEWTONGD_PATH<span class="token punctuation">}</span>/packages/dCustomJoints
+        <span class="token punctuation">${</span>NEWTONGD_PATH<span class="token punctuation">}</span>/packages/dContainers
+        <span class="token punctuation">${</span>NEWTONGD_PATH<span class="token punctuation">}</span>/packages/dMath
+        <span class="token punctuation">)</span>
+
+<span class="token keyword">set</span><span class="token punctuation">(</span>NEWTON_LIBRARIES Newton dMath<span class="token punctuation">)</span>
+
+<span class="token keyword">add_subdirectory</span><span class="token punctuation">(</span><span class="token punctuation">${</span>NEWTONGD_PATH<span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+<span class="token keyword">find_package</span><span class="token punctuation">(</span>X11<span class="token punctuation">)</span>
+<span class="token keyword">find_package</span><span class="token punctuation">(</span>OpenGL<span class="token punctuation">)</span>
+<span class="token keyword">find_package</span><span class="token punctuation">(</span>ZLIB<span class="token punctuation">)</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">NOT</span> IRRLICHT_LIBRARY_PATH<span class="token punctuation">)</span>
+    <span class="token keyword">find_library</span><span class="token punctuation">(</span>IRRLICHT_LIBRARY_PATH
+            NAMES Irrlicht
+            PATHS <span class="token punctuation">${</span>IRRLICHT_PATH<span class="token punctuation">}</span>/lib/
+            PATH_SUFFIXES Linux MacOSX Win32-gcc Win32-visualstudio Win64-visualstudio<span class="token punctuation">)</span>
+
+    <span class="token keyword">message</span><span class="token punctuation">(</span>STATUS <span class="token string">"Found Irrlicht: <span class="token interpolation"><span class="token punctuation">${</span><span class="token variable">IRRLICHT_LIBRARY_PATH</span><span class="token punctuation">}</span></span>"</span><span class="token punctuation">)</span>
+<span class="token keyword">endif</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token keyword">include_directories</span><span class="token punctuation">(</span><span class="token punctuation">${</span>IRRLICHT_PATH<span class="token punctuation">}</span>/include <span class="token punctuation">${</span>NEWTONGD_INCLUDE_DIRS<span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+<span class="token keyword">set</span><span class="token punctuation">(</span>SOURCE_FILES source/main.cpp<span class="token punctuation">)</span>
+<span class="token keyword">set</span><span class="token punctuation">(</span>EXECUTABLE_NAME irrlicht_newton_game1<span class="token punctuation">)</span>
+
+<span class="token keyword">add_executable</span><span class="token punctuation">(</span><span class="token punctuation">${</span>EXECUTABLE_NAME<span class="token punctuation">}</span> <span class="token punctuation">${</span>SOURCE_FILES<span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+<span class="token keyword">target_link_libraries</span><span class="token punctuation">(</span><span class="token punctuation">${</span>EXECUTABLE_NAME<span class="token punctuation">}</span>
+        <span class="token punctuation">${</span>NEWTON_LIBRARIES<span class="token punctuation">}</span>
+        <span class="token punctuation">${</span>IRRLICHT_LIBRARY_PATH<span class="token punctuation">}</span>
+        <span class="token punctuation">${</span>X11_LIBRARIES<span class="token punctuation">}</span>
+        <span class="token punctuation">${</span>OPENGL_LIBRARIES<span class="token punctuation">}</span>
+        <span class="token punctuation">${</span>ZLIB_LIBRARIES<span class="token punctuation">}</span>
+        <span class="token punctuation">${</span>X11_Xxf86vm_LIB<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<p>Try to compile your project - it should be just fine. And observe the power of CMake!</p>
+</div>
+
+        <a href="/irrlicht-newton-tutorials/2015-08-29-prepare-to-add-some-newtonianity.md" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/irrlicht-newton-tutorials/2015-08-28-first-script.md">Irrlicht Newton GD tutorial: first script</a></h1>
+
+    <time>28 Aug 2015 at 17:10</time>
+
+    <div class="excerpt"><p>As we discussed, we will describe the whole game in scripts, and the core functionality
+we will define in the core. In this chapter we will be adding <strong>Lua</strong> to our application.
+You do not need to download Lua itself - you’d better install it with your system’s
+package manager <em>(<code>yum</code> or <code>apt</code> or whatever your Linux uses, <code>brew</code> for OSX…)</em>.</p>
+<h2 id="dependencies">Dependencies</h2>
+<p>The only thing you need to download from Internet this time is Lua wrapper called
+<strong>luacppinterface</strong>.
+So <a href="https://github.com/davidsiaw/luacppinterface/archive/master.zip"><strong>go and get it</strong></a> from
+Github.</p>
+<p>And unpack it… right to the <code>source</code> directory of our project! That’s right! That’s
+really small library so it will not pollute your project with tons of files.</p>
+<p>Now, I mentioned dependency managers earlier. This is how <em>we</em> will handle them in our <em>C++</em>
+application - we will simply put the sources of all the libraries we depend on, with the
+versions we depend on, right in our project. Given that, you may put Irrlicht there as well -
+you are free to do anything with our project!</p>
+</div>
+
+        <a href="/irrlicht-newton-tutorials/2015-08-28-first-script.md" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/irrlicht-newton-tutorials/2015-08-27-first-application.md">Irrlicht Newton GD tutorial: first application</a></h1>
+
+    <time>27 Aug 2015 at 17:05</time>
+
+    <div class="excerpt"><h2 id="install-irrlicht">Install Irrlicht</h2>
+<p>First of all, you will definetely need the Irrlicht engine, so
+<a href="http://irrlicht.sourceforge.net/downloads/"><strong>go get it</strong></a>.</p>
+<p>Then you will need to compile it. Compilation process depends on the operating system you use,
+but it’s really similar on every one.</p>
+<h3 id="linux">Linux</h3>
+<p>Install these dependencies with your system’ package manager:
+<code>libenet-dev libxxf86vm-dev zlib-dev cmake</code>.</p>
+<p>Unzip Irrlicht, go to the directory you unpacked with the terminal and run the following:</p>
+<pre><code class="language-bash"><span class="token builtin class-name">cd</span> source/Irrlicht
+<span class="token function">make</span>
+</code></pre>
+<p>Belive it or not, but that’s all!</p>
+<h3 id="windows">Windows</h3>
+<p>Unzip Irrlicht, go to the directory you unpacked and open the VisualStudio project <em>(depending on
+VisualStudio version, you might want to open a bit different file)</em> in <code>source/Irrlicht</code>:</p>
+<pre><code>Irrlicht10.0.sln
+Irrlicht11.0.sln
+Irrlicht8.0.sln
+Irrlicht9.0.sln
+</code></pre>
+<p>Build it with VisualStudio - and you are done!</p>
+<h3 id="macos-x">MacOS X</h3>
+<p>The steps are a bit complicated. And they require you to install <strong>XCode</strong> and
+<strong>Command-Line Tools</strong> - those could be found either in  AppStore or on the Apple
+website.</p>
+<ul>
+<li><p>First of all, you need to install a bunch of dependencies <em>(I use <code>brew</code> for this purpose)</em>:</p>
+<pre><code class="language-bash">brew <span class="token function">install</span> tinyxml enet lua cmake
+</code></pre>
+</li>
+<li><p>Get a list of all compilers available for your OSX version:</p>
+<pre><code class="language-bash">xcodebuild -showBuildSettings <span class="token operator">|</span> <span class="token function">grep</span> DEFAULT_COMPILER
+</code></pre>
+<p>I got something like this:</p>
+<pre><code class="language-bash">$ xcodebuild -showBuildSettings <span class="token operator">|</span> <span class="token function">grep</span> DEFAULT_COMPILER
+  DEFAULT_COMPILER <span class="token operator">=</span> com.apple.compilers.llvm.clang.1_0
+</code></pre>
+</li>
+<li><p>Now the build process:</p>
+<pre><code class="language-bash"><span class="token builtin class-name">cd</span> source/Irrlicht/MacOSX
+xcodebuild -project MacOSX.xcodeproj <span class="token assign-left variable">GCC_VERSION</span><span class="token operator">=</span>com.apple.compilers.llvm.clang.1_0
+</code></pre>
+</li>
+<li><p>And the final step - copy the library to the <code>lib/MacOSX</code> directory:</p>
+<pre><code class="language-bash"><span class="token function">cp</span> build/Release/libIrrlicht.a <span class="token punctuation">..</span>/<span class="token punctuation">..</span>/<span class="token punctuation">..</span>/lib/MacOSX
+</code></pre>
+</li>
+</ul>
+<p>Phew! That’s a damn bunch of commands, don’t you think?</p>
+</div>
+
+        <a href="/irrlicht-newton-tutorials/2015-08-27-first-application.md" class="btn svelte-7idbpu">Read more</a>
+</article></main>
+
+    <footer class="svelte-1gr3n62"><nav class="bottom svelte-14ldwbd"><div class="prev svelte-14ldwbd"><a href="/page4.html" class="prev svelte-14ldwbd">← Previous page</a></div>
+
+    <div class="current svelte-14ldwbd">Page #5 of 9</div>
+
+    <div class="next svelte-14ldwbd"><a href="/page6.html" class="next svelte-14ldwbd">Next page →</a></div>
+</nav></footer>
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

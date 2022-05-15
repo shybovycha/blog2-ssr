@@ -1,0 +1,669 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }
+nav.bottom.svelte-14ldwbd.svelte-14ldwbd{grid-area:1/2/2/3;display:inline-grid;grid-template:1fr / 1fr 1fr 1fr
+    }footer nav.svelte-14ldwbd div.svelte-14ldwbd{display:flex;align-items:center
+    }footer nav.svelte-14ldwbd .prev.svelte-14ldwbd{grid-area:1/1/2/2;justify-content:flex-start
+    }footer nav.svelte-14ldwbd .current.svelte-14ldwbd{grid-area:1/2/2/3;justify-content:center
+    }footer nav.svelte-14ldwbd .next.svelte-14ldwbd{grid-area:1/3/2/4;justify-content:flex-end
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1><a href="/strongly-typed-front-end/2021-04-19-introduction.md">Strongly-typed front-end: introduction</a></h1>
+
+    <time>18 Apr 2021 at 23:36</time>
+
+    <div class="content"><p>In this little research project I describe my journey through a series of experiments trying out a number of technologies and clashing them against each other.</p>
+<p>I have always questioned the <em>real value</em> all those languages that compile to JS, especially TypeScript or Flow, give you.</p>
+<p>So I have asked Atlassian front-enders a question:</p>
+<blockquote>
+<p>I need your opinions for my research: what benefits does TypeScript (or Flow, depending on your camp) give you? why do you use it?</p>
+</blockquote>
+<p>The answers I have received varied but the common themes were:</p>
+<ul>
+<li>we like types! 😍</li>
+<li>less errors</li>
+<li>easier refactoring</li>
+<li>tools &amp; IDEs integration (mainly for code navigation and autocomplete)</li>
+<li>self-documented or more readable code</li>
+</ul>
+<p>The issues I see with TypeScript and Flow are bit closer to the real world:</p>
+<ul>
+<li>they catch way too few errors - unless your <strong>whole project</strong> (including 3rd party dependencies) is using the thing <strong>correctly</strong>, you will see the errors whenever you end up in the layer between native JS and typed code</li>
+<li>more often than not, error messages are either pointless or hard to read (see the examples below)</li>
+</ul>
+<p>I do acknowledge the earlier you catch an error, the cheaper the fix would be. You have to put some effort into writing the typed code, but if it only catches a fraction of errors and only at compile time, then why all the hassle?</p>
+<h2 id="benefits-of-typescript">“Benefits” of TypeScript</h2>
+<h3 id="pointless-errors">Pointless errors</h3>
+<p>The most issues I have seen so far happen in what is considered an stdlib:</p>
+<pre><code class="language-ts"><span class="token keyword">interface</span> <span class="token class-name">MyClass</span> <span class="token punctuation">{</span>
+  id<span class="token operator">:</span> <span class="token builtin">string</span><span class="token punctuation">;</span>
+  val<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> a<span class="token operator">:</span> MyClass<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span>
+  <span class="token punctuation">{</span> id <span class="token operator">:</span> <span class="token string">'moo'</span><span class="token punctuation">,</span> val<span class="token operator">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> 
+  <span class="token punctuation">{</span> id<span class="token operator">:</span> <span class="token string">'foo'</span><span class="token punctuation">,</span> val<span class="token operator">:</span> <span class="token operator">-</span><span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> id<span class="token operator">:</span> <span class="token string">'bar'</span><span class="token punctuation">,</span> val<span class="token operator">:</span> <span class="token number">3.14</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> counts <span class="token operator">=</span> a<span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span><span class="token punctuation">(</span>acc<span class="token punctuation">,</span> e<span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>acc<span class="token punctuation">.</span><span class="token function">has</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    acc<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">,</span> acc<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">)</span> <span class="token operator">+</span> e<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+    acc<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">,</span> e<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  
+  <span class="token keyword">return</span> acc<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Map<span class="token operator">&lt;</span><span class="token builtin">string</span><span class="token punctuation">,</span> <span class="token builtin">number</span><span class="token operator">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Here we are reducing a list of objects. TS is freaking out every time you are using <code>Map</code> (however, it is a natively supported type, IIRC) - calling <code>map.get()</code> will always produce <code>T | undefined</code> type, unless you explicitly tell TS the type is <code>T</code> by using the <code>as</code> operator:</p>
+<pre><code class="language-ts">acc<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">,</span> acc<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">)</span> <span class="token operator">+</span> e<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// ERROR: Object is possibly 'undefined'.</span>
+</code></pre>
+<p>Adding an explicit check does not have any effect:</p>
+<pre><code class="language-ts"><span class="token keyword">if</span> <span class="token punctuation">(</span>acc<span class="token punctuation">.</span><span class="token function">has</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> acc<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">)</span> <span class="token operator">!==</span> <span class="token keyword">undefined</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  acc<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">,</span> acc<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">)</span> <span class="token operator">+</span> e<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// TS does not give a damn: Object is possibly 'undefined'.</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>whereas</p>
+<pre><code class="language-ts">acc<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">,</span> acc<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">)</span> <span class="token keyword">as</span> <span class="token builtin">number</span> <span class="token operator">+</span> e<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// OK</span>
+</code></pre>
+<p>But the issue is: if you do not add the check, the value in fact might be <code>undefined</code>.</p>
+<p>Flow has flaws here too:</p>
+<pre><code class="language-js"><span class="token comment">/* @flow */</span>
+
+<span class="token keyword">interface</span> <span class="token class-name">MyClass</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">id</span><span class="token operator">:</span> string<span class="token punctuation">;</span>
+  <span class="token literal-property property">val</span><span class="token operator">:</span> number<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token literal-property property">a</span><span class="token operator">:</span> MyClass<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span>
+  <span class="token punctuation">{</span> <span class="token literal-property property">id</span> <span class="token operator">:</span> <span class="token string">'moo'</span><span class="token punctuation">,</span> <span class="token literal-property property">val</span><span class="token operator">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> 
+  <span class="token punctuation">{</span> <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token string">'foo'</span><span class="token punctuation">,</span> <span class="token literal-property property">val</span><span class="token operator">:</span> <span class="token operator">-</span><span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token string">'bar'</span><span class="token punctuation">,</span> <span class="token literal-property property">val</span><span class="token operator">:</span> <span class="token number">3.14</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> counts <span class="token operator">=</span> a<span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">acc<span class="token punctuation">,</span> e</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>acc<span class="token punctuation">.</span><span class="token function">has</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> acc<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">)</span> <span class="token operator">!==</span> <span class="token keyword">undefined</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token comment">// ERROR: Cannot perform arithmetic operation because undefined [1] is not a number. [unsafe-addition]</span>
+    acc<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">,</span> acc<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">)</span> <span class="token operator">+</span> e<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+    acc<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">,</span> e<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  
+  <span class="token keyword">return</span> acc<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Map</span><span class="token operator">&lt;</span>string<span class="token punctuation">,</span> number<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>But it provides a bit more context about the issue:</p>
+<pre><code>    16:     acc.set(e.id, acc.get(e.id) + e.val);
+                          ^ Cannot perform arithmetic operation because undefined [1] is not a number. [unsafe-addition]
+        References:
+        [LIB] ..//static/v0.135.0/flowlib/core.js:617:     get(key: K): V | void;
+                                                                            ^ [1]
+</code></pre>
+<p>Both Flow and TS work fine if you extract the <code>.get</code> call result to a variable and add a check for <code>undefined</code>:</p>
+<pre><code class="language-ts"><span class="token keyword">interface</span> <span class="token class-name">MyClass</span> <span class="token punctuation">{</span>
+    id<span class="token operator">:</span> <span class="token builtin">string</span><span class="token punctuation">;</span>
+    val<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> a<span class="token operator">:</span> MyClass<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span> id <span class="token operator">:</span> <span class="token string">'moo'</span><span class="token punctuation">,</span> val<span class="token operator">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> 
+    <span class="token punctuation">{</span> id<span class="token operator">:</span> <span class="token string">'foo'</span><span class="token punctuation">,</span> val<span class="token operator">:</span> <span class="token operator">-</span><span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span> id<span class="token operator">:</span> <span class="token string">'bar'</span><span class="token punctuation">,</span> val<span class="token operator">:</span> <span class="token number">3.14</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> counts <span class="token operator">=</span> a<span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span><span class="token punctuation">(</span>acc<span class="token punctuation">,</span> e<span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> prevVal <span class="token operator">=</span> acc<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>prevVal <span class="token operator">!==</span> <span class="token keyword">undefined</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        acc<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">,</span> prevVal <span class="token operator">+</span> e<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        acc<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>id<span class="token punctuation">,</span> e<span class="token punctuation">.</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> acc<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Map<span class="token operator">&lt;</span><span class="token builtin">string</span><span class="token punctuation">,</span> <span class="token builtin">number</span><span class="token operator">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="implementation-specific-errors">Implementation-specific errors</h3>
+<p>In order to <em>understand</em> this error message, you have to know how enums are implemented in TypeScript:</p>
+<pre><code class="language-ts"><span class="token keyword">enum</span> Figure <span class="token punctuation">{</span>
+  <span class="token constant">RECTANGLE</span><span class="token punctuation">,</span>
+  <span class="token constant">SQUARE</span><span class="token punctuation">,</span>
+  <span class="token constant">CIRCLE</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> area<span class="token operator">:</span> Record<span class="token operator">&lt;</span>Figure<span class="token punctuation">,</span> <span class="token builtin">Function</span><span class="token operator">></span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">[</span>Figure<span class="token punctuation">.</span><span class="token constant">RECTANGLE</span><span class="token punctuation">]</span><span class="token operator">:</span> <span class="token punctuation">(</span>w<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">,</span> h<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">)</span> <span class="token operator">=></span> w <span class="token operator">*</span> h<span class="token punctuation">,</span>
+  <span class="token punctuation">[</span>Figure<span class="token punctuation">.</span><span class="token constant">CIRCLE</span><span class="token punctuation">]</span><span class="token operator">:</span> <span class="token punctuation">(</span>r<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">)</span> <span class="token operator">=></span> Math<span class="token punctuation">.</span><span class="token constant">PI</span> <span class="token operator">*</span> r <span class="token operator">*</span> r<span class="token punctuation">,</span>
+  <span class="token comment">// ERROR: Property '1' is missing in type '{ 0: (w: number, h: number) => number; 2: (r: number) => number; }' but required in type 'Record&lt;Figure, Function>'.</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>area<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Enums in TS are backed by numbers, <em>by default</em>. In order for that error above to make sense, you have to provide some sort of a reasonable (<code>.toString()</code>-backed) value for enum values:</p>
+<pre><code class="language-ts"><span class="token keyword">enum</span> Figure <span class="token punctuation">{</span>
+  <span class="token constant">RECTANGLE</span> <span class="token operator">=</span> <span class="token string">'RECTANGLE'</span><span class="token punctuation">,</span>
+  <span class="token constant">SQUARE</span> <span class="token operator">=</span> <span class="token string">'SQUARE'</span><span class="token punctuation">,</span>
+  <span class="token constant">CIRCLE</span> <span class="token operator">=</span> <span class="token string">'CIRCLE'</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> area<span class="token operator">:</span> Record<span class="token operator">&lt;</span>Figure<span class="token punctuation">,</span> <span class="token builtin">Function</span><span class="token operator">></span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">[</span>Figure<span class="token punctuation">.</span><span class="token constant">RECTANGLE</span><span class="token punctuation">]</span><span class="token operator">:</span> <span class="token punctuation">(</span>w<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">,</span> h<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">)</span> <span class="token operator">=></span> w <span class="token operator">*</span> h<span class="token punctuation">,</span>
+  <span class="token punctuation">[</span>Figure<span class="token punctuation">.</span><span class="token constant">CIRCLE</span><span class="token punctuation">]</span><span class="token operator">:</span> <span class="token punctuation">(</span>r<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">)</span> <span class="token operator">=></span> Math<span class="token punctuation">.</span><span class="token constant">PI</span> <span class="token operator">*</span> r <span class="token operator">*</span> r<span class="token punctuation">,</span>
+  <span class="token comment">// ERROR: Property 'SQUARE' is missing in type '{ RECTANGLE: (w: number, h: number) => number; CIRCLE: (r: number) => number; }' but required in type 'Record&lt;Figure, Function>'.</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>area<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="runtime-is-imperfect">Runtime is imperfect</h3>
+<p>You might have typed every single bit of your project and all the 3rd party dependencies. And you did it right. This still does not guarantee you won’t have <code>Can not read property XXX of undefined or XXX is not a function</code> at run time.</p>
+<p>Type system won’t really save you, if you only have covered some of the use cases, but the user ended up in uncovered one:</p>
+<pre><code class="language-ts"><span class="token keyword">import</span> React<span class="token punctuation">,</span> <span class="token punctuation">{</span> useState<span class="token punctuation">,</span> useCallback <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'react'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">enum</span> Shape <span class="token punctuation">{</span>
+  <span class="token constant">SQUARE</span> <span class="token operator">=</span> <span class="token string">'SQUARE'</span><span class="token punctuation">,</span>
+  <span class="token constant">CIRCLE</span> <span class="token operator">=</span> <span class="token string">'CIRCLE'</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token constant">AREA</span><span class="token operator">:</span> Record<span class="token operator">&lt;</span>Shape<span class="token punctuation">,</span> <span class="token builtin">Function</span><span class="token operator">></span> <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">[</span>Shape<span class="token punctuation">.</span><span class="token constant">SQUARE</span><span class="token punctuation">]</span><span class="token operator">:</span> <span class="token punctuation">(</span>side<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">)</span> <span class="token operator">=></span> side <span class="token operator">*</span> side<span class="token punctuation">,</span>
+  <span class="token punctuation">[</span>Shape<span class="token punctuation">.</span><span class="token constant">CIRCLE</span><span class="token punctuation">]</span><span class="token operator">:</span> <span class="token punctuation">(</span>r<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">)</span> <span class="token operator">=></span> Math<span class="token punctuation">.</span><span class="token constant">PI</span> <span class="token operator">*</span> r <span class="token operator">*</span> r<span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>shape<span class="token punctuation">,</span> setShape<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token generic-function"><span class="token function">useState</span><span class="token generic class-name"><span class="token operator">&lt;</span>Shape<span class="token operator">></span></span></span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>value<span class="token punctuation">,</span> setValue<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token generic-function"><span class="token function">useState</span><span class="token generic class-name"><span class="token operator">&lt;</span><span class="token builtin">number</span><span class="token operator">></span></span></span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> <span class="token punctuation">[</span>area<span class="token punctuation">,</span> setArea<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token generic-function"><span class="token function">useState</span><span class="token generic class-name"><span class="token operator">&lt;</span><span class="token builtin">number</span><span class="token operator">></span></span></span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> onShapeChanged <span class="token operator">=</span> <span class="token function">useCallback</span><span class="token punctuation">(</span><span class="token punctuation">(</span>e<span class="token operator">:</span> React<span class="token punctuation">.</span>ChangeEvent<span class="token operator">&lt;</span>HTMLSelectElement<span class="token operator">></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token function">setShape</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> onValueChanged <span class="token operator">=</span> <span class="token function">useCallback</span><span class="token punctuation">(</span><span class="token punctuation">(</span>e<span class="token operator">:</span> React<span class="token punctuation">.</span>ChangeEvent<span class="token operator">&lt;</span>HTMLInputElement<span class="token operator">></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token function">setValue</span><span class="token punctuation">(</span><span class="token function">parseFloat</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> onSubmit <span class="token operator">=</span> <span class="token function">useCallback</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token function">setArea</span><span class="token punctuation">(</span><span class="token constant">AREA</span><span class="token punctuation">[</span>shape<span class="token punctuation">]</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>shape<span class="token punctuation">,</span> value<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token operator">&lt;</span>div<span class="token operator">></span>
+      <span class="token operator">&lt;</span>select onChange<span class="token operator">=</span><span class="token punctuation">{</span>onShapeChanged<span class="token punctuation">}</span><span class="token operator">></span>
+        <span class="token operator">&lt;</span>option value<span class="token operator">=</span><span class="token string">""</span><span class="token operator">></span>Choose shape<span class="token operator">&lt;</span><span class="token operator">/</span>option<span class="token operator">></span>
+
+        <span class="token punctuation">{</span>Object<span class="token punctuation">.</span><span class="token function">keys</span><span class="token punctuation">(</span><span class="token constant">AREA</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>shape <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token operator">&lt;</span>option value<span class="token operator">=</span><span class="token punctuation">{</span>shape<span class="token punctuation">}</span><span class="token operator">></span><span class="token punctuation">{</span>shape<span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span>option<span class="token operator">></span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+      <span class="token operator">&lt;</span><span class="token operator">/</span>select<span class="token operator">></span>
+
+      <span class="token operator">&lt;</span>input value<span class="token operator">=</span><span class="token punctuation">{</span>value<span class="token punctuation">}</span> onChange<span class="token operator">=</span><span class="token punctuation">{</span>onValueChanged<span class="token punctuation">}</span> <span class="token operator">/</span><span class="token operator">></span>
+
+      <span class="token operator">&lt;</span>button onClick<span class="token operator">=</span><span class="token punctuation">{</span>onSubmit<span class="token punctuation">}</span><span class="token operator">></span>Calculate area<span class="token operator">&lt;</span><span class="token operator">/</span>button<span class="token operator">></span>
+
+      <span class="token operator">&lt;</span>div<span class="token operator">></span>
+        Area<span class="token operator">:</span> <span class="token punctuation">{</span>area<span class="token punctuation">}</span>
+      <span class="token operator">&lt;</span><span class="token operator">/</span>div<span class="token operator">></span>
+    <span class="token operator">&lt;</span><span class="token operator">/</span>div<span class="token operator">></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<p>This is a quite simple application (<a href="https://codesandbox.io/s/happy-sutherland-1qtwb">sandbox</a>), built on top of the previous example with enums and records in TypeScript.</p>
+<p>There are at least two uncovered scenarios in this application, resulting in errors:</p>
+<ol>
+<li>when user does not select a shape and clicks “calculate”, the <code>TypeError: AREA[shape] is not a function</code> will be thrown</li>
+<li>when user types anything but number in the input, the value immediately becomes <code>NaN</code>; if user then clicks “calculate”, an error won’t be thrown (since the app does not use the calculation result in any way), but the area calculated will also be <code>NaN</code>; for this example this is fine, but imagine using the value further down the line in some financial calculations</li>
+</ol>
+<p>This is a trivial synthetic example and the errors might be easy to spot and fix, but the important question is: <em>did TypeScript help you find those errors?</em></p>
+<p>If you set up TSLint, you might have <em>some</em> errors caught:</p>
+<pre><code>Argument of type &#39;null&#39; is not assignable to parameter of type &#39;Shape | (() =&gt; Shape)&#39;.ts(2345)
+Argument of type &#39;string&#39; is not assignable to parameter of type &#39;SetStateAction&lt;Shape&gt;&#39;.ts(2345)
+Type &#39;null&#39; cannot be used as an index type.ts(2538)
+</code></pre>
+<p>Unless you do the right thing, you <em>might</em> end up fixing those scenarios. But instead, I often see solutions like these (<a href="https://codesandbox.io/s/winter-river-dvzwd">sandbox</a>):</p>
+<pre><code class="language-ts"><span class="token keyword">const</span> <span class="token punctuation">[</span>shape<span class="token punctuation">,</span> setShape<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token generic-function"><span class="token function">useState</span><span class="token generic class-name"><span class="token operator">&lt;</span>Shape <span class="token operator">|</span> <span class="token keyword">null</span><span class="token operator">></span></span></span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// ...</span>
+
+<span class="token function">setShape</span><span class="token punctuation">(</span>e<span class="token punctuation">.</span>target<span class="token punctuation">.</span>value <span class="token keyword">as</span> Shape<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// ...</span>
+
+<span class="token function">setArea</span><span class="token punctuation">(</span>shape <span class="token operator">?</span> <span class="token constant">AREA</span><span class="token punctuation">[</span>shape<span class="token punctuation">]</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Those solutions do solve a subset of errors, at a cost of readability and potential other errors.</p>
+<h3 id="there-are-no-classes-in-javascript">There are no classes in JavaScript</h3>
+<p>Found this one recently, apparently TypeScript classes are same as JavaScript (ES6) classes:</p>
+<pre><code class="language-ts"><span class="token keyword">namespace</span> TypeScriptIsGarbage <span class="token punctuation">{</span>
+  <span class="token keyword">export</span> <span class="token keyword">class</span> <span class="token class-name"><span class="token constant">A</span></span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">export</span> <span class="token keyword">class</span> <span class="token class-name"><span class="token constant">B</span></span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">export</span> <span class="token keyword">const</span> a <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token constant">A</span> <span class="token operator">=></span> <span class="token keyword">new</span> <span class="token class-name"><span class="token constant">B</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// perfectly fine</span>
+
+  <span class="token keyword">export</span> <span class="token keyword">const</span> b <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token constant">B</span> <span class="token operator">=></span> <span class="token keyword">new</span> <span class="token class-name"><span class="token constant">A</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// perfectly fine</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">namespace</span> TypeScriptIsJavaScript <span class="token punctuation">{</span>
+  <span class="token keyword">export</span> <span class="token keyword">enum</span> Types <span class="token punctuation">{</span>
+    <span class="token constant">A</span><span class="token punctuation">,</span>
+    <span class="token constant">B</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">export</span> <span class="token keyword">type</span> <span class="token class-name"><span class="token constant">A</span></span> <span class="token operator">=</span> <span class="token punctuation">{</span> type<span class="token operator">:</span> Types<span class="token punctuation">.</span><span class="token constant">A</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">export</span> <span class="token keyword">type</span> <span class="token class-name"><span class="token constant">B</span></span> <span class="token operator">=</span> <span class="token punctuation">{</span> type<span class="token operator">:</span> Types<span class="token punctuation">.</span><span class="token constant">B</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">export</span> <span class="token keyword">const</span> a <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token constant">A</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span> type<span class="token operator">:</span> Types<span class="token punctuation">.</span><span class="token constant">B</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Type 'Types.B' is not assignable to type 'Types.A'.</span>
+
+  <span class="token keyword">export</span> <span class="token keyword">const</span> b <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token constant">B</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span> type<span class="token operator">:</span> Types<span class="token punctuation">.</span><span class="token constant">A</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Type 'Types.A' is not assignable to type 'Types.B'.</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>This one is actually quite serious, if your application relies on type safety and objective-oriented-design.</p>
+<p>Try doing it in C# (which TS tries to inherit from, iirc) and yo’ll get sane compile-time errors:</p>
+<pre><code class="language-csharp"><span class="token keyword">using</span> <span class="token namespace">System</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">A</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">B</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Main</span> <span class="token punctuation">{</span>
+  <span class="token return-type class-name">A</span> <span class="token function">createA</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">B</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Cannot implicitly convert type `B` to `A`</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token return-type class-name">B</span> <span class="token function">createB</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">A</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Cannot implicitly convert type `A` to `B`</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token return-type class-name"><span class="token keyword">void</span></span> <span class="token function">Main</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span><span class="token punctuation">[</span><span class="token punctuation">]</span></span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="ide-integration-is-awesome">IDE integration is awesome</h3>
+<p>Recently I had to use both Cypress and Jest in a project of mine. Cypress was used for E2E tests and Jest was used for unit-tests. And they both provide some sort of assertion framework (think all those <code>expect()</code> calls).</p>
+<p>And apparently their definitions are different and are clashing, since my VSCode looks like this:</p>
+<LazyImg src="/images/strongly-typed-front-end/ts-vscode-integration-1.png" alt="TS definitions errors in VSCode" />
+
+<LazyImg src="/images/strongly-typed-front-end/ts-vscode-integration-2.png" alt="TS definitions errors in VSCode" />
+
+<p>Apparently, I needed two separate <code>tsconfig.json</code> files, for each specific set of tests to even compile the thing. Which is still not recognized by VSCode.</p>
+<h3 id="errors-can-be-found-and-eliminated-early">Errors can be found and eliminated early</h3>
+<p>The helpfulness of the error messages by TS compiler is far from perfect. And same holds for TSLint.</p>
+<p>And in some cases (as with type checks), they are even completely missing, so good luck finding out why the application does not work.</p>
+<p>It is possible to add a bunch of <code>debugger</code> statements, breakpoints and <code>console.log()</code>s to the code. But what is the benefit of that complex setup and extra overhead of typing every single line then?</p>
+</div>
+</article><article><h1><a href="/2021/03/25/rogue-bomber.html">Rogue bomber</a></h1>
+
+    <time>25 Mar 2021 at 09:26</time>
+
+    <div class="content"><p>This is a yet another show-off blog.</p>
+<LazyImg src="/images/rogue_bomber/screenshot.webp" />
+
+<p>Yet another one-day-build, made specifically for not-so-exciting ShipIt-51 hackathon we are having at work right now.</p>
+<p>This is a terrible code written in JS in matter of some 8 hrs.</p>
+<p>Click the button below to start playing.</p>
+<div id="rogue-bomber-placeholder"></div>
+
+<p><button id="start-rogue-bomber" class="btn btn-md btn-primary read-more">Play!</button></p>
+<!-- TBD --></div>
+</article><article><h1><a href="/2021/03/04/gantt-chart-part3.html">Gantt chart. Part 3</a></h1>
+
+    <time>04 Mar 2021 at 08:46</time>
+
+    <div class="excerpt"><p>I have been writing about and improving on <a href="https://github.com/shybovycha/gantt-chart/">my Gantt chart implementation</a> for quite some time now.</p>
+<p>It all started with this (<a href="2017-04-09-gantt-chart-with-d3">blog</a>):</p>
+<LazyImg src="/images/gantt_chart_part3/gantt-chart-v1.webp" alt="First revision of Gantt chart" />
+
+<p>Then I added few features (<a href="2020-08-02-gantt-chart-part2">blog</a>):</p>
+<LazyImg src="/images/gantt_chart_part3/gantt-chart-v2.webp" alt="Second revision of Gantt chart" />
+
+<p>Back then I have promised to re-write the implementation in Canvas. And so I did.</p>
+<p>Curious fact: I did not plan on doing this at this time - it was a private email from <em>darekeapp12</em> who wrote this:</p>
+<blockquote>
+I have looked at your blog for Gantt chart and implementation. I am doing a project using React and Node/Express and need to implement Gantt chart that is also draggable i.e. the bars can be moved and also resized from either end. I have researched heavily but could not find anything. I am thinking if there is no library, something could be built from scratch.
+</blockquote>
+
+<p>The sender seemed dodgy (<em>DAREKE app</em>) so I did not want to reply to avoid unnecessary spam subscriptions, but I was happy to improve my old project.</p>
+<p>Here are few new features and improvements added to the chart:</p>
+<ul>
+<li>scrolling and zooming in &amp; out is now a thing</li>
+<li>you can drag the milestones around and stretch &amp; shrink them</li>
+<li>an event will be fired whenever a milestone is changed (moved / stretched / shrinked)</li>
+<li>dependencies are now typed: start-to-start, end-to-end or end-to-start are the only supported types</li>
+</ul>
+<p>Here, you can even play around with it now!</p>
+<LazyImg src="/images/gantt_chart_part3/screenshot.webp" id="gantt-chart-screenshot" />
+
+<div class="chart-container" style="display:none;">
+  <div class="controls">
+    <button id="zoom-out">-</button>
+    <button id="zoom-in">+</button>
+  </div>
+
+  <div id="gantt-chart"></div>
+</div>
+
+<!-- TBD -->
+
+<p>More about the implementation specifics under the cut.</p>
+</div>
+
+        <a href="/2021/03/04/gantt-chart-part3.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2020/11/13/shootthem-revival.html">ShootThem! revival</a></h1>
+
+    <time>13 Nov 2020 at 02:46</time>
+
+    <div class="excerpt"><p>Quite some time ago I <a href="tumblr/2015-04-06-shootthem">dag out</a> the sources of an old game of mine, ShootThem! made back when I was at high-school, around 2006.</p>
+<p>It has been over a decade ever since I made that game and I had enough inspiration to revisit the code once again.</p>
+<p>This is a short update blog about what it used to be and what it became as of now.</p>
+<div><LazyImg src="/images/shootthem-revival/ShootThem 15_09_2020 8_19_43 AM.webp" /></div>
+<div><LazyImg src="/images/shootthem-revival/ShootThem 26_09_2020 8_19_43 PM.webp" /></div>
+<div><LazyImg src="/images/shootthem-revival/square1_render2.webp" /></div>
+
+</div>
+
+        <a href="/2020/11/13/shootthem-revival.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2020/11/07/erlang-example-2.html">Erlang example 2.0</a></h1>
+
+    <time>07 Nov 2020 at 02:42</time>
+
+    <div class="excerpt"><p>Quite some time ago I’ve published a <a href="tumblr/2015-01-28-erlang-practice">blogpost about Erlang</a>. It claimed to present a <em>short intro to distributed programming in Erlang</em>. But it turned to be a very simple communication application, nothing super-exciting.</p>
+<p>In this post I would like to elaborate more on the topic of Erlang, for a number of reasons:</p>
+<ul>
+<li>it is a pretty simple language itself</li>
+<li>the distributed systems topic gets more and more of my attention these days</li>
+<li>when I was looking at Erlang, I would love to see a more advanced tutorial myself <em>(more practical things and more Erlang platform features showcased)</em></li>
+</ul>
+</div>
+
+        <a href="/2020/11/07/erlang-example-2.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2020/08/04/vim-keystrokes-cheatsheet.html">Vim keystrokes cheatsheet</a></h1>
+
+    <time>04 Aug 2020 at 01:04</time>
+
+    <div class="content"><p>The time has come for me to list few of the commands and keystrokes that I use (and the ones that I don’t but would like to start) in Vim.</p>
+<p>I am actually running a Vim plugin for Visual Studio Code (this and the previous blogs are actually written with this plugin ON) at this very moment.</p>
+<p>Bear 🐻 in mind: this blog is aboout <em>keystrokes</em> only, it is not about plugins or configuration I use - I shall cover that one day.</p>
+<h2 id="things-i-know-by-heart">Things I know by heart</h2>
+<ul>
+<li><kbd>h</kbd>, <kbd>j</kbd>, <kbd>k</kbd>, <kbd>l</kbd> for slow but precise character-wise movement</li>
+<li><kbd>w</kbd>, <kbd>b</kbd> for faster forward (and, correspondingly) backward word-by-word movement</li>
+<li><kbd>$</kbd> and <kbd>^</kbd> to go to the last and first word character of the line</li>
+<li><kbd>gg</kbd> and <kbd>G</kbd> to go to the beginning and the end of the file</li>
+<li><kbd>O</kbd> (capital <code>o</code>) to create a blank line and go to INSERT mode above and below (lower-case <code>o</code>) the cursor</li>
+<li><kbd>f</kbd>, <kbd>F</kbd> and <kbd>t</kbd> and <kbd>T</kbd> for single character lookup within the current line</li>
+<li><kbd>/</kbd> and <kbd>?</kbd> to search forwards and backwards</li>
+<li><kbd>c</kbd> (followed by the object) to change the <em>object</em>; this expands to the following few commands:<ul>
+<li><kbd>cw</kbd> to change the current word under cursor</li>
+<li><kbd>cit</kbd> to change the text within the current XML tag</li>
+<li><kbd>ca'</kbd> to change the text surrounded by single quote</li>
+<li><kbd>ci&lt;</kbd> to change the text surrounded with <code>&amp;lt;</code> and <code>&amp;gt;</code></li>
+<li><kbd>ci{symbol}</kbd> to change the text surrounded by <em>symbol</em>, which could be <code>&#39;</code>, <code>&quot;</code>, <code>&amp;#96;</code>; you can also use <kbd>b(</kbd> for block of text, surrounded by braces, <kbd>B{</kbd> for block of text surrounded by curly braces or <kbd>p</kbd> for paragraph, all instead of <em>symbol</em></li>
+</ul>
+</li>
+<li><kbd>v</kbd> to enter the VISUAL mode, followed by the command:<ul>
+<li><kbd>v{select}c</kbd> immediately change the selection</li>
+<li><kbd>v{select}d</kbd> cut the selected text</li>
+</ul>
+</li>
+<li><kbd>y</kbd> and <kbd>p</kbd> copy and paste the selected text (lower-case <code>p</code> pastes above the current line, capital-case <code>P</code> pastes below; capital-case <code>Y</code> copies the entire line, so the duplicate line command in Vim is <kbd>Y, P</kbd>)</li>
+<li><kbd>{number}{command}</kbd> repeat the <em>command</em> <em>number</em> times</li>
+<li><kbd>.</kbd> (the period or dot symbol) repeats the last command</li>
+<li><kbd>x</kbd> to remove the character under cursor</li>
+<li><kbd>r{char}</kbd> to replace the character under cursor with <em>char</em></li>
+<li><kbd>A</kbd> to go to the end of the line and enter INSERT mode (“append”)</li>
+<li><kbd>u</kbd> and <kbd>Ctrl+r</kbd> to undo and redo actions</li>
+<li><kbd>&gt;</kbd> and <kbd>&lt;</kbd> adds or removes the indentation</li>
+</ul>
+<h2 id="things-that-i-am-still-getting-used-to">Things that I am still getting used to</h2>
+<ul>
+<li><kbd>{number}{motion}</kbd> instead of <kbd>h</kbd>, <kbd>j</kbd>, <kbd>k</kbd>, <kbd>l</kbd></li>
+<li><kbd>a</kbd> instead of <kbd>i</kbd> to enter INSERT mode <em>after</em> the cursor (as opposed to <kbd>i</kbd> which enters INSERT mode <em>before</em> the cursor)</li>
+<li><kbd>H</kbd>, <kbd>M</kbd> and <kbd>L</kbd> to go to the top, middle and the bottom of the screen (High, Mid and Low)</li>
+<li><kbd>*</kbd> and <kbd>#</kbd> to search for the word under cursor forwards and backwards</li>
+<li><kbd>{count}/{query}⏎</kbd> to go to the <em>count</em>-th occurrence of <em>query</em>; it is same as searching with <kbd>/</kbd> and then hitting <kbd>n</kbd> <em>count</em> times</li>
+<li><kbd>gd</kbd> navigates to a definition of an entity under the cursor</li>
+<li><kbd>gf</kbd> navigates to the path under cursor</li>
+<li><kbd>%</kbd> moves the cursor to the matching brace, bracket or curly brace</li>
+<li><kbd>g~</kbd> toggle the case</li>
+<li><kbd>=</kbd> format the selection</li>
+<li><kbd>gU</kbd> makes the selection uppercase</li>
+</ul>
+</div>
+</article><article><h1><a href="/2020/08/02/gantt-chart-part2.html">Gantt chart with D3. Part 2</a></h1>
+
+    <time>02 Aug 2020 at 05:04</time>
+
+    <div class="excerpt"><p><strong>UPDATE:</strong> there is a follow-up to this blog, <a href="2021-03-04-gantt-chart-part3">Gantt chart with Canvas</a>.</p>
+<p>This is a follow-up to the blog I wrote a bit over three years ago, <a href="2017-04-09-gantt-chart-with-d3">Gantt chart with D3</a></p>
+<p>In the original blog I claimed to implement something like this:</p>
+<LazyImg src="/images/gantt_chart_with_d3/gantt-sample_optimized.webp" alt="" />
+
+<p>Yet I ended up implementing something more like this:</p>
+<LazyImg src="/images/gantt_chart_with_d3/d3-gantt-chart_optimized.webp" alt="" />
+
+<p>Does not look quite same, right? It also does not work quite same and lacks few quite important features too.</p>
+<p>Don’t get me wrong, the original implementation did serve project needs, but it was not something anybody could simply use in their project management software and expect customers to love it.</p>
+<p>Hence I came up with these complaints about the implementation:</p>
+<LazyImg src="/images/gantt_chart_with_d3_part2/complaints-min.webp" alt="" />
+
+<p>Namely, there are three main issues that I see:</p>
+<ol>
+<li>there is a place for mistakes: milestones are allowed to depend on later milestones or simultaneously going ones</li>
+<li>there is no clear distinction between the dates each specific milestone starts or ends</li>
+<li>if the milestones overlap with current timeframe, current day is not highlighted on the chart (and that often is useful)</li>
+</ol>
+<p>Apart from that, there are few technical challenges preventing his whole thing from becoming a real application component:</p>
+<ul>
+<li>dependency lines look ugly with those sharp corners</li>
+<li>the implementation is not based on any framework neither does it declare its dependencies (like D3 or MomentJS)</li>
+</ul>
+<p>Now I want to revise the original implementation and make it a bit more usable, just like this:</p>
+<LazyImg src="/images/gantt_chart_with_d3_part2/chart_with_current_date-min.webp" alt="" />
+
+</div>
+
+        <a href="/2020/08/02/gantt-chart-part2.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2020/01/10/erlang-in-5-minutes.html">Erlang in 5 minutes</a></h1>
+
+    <time>10 Jan 2020 at 04:24</time>
+
+    <div class="content"><h2 id="x--erlang-y--5-ioformatlearn-s-in-s-minutes--x-y-">X = erlang, Y = 5, io:format(“Learn ~s in ~s minutes”, [ X, Y ]).</h2>
+<p>Welcome to a 5-minute Erlang introduction!</p>
+<p>First things first:</p>
+<ul>
+<li>Erlang is a functional programming language</li>
+<li><code>erl</code> is the REPL shell</li>
+<li><kbd>Ctrl + G</kbd> and then <kbd>q</kbd> <strong>or</strong> <code>q().</code> to exit the shell</li>
+<li><code>c(file_name).</code> to load the code from file</li>
+</ul>
+<p>Now, to the language constructs:</p>
+<ul>
+<li>every statement has to end with a dot (<code>.</code>) symbol</li>
+<li>multiple statements are separated by comma (<code>,</code>) character</li>
+<li>constants start with a <strong>C</strong>apital <strong>L</strong>etter</li>
+<li><em>atoms</em> (yes, like in Ruby) start with <strong>l</strong>owercase <strong>l</strong>etter</li>
+<li>atoms are allowed to contain spaces (sic!), but then they have to be quoted: <code>&#39;atoms are awesome&#39;</code></li>
+<li>atoms can also have the at sign (<code>@</code>)</li>
+<li>anonymous functions are defined as <code>fun() -&gt; return_statement end.</code></li>
+<li>last statement before <code>end</code> <strong>must not</strong> end with comma</li>
+<li>function signature is <code>function_name/number_of_arguments</code>: <code>factorial/1</code>, <code>format/2</code></li>
+<li>comments start with percent (<code>%</code>) symbol</li>
+<li>lists are <code>[ TheOnlyElement ]</code> or <code>[ Head | TailElements ]</code>, where <code>TailElements</code> is also a list</li>
+<li>pattern matching just works <code>[ Head1 | Head2 | Tails ] = [ 1, 2, 3, 4 ]</code></li>
+<li>strings are just <code>&quot;strings&quot;</code></li>
+<li>tuples are quirky <code>{ elt1, elt2 }</code></li>
+<li>maps are even weirder <code>#{ key =&gt; value }</code></li>
+<li>operators are almost fine:<ul>
+<li>comparison: <code>&lt;</code> (less than), <code>&gt;</code> (greater than), <code>&gt;=</code> (greater than or equals to), <code>=&lt;</code> (equals to or less than), <code>==</code> (equals to), <code>/=</code> (not equals to), <code>=:=</code> (adds type checking on tops, JS equivalent of <code>===</code>)</li>
+<li>assignment / pattern matching: <code>=</code></li>
+<li>math: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>div</code>, <code>rem</code> (Pascal way)</li>
+<li>typechecking: <code>is_atom/1</code>, <code>is_function/1</code>, <code>is_number/1</code>, <code>is_boolean/1</code>, <code>is_pid/1</code>, <code>is_list/1</code>, etc.</li>
+</ul>
+</li>
+<li>list comprehentions are similar to lists: <code>[ N || N &lt;- [ 1, 2, 3, 4, 5 ], N rem 2 == 0 ].</code></li>
+<li>files are modules, defined with few statements:<ul>
+<li><code>-module(module_name).</code></li>
+<li><code>-export([ list_of_function_signatures ]).</code></li>
+<li><code>-import(module_name, [ list_of_functions ]).</code></li>
+</ul>
+</li>
+<li>calling module’s export be like <code>module_name:function_name(arguments).</code></li>
+</ul>
+<p>Quick recap:</p>
+<pre><code class="language-erlang"><span class="token comment">%%% module comment</span>
+<span class="token operator">-</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token atom">erlang_example</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token comment">% exporting the functions from the module</span>
+<span class="token operator">-</span><span class="token function">export</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token atom">factorial</span><span class="token operator">/</span><span class="token number">1</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token comment">% importing the functions from the other module</span>
+<span class="token operator">-</span><span class="token function">import</span><span class="token punctuation">(</span><span class="token atom">my_other_module</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token atom">new_factorial</span><span class="token operator">/</span><span class="token number">1</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token comment">% constants with pattern matching - will assign the value to non-defined constant on success</span>
+<span class="token variable">X</span> <span class="token operator">=</span> <span class="token number">5.</span>
+
+<span class="token comment">% redefinition is prohibited</span>
+<span class="token variable">X</span> <span class="token operator">=</span> <span class="token number">10.</span> <span class="token comment">% exception</span>
+
+<span class="token comment">% functions can also be constants</span>
+<span class="token variable">PlusOne</span> <span class="token operator">=</span> <span class="token keyword">fun</span><span class="token punctuation">(</span><span class="token variable">X</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">X</span> <span class="token operator">+</span> <span class="token number">1</span> <span class="token keyword">end</span><span class="token punctuation">.</span>
+
+<span class="token comment">% or, multiline</span>
+<span class="token variable">PlusTwo</span> <span class="token operator">=</span> <span class="token keyword">fun</span><span class="token punctuation">(</span><span class="token variable">X</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token variable">X</span> <span class="token operator">+</span> <span class="token number">2</span>
+
+  <span class="token keyword">end</span><span class="token punctuation">.</span>
+
+<span class="token comment">% the standard way</span>
+<span class="token function">bad_factorial</span><span class="token punctuation">(</span><span class="token variable">N</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token variable">N</span> <span class="token operator">*</span> <span class="token function">factorial</span><span class="token punctuation">(</span><span class="token variable">N</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token comment">%% function documentation</span>
+<span class="token comment">% functions can have *guargs*, which are basically pattern matching</span>
+<span class="token comment">% also, function overloading is split with semicolon (;)</span>
+<span class="token function">factorial</span><span class="token punctuation">(</span><span class="token variable">N</span><span class="token punctuation">)</span> <span class="token keyword">when</span> <span class="token variable">N</span> <span class="token operator">=</span><span class="token operator">&lt;</span> <span class="token number">1</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+<span class="token comment">% last overload ends with dot (.)</span>
+<span class="token function">factorial</span><span class="token punctuation">(</span><span class="token variable">N</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">N</span> <span class="token operator">*</span> <span class="token function">factorial</span><span class="token punctuation">(</span><span class="token variable">N</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token comment">% some return types</span>
+<span class="token function">string_fn</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token string">"hello, world!"</span><span class="token punctuation">.</span>
+
+<span class="token function">list_fn</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">[</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"elements could be of different types too"</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">3.14</span><span class="token punctuation">,</span> <span class="token atom">atom</span> <span class="token punctuation">]</span><span class="token punctuation">.</span>
+
+<span class="token function">function_function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token keyword">fun</span><span class="token punctuation">(</span><span class="token variable">X</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">X</span> <span class="token atom">mod</span> <span class="token number">2</span> <span class="token keyword">end</span><span class="token punctuation">.</span>
+
+<span class="token function">dict_fn</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">#</span><span class="token punctuation">{</span> <span class="token string">"key"</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token operator">-</span><span class="token number">3.14</span> <span class="token punctuation">}</span><span class="token punctuation">.</span>
+
+<span class="token function">tuple_fn</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">{</span> <span class="token atom">elt1</span><span class="token punctuation">,</span> <span class="token atom">elt2</span><span class="token punctuation">,</span> <span class="token string">"elt 3"</span> <span class="token punctuation">}</span><span class="token punctuation">.</span>
+
+<span class="token comment">%% note how overriden_function/1 has different definition than overriden_function/2</span>
+<span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token variable">List</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token variable">List</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token comment">% the power of pattern matching!</span>
+<span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token variable">Head</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">Acc</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Acc</span> <span class="token operator">+</span> <span class="token variable">Head</span><span class="token punctuation">;</span>
+
+<span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token variable">Head1</span> <span class="token punctuation">|</span> <span class="token variable">Head2</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">Acc</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Acc</span> <span class="token operator">+</span> <span class="token variable">Head1</span> <span class="token operator">+</span> <span class="token variable">Head2</span><span class="token punctuation">;</span>
+
+<span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token variable">Head</span> <span class="token punctuation">|</span> <span class="token variable">Tail</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">Acc</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token variable">Tail</span><span class="token punctuation">,</span> <span class="token variable">Acc</span> <span class="token operator">+</span> <span class="token variable">Head</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">Acc</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Acc</span><span class="token punctuation">.</span>
+
+<span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">A</span><span class="token punctuation">,</span> <span class="token variable">B</span><span class="token punctuation">)</span> <span class="token keyword">when</span> <span class="token variable">A</span> <span class="token operator">=</span><span class="token operator">&lt;</span> <span class="token variable">B</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">A</span><span class="token punctuation">;</span>
+<span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">A</span><span class="token punctuation">,</span> <span class="token variable">B</span><span class="token punctuation">)</span> <span class="token keyword">when</span> <span class="token variable">A</span> <span class="token operator">></span> <span class="token variable">B</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">B</span><span class="token punctuation">.</span>
+
+<span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">A</span><span class="token punctuation">,</span> <span class="token variable">B</span><span class="token punctuation">,</span> <span class="token variable">C</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token variable">X</span> <span class="token operator">=</span> <span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">A</span><span class="token punctuation">,</span> <span class="token variable">B</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">X</span><span class="token punctuation">,</span> <span class="token variable">C</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">A</span><span class="token punctuation">,</span> <span class="token variable">B</span><span class="token punctuation">,</span> <span class="token variable">C</span><span class="token punctuation">,</span> <span class="token variable">D</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token variable">X</span> <span class="token operator">=</span> <span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">A</span><span class="token punctuation">,</span> <span class="token variable">B</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token variable">Y</span> <span class="token operator">=</span> <span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">C</span><span class="token punctuation">,</span> <span class="token variable">D</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">X</span><span class="token punctuation">,</span> <span class="token variable">Y</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token function">fst</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">First</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">First</span><span class="token punctuation">.</span>
+
+<span class="token function">snd</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">Second</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Second</span><span class="token punctuation">.</span>
+
+<span class="token function">evens</span><span class="token punctuation">(</span><span class="token variable">List</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">[</span> <span class="token variable">X</span> <span class="token punctuation">|</span><span class="token punctuation">|</span> <span class="token variable">X</span> <span class="token operator">&lt;</span><span class="token operator">-</span> <span class="token variable">List</span><span class="token punctuation">,</span> <span class="token variable">X</span> <span class="token operator">rem</span> <span class="token number">2</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">]</span><span class="token punctuation">.</span>
+
+<span class="token function">keys</span><span class="token punctuation">(</span><span class="token punctuation">#</span><span class="token punctuation">{</span> <span class="token variable">Key</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token variable">Value</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<p>There also are few good resources on this: [<a href="https://learnxinyminutes.com/docs/erlang/%5D">https://learnxinyminutes.com/docs/erlang/]</a>(Learn X in Y minutes (where X = erlang)) and [<a href="http://erlang.org/doc/apps/inets/http_client.html%5D">http://erlang.org/doc/apps/inets/http_client.html]</a>(Official Erlang docs).</p>
+</div>
+</article><article><h1><a href="/2020/01/10/a-response-to-response-to-hello-world.html">A response to response to hello world</a></h1>
+
+    <time>10 Jan 2020 at 04:10</time>
+
+    <div class="excerpt"><p>Recently I’ve received an email from StackOverflow newsletters with a link to a quite controversial (at first glance) blog, <a href="https://www.doxsey.net/blog/a-response-to-hello-world">A response to Hello World</a> by Caleb Doxsey. This blog is a response to another curious read, <a href="https://drewdevault.com/2020/01/04/Slow.html">Hello world</a> by Drew DeVault.</p>
+<p>In the former article, author compared the performance of a tiny “Hello, World” program in Assembly to the same program in Go.
+He then tried to optimize the program in Go to run faster and towards the end of an article comes up with a program that is faster than its Assembly counterpart.</p>
+<LazyImg src="/images/a-response-to-response-to-hello-world/hello-world-original-chart-min.webp" />
+<LazyImg src="/images/a-response-to-response-to-hello-world/hello-world-new-chart-min.webp" />
+<LazyImg src="/images/a-response-to-response-to-hello-world/hello-world-new-chart2-min.webp" />
+
+<p>And this totally makes sense, since if you give it a good read, you will notice that author did optimize the program in Go but did not do that for the Assembly program.</p>
+<p>I have decided to burn few hours of my life and jump onto this topic, since, in my opinion, author did not do a fair comparison.</p>
+</div>
+
+        <a href="/2020/01/10/a-response-to-response-to-hello-world.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2019/12/11/linq-is-awesome-right.html">Linq is awesome, right?</a></h1>
+
+    <time>11 Dec 2019 at 02:49</time>
+
+    <div class="excerpt"><p>Recently I’ve seen a curious blog on Dev.to, <a href="https://dev.to/sduduzog/c-and-net-core-appreciation-post-the-most-beautiful-piece-of-code-i-have-ever-seen-this-month-49gf">C# and .NET Core Appreciation Post. The most beautiful piece of code I have ever seen… this month!</a>.</p>
+<p>In short, author was amazed by how beautiful Linq is, supporting their feelings with this code snippet:</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> token<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token class-name"><span class="token keyword">var</span></span> user <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">from</span> u <span class="token keyword">in</span> Users
+              <span class="token keyword">join</span> t <span class="token keyword">in</span> Tokens <span class="token keyword">on</span> u<span class="token punctuation">.</span>Id equals t<span class="token punctuation">.</span>UserId
+              <span class="token keyword">where</span> <span class="token class-name">t</span><span class="token punctuation">.</span>Body <span class="token operator">==</span> token
+              <span class="token keyword">select</span> u<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> user<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Let’s tear this example apart and check how really <del>performant</del> beautiful Linq is!</p>
+</div>
+
+        <a href="/2019/12/11/linq-is-awesome-right.html" class="btn svelte-7idbpu">Read more</a>
+</article></main>
+
+    <footer class="svelte-1gr3n62"><nav class="bottom svelte-14ldwbd"><div class="prev svelte-14ldwbd"><a href="/page1.html" class="prev svelte-14ldwbd">← Previous page</a></div>
+
+    <div class="current svelte-14ldwbd">Page #2 of 9</div>
+
+    <div class="next svelte-14ldwbd"><a href="/page3.html" class="next svelte-14ldwbd">Next page →</a></div>
+</nav></footer>
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

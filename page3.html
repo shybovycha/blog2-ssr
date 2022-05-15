@@ -1,0 +1,334 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }
+nav.bottom.svelte-14ldwbd.svelte-14ldwbd{grid-area:1/2/2/3;display:inline-grid;grid-template:1fr / 1fr 1fr 1fr
+    }footer nav.svelte-14ldwbd div.svelte-14ldwbd{display:flex;align-items:center
+    }footer nav.svelte-14ldwbd .prev.svelte-14ldwbd{grid-area:1/1/2/2;justify-content:flex-start
+    }footer nav.svelte-14ldwbd .current.svelte-14ldwbd{grid-area:1/2/2/3;justify-content:center
+    }footer nav.svelte-14ldwbd .next.svelte-14ldwbd{grid-area:1/3/2/4;justify-content:flex-end
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1><a href="/2019/03/10/casts-in-cpp-explained.html">Type casts in C++, explained</a></h1>
+
+    <time>21 Mar 2019 at 00:00</time>
+
+    <div class="content"><p>As explained by my colleague, former professional C++ developer (now writes schwifty Java).
+Below is a quick explanation of four basic C++ type casts. Just for the matter of shorter post,
+consider each cast taking a template type <code>T</code> and a parameter value <code>v</code> like this: <code>const_cast&lt;T&gt;(v)</code>.</p>
+<ul>
+<li><code>const_cast</code> - removes the <code>const</code> from the type of <code>v</code> (think of casting <code>const char*</code> will produce <code>char*</code>)</li>
+<li><code>static_cast</code> - C-style, unchecked explicit type casting (just like in old 90s: <code>(int) 3.14</code>)</li>
+<li><code>reinterpret_cast</code> - hard low-level treating a block of memory as type <code>T</code>, no matter what resides in that memory</li>
+<li><code>dynamic_cast</code> - does the runtime checks of param type and template type</li>
+</ul>
+</div>
+</article><article><h1><a href="/2019/03/20/partial-application-vs-currying.html">Partial application vs currying</a></h1>
+
+    <time>20 Mar 2019 at 04:18</time>
+
+    <div class="content"><p>Here’s a quick explanation of the difference between <strong>currying</strong> and <strong>partial application</strong>.</p>
+<p>For a one- or two-argument functions there is little to none difference. But for function with multiple arguments…</p>
+<p>Say you have a function <code>f(a1, a2, a3, a4)</code> (it does not really matter what it returns or what the arguments are):</p>
+<ul>
+<li><p><em>currying</em> it will give you a function of one argument, which will return a function of one argument (and so on and so forth), calling which (the last one-argument function) will give you same result as calling the original function <code>f</code> with all the arguments of single-argument functions passed at once <em>(curried)</em>: <code>curry(f) = f1(x1) =&gt; f2(x2) =&gt; f3(x3) =&gt; f4(x4) === f(x1, x2, x3, x4)</code></p>
+</li>
+<li><p><em>partially applying</em> a function <em>to some N values</em> will give you a function of smaller amount of arguments, where the first <em>N</em> arguments are already defined: <code>papply(f, 1, 17) =&gt; f1(x3, x4) === f(1, 17, x3, x4)</code></p>
+</li>
+</ul>
+<p>In Javascript, the two could be implemented like this:</p>
+<pre><code class="language-js"><span class="token keyword">function</span> <span class="token function">curry</span><span class="token punctuation">(</span><span class="token parameter">f</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">function</span> <span class="token function">curry</span><span class="token punctuation">(</span><span class="token parameter">f</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> <span class="token function-variable function">currySub</span> <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">fn<span class="token punctuation">,</span> args</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// Surprisingly, `fn.length` returns the number of arguments of a function `fn`</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>args<span class="token punctuation">.</span>length <span class="token operator">&lt;</span> fn<span class="token punctuation">.</span>length<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">x</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> <span class="token function">currySub</span><span class="token punctuation">(</span>fn<span class="token punctuation">,</span> args<span class="token punctuation">.</span><span class="token function">concat</span><span class="token punctuation">(</span><span class="token punctuation">[</span> x <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">return</span> <span class="token function">f</span><span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> <span class="token function">currySub</span><span class="token punctuation">(</span>f<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">papply</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> f <span class="token operator">=</span> arguments<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> args0 <span class="token operator">=</span> Array<span class="token punctuation">.</span><span class="token function">from</span><span class="token punctuation">(</span>arguments<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">const</span> args1 <span class="token operator">=</span> Array<span class="token punctuation">.</span><span class="token function">from</span><span class="token punctuation">(</span>arguments<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">const</span> args <span class="token operator">=</span> args0<span class="token punctuation">.</span><span class="token function">concat</span><span class="token punctuation">(</span>args1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> <span class="token function">f</span><span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</article><article><h1><a href="/2018/10/15/newton-gd-irrlicht-tutorial.html">Game development with Newton Game Dynamics and Irrlicht tutorial</a></h1>
+
+    <time>15 Oct 2018 at 00:00</time>
+
+    <div class="content"><LazyImg src="/images/slow-compressed.webp" alt="Slowpoke image" />
+
+<p>As there was not a high load on my tutorial on game development with Irrlicht and Newton Game Dynamics engines
+as a separate site, I have decided to merge them with my blog and proceed with occasional updates to both as a
+whole.</p>
+<p>So far, these are the changes to the tutorial in comparison to what it used to be <em>(long time ago)</em>:</p>
+<ul>
+<li>moved all the build instructions to <strong>CMake</strong></li>
+<li>added scripting with <strong>Lua</strong></li>
+<li>upgraded the whole tutorial to match <strong>latest Irrlicht and Newton versions</strong></li>
+<li>added chapter on <strong>modelling with Blender</strong></li>
+</ul>
+<p>The things which are already done (just not published yet), in progress and the future plans for this tutorial include:</p>
+<ul>
+<li>comparison of different build systems for C++ (including <a href="https://cmake.org/">CMake</a>, <a href="https://bazel.build/">Bazel</a> and <a href="https://buckbuild.com/">Buck</a>)</li>
+<li>a better approach to application architecture (plus the comparison of different scripting languages - <a href="https://www.angelcode.com/angelscript/">AngelScript</a>, <a href="http://www.squirrel-lang.org/">Squirrel</a>, <a href="https://www.lua.org/">Lua</a>, <a href="http://chaiscript.com/">ChaiScript</a> and <a href="https://www.python.org">Python</a>)</li>
+<li>a sane 3D modelling in blender lessons (preserving texturing and adding advanced materials, possibly even animation!)</li>
+<li>advanced topics in Newton Game Dynamics featuring character controller and joints</li>
+</ul>
+</div>
+</article><article><h1><a href="/2018/01/15/software-engineering-101.html">Software Engineering 101: how computer works</a></h1>
+
+    <time>08 Aug 2018 at 10:20</time>
+
+    <div class="excerpt"><p>There is some bit of information about computers which I was never told in school or at the university.
+This writing is trying to cover these bits in details for those interested out there.</p>
+<h2 id="processors-guts">Processor’s guts</h2>
+<p>In essence, processor consists of these main blocks:</p>
+<ul>
+<li><strong>instruction decoder</strong>, which decodes the operation code (see below) and tells processor what it should do next</li>
+<li><strong>ALU</strong> <em>(arithmetical-logic unit)</em> - the device, which performs all the operations a processor is capable of - arithmetic <em>(addition, subtraction, multiplication)</em> and logical <em>(bitwise OR, AND, XOR, NOT; comparing numbers)</em></li>
+<li><strong>registers</strong> are the places, where processor takes the input data for each operation and stores the results of each operations</li>
+<li><strong>data bus</strong> - the place, which passes data to or from memory (RAM, peripheral devices and other types of memory)</li>
+<li><strong>address bus</strong> passes memory addresses between processor and memory (to be read from or written to)</li>
+</ul>
+<p>To best illustrate our examples, consider this much simplified processor model:</p>
+<LazyImg src="/images/software-engineering-101/simplified-processor-architecture.webp" alt="" />
+
+<p>It has only three registers, ALU and data/address buses. I will explain all the examples below in reference to this processor.</p>
+<h2 id="workflow">Workflow</h2>
+<p>Processor works <strong>discretely</strong>, meaning it executes commands at certain points in time <em>(as opposed to <strong>continuous</strong> work, where something works all the time)</em>. Those points in time are marked by <strong>clock signals</strong> <em>(or simply, clocks)</em>. Processor is connected to <em>(or has an internal one)</em> <strong>clock signal generator</strong>, which regularly tells processor to operate. <em>Operation</em> is nothing but a change of the internal processor’ state.</p>
+<p>So how does processor knows what to do next? On the first clock signal, CPU loads the command with the help of instruction decoder. On the next clock tick, processor starts executing an instruction <em>(or a command)</em> - it either copies data to / from registers or RAM, or involves ALU. On the next clock, processor increases the command counter by one and hence proceeds to the next instruction from the pool.</p>
+<p>In reality, this mechanism is somewhat more complex and involves more steps to just even read the command from the pool. And the pool itself is a unit on a processor chip as well and acts as another register. But to explain the processor operation, I’ve simplified that.</p>
+<p><em>Read more to where I explain how a program in Assembly language is transformed to ones and zeroes; show a sample processor instruction set and how a program in C could be compiled to that instruction set.</em></p>
+</div>
+
+        <a href="/2018/01/15/software-engineering-101.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2017/09/10/one-night-games-tetris.html">One-night games: Tetris</a></h1>
+
+    <time>01 Jun 2018 at 06:00</time>
+
+    <div class="excerpt"><p>Did you ever think of how old games like tetris or snake <em>(hail the Nokia fans!)</em> work?</p>
+<p>I always wanted to write a few relatively simple games just to practice my coding skills.
+Back when I was at the uni, I’ve made <a href="https://en.wikipedia.org/wiki/Peg_solitaire">peg solitaire</a> and <a href="https://en.wikipedia.org/wiki/Bejeweled">three-in-a-row</a> games in C/C++ with SFML. I even wrote a <em>(pretty shitty)</em> server-client <a href="https://github.com/shybovycha/moo-chess">chess game</a> <em>(be warned: this code was written in 2011 and only contains fixes to make it run on a new version of SFML, so it might look… smelly… on each and every line…)</em>. My latest achievements were the <a href="https://github.com/shybovycha/entanglement-ios">Entanglement</a> game and a well-designed <em>(at least from my perspective)</em> <a href="https://github.com/shybovycha/python-shooter">arcade space shooter</a>.</p>
+<p>But I’ve never implemented more well-known games like tetris or snake. And they are interesting from the algorithmic perspective.</p>
+<p>And recently I’ve came to the point when I really wanted to create something interesting. And that was the chance to try myself as a early-2000-ies developer!</p>
+<p>As I wanted to accomplish my goal as soon as possible, I’ve decided to not pick up any libraries and just implement everything with HTML5 Canvas API. And this is what I ended up with:</p>
+<LazyImg src="/images/one-night-games/snake-screenshot.webp" />
+
+<p>In this post I’ll talk about Tetris. Under the cut you’ll find the interesting algorithmic solutions I’ve used for it.</p>
+</div>
+
+        <a href="/2017/09/10/one-night-games-tetris.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2018/06/01/zsh-startup-performance.html">Improving ZSH startup performance</a></h1>
+
+    <time>01 Jun 2018 at 04:00</time>
+
+    <div class="content"><h2 id="adding-profiling-to-zsh">Adding profiling to ZSH</h2>
+<p>Add this line as the first one, to the very top of your <code>~/.zshrc</code>:</p>
+<pre><code>zmodload zsh/zprof
+</code></pre>
+<p>And add this one to the very bottom of this same file:</p>
+<pre><code>zprof
+</code></pre>
+<p>Now, whenever you open up ZSH, you shall see a list of things which start and how much time each entry takes to load.
+For me it was like this:</p>
+<pre><code>num  calls                time                       self            name
+-----------------------------------------------------------------------------------
+ 1)    1        1123.49  1123.49   87.59%   1123.49  1123.49   87.59%  _pyenv-from-homebrew-installed
+ 2)    1          84.02    84.02    6.55%     59.50    59.50    4.64%  compinit
+ 3)    3          26.94     8.98    2.10%     26.94     8.98    2.10%  __sdkman_export_candidate_home
+ 4)    3          25.77     8.59    2.01%     25.77     8.59    2.01%  __sdkman_prepend_candidate_to_path
+ 5)    2          24.52    12.26    1.91%     24.52    12.26    1.91%  compaudit
+ 6)    2           7.98     3.99    0.62%      7.98     3.99    0.62%  grep-flag-available
+ 7)    2           7.54     3.77    0.59%      7.54     3.77    0.59%  env_default
+ 8)    2           2.43     1.22    0.19%      2.43     1.22    0.19%  _has
+ 9)   23           2.43     0.11    0.19%      2.43     0.11    0.19%  compdef
+10)    1           1.09     1.09    0.09%      1.09     1.09    0.09%  colors
+11)   12           0.38     0.03    0.03%      0.38     0.03    0.03%  is_plugin
+12)    1           0.38     0.38    0.03%      0.38     0.38    0.03%  is-at-least
+13)    1           0.21     0.21    0.02%      0.21     0.21    0.02%  _homebrew-installed
+14)    1           0.03     0.03    0.00%      0.03     0.03    0.00%  __sdkman_echo_debug
+
+-----------------------------------------------------------------------------------
+</code></pre>
+<p>I was able to measure the total startup time by running <code>time zsh -i -c exit</code>. And the total startup time was <strong>almost two seconds</strong>.</p>
+<pre><code>zsh -i -c exit  1.16s user 0.73s system 100% cpu 1.889 total
+</code></pre>
+<p>As you can see, <code>pyenv</code> takes whole bunch of time (1123 millis!). So I do have the <code>pyenv</code> plugin for ZSH and I did disable it. Here’s what happened afterwards:</p>
+<pre><code>num  calls                time                       self            name
+-----------------------------------------------------------------------------------
+ 1)    1          91.42    91.42   53.38%     62.48    62.48   36.48%  compinit
+ 2)    2          28.94    14.47   16.90%     28.94    14.47   16.90%  compaudit
+ 3)    3          28.62     9.54   16.71%     28.62     9.54   16.71%  __sdkman_export_candidate_home
+ 4)    3          27.65     9.22   16.14%     27.65     9.22   16.14%  __sdkman_prepend_candidate_to_path
+ 5)    2           8.27     4.14    4.83%      8.27     4.14    4.83%  grep-flag-available
+ 6)    2           8.22     4.11    4.80%      8.22     4.11    4.80%  env_default
+ 7)    2           2.55     1.28    1.49%      2.55     1.28    1.49%  _has
+ 8)   23           2.50     0.11    1.46%      2.50     0.11    1.46%  compdef
+ 9)    1           1.24     1.24    0.72%      1.24     1.24    0.72%  colors
+10)    1           0.41     0.41    0.24%      0.41     0.41    0.24%  is-at-least
+11)   10           0.37     0.04    0.21%      0.37     0.04    0.21%  is_plugin
+12)    1           0.02     0.02    0.01%      0.02     0.02    0.01%  __sdkman_echo_debug
+
+-----------------------------------------------------------------------------------
+</code></pre>
+<pre><code>zsh -i -c exit  0.28s user 0.23s system 96% cpu 0.526 total
+</code></pre>
+<h2 id="nvm">NVM</h2>
+<p>Not to forget I had NVM installed with the default settings.</p>
+<p>With it I had the startup time of <code>1.9</code> seconds:</p>
+<pre><code>zsh -i -c exit  1.17s user 0.74s system 99% cpu 1.916 total
+</code></pre>
+<p>If you follow this <a href="http://www.growingwiththeweb.com/2018/01/slow-nvm-init.html">simple instruction</a> or just replace these two lines, initializing NVM in your <code>~/.zshrc</code> file:</p>
+<pre><code class="language-bash"><span class="token punctuation">[</span> -s <span class="token string">"<span class="token variable">$NVM_DIR</span>/nvm.sh"</span> <span class="token punctuation">]</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">\</span>. <span class="token string">"<span class="token variable">$NVM_DIR</span>/nvm.sh"</span>  <span class="token comment"># This loads nvm</span>
+<span class="token punctuation">[</span> -s <span class="token string">"<span class="token variable">$NVM_DIR</span>/bash_completion"</span> <span class="token punctuation">]</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">\</span>. <span class="token string">"<span class="token variable">$NVM_DIR</span>/bash_completion"</span>  <span class="token comment"># This loads nvm bash_completion</span>
+</code></pre>
+<p>with these lines:</p>
+<pre><code class="language-bash"><span class="token keyword">if</span> <span class="token punctuation">[</span> -s <span class="token string">"<span class="token environment constant">$HOME</span>/.nvm/nvm.sh"</span> <span class="token punctuation">]</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">[</span> <span class="token operator">!</span> <span class="token string">"<span class="token variable"><span class="token variable">$(</span><span class="token builtin class-name">type</span> __init_nvm<span class="token variable">)</span></span>"</span> <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+ <span class="token builtin class-name">export</span> <span class="token assign-left variable">NVM_DIR</span><span class="token operator">=</span><span class="token string">"<span class="token environment constant">$HOME</span>/.nvm"</span>
+
+ <span class="token punctuation">[</span> -s <span class="token string">"<span class="token variable">$NVM_DIR</span>/bash_completion"</span> <span class="token punctuation">]</span> <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">.</span> <span class="token string">"<span class="token variable">$NVM_DIR</span>/bash_completion"</span>
+
+ <span class="token builtin class-name">declare</span> -a <span class="token assign-left variable">__node_commands</span><span class="token operator">=</span><span class="token punctuation">(</span><span class="token string">'nvm'</span> <span class="token string">'node'</span> <span class="token string">'npm'</span> <span class="token string">'yarn'</span> <span class="token string">'gulp'</span> <span class="token string">'grunt'</span> <span class="token string">'webpack'</span><span class="token punctuation">)</span>
+
+ <span class="token keyword">function</span> <span class="token function-name function">__init_nvm</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+   <span class="token keyword">for</span> <span class="token for-or-select variable">i</span> <span class="token keyword">in</span> <span class="token string">"<span class="token variable">${__node_commands<span class="token punctuation">[</span>@<span class="token punctuation">]</span>}</span>"</span><span class="token punctuation">;</span> <span class="token keyword">do</span> <span class="token builtin class-name">unalias</span> <span class="token variable">$i</span><span class="token punctuation">;</span> <span class="token keyword">done</span>
+   <span class="token builtin class-name">.</span> <span class="token string">"<span class="token variable">$NVM_DIR</span>"</span>/nvm.sh
+   <span class="token builtin class-name">unset</span> __node_commands
+   <span class="token builtin class-name">unset</span> -f __init_nvm
+ <span class="token punctuation">}</span>
+
+ <span class="token keyword">for</span> <span class="token for-or-select variable">i</span> <span class="token keyword">in</span> <span class="token string">"<span class="token variable">${__node_commands<span class="token punctuation">[</span>@<span class="token punctuation">]</span>}</span>"</span><span class="token punctuation">;</span> <span class="token keyword">do</span> <span class="token builtin class-name">alias</span> <span class="token variable">$i</span><span class="token operator">=</span><span class="token string">'__init_nvm &amp;&amp; '</span><span class="token variable">$i</span><span class="token punctuation">;</span> <span class="token keyword">done</span>
+<span class="token keyword">fi</span>
+</code></pre>
+<p>The start-up time drops by <code>0.1</code> second. But it still is an improvement, right?</p>
+</div>
+</article><article><h1><a href="/2018/06/01/one-night-games-snake.html">One-night games: snake</a></h1>
+
+    <time>01 Jun 2018 at 00:00</time>
+
+    <div class="excerpt"><p><a href="https://github.com/shybovycha/moo-snake">source code</a></p>
+<LazyImg src="/images/one-night-games/snake-screenshot.webp" />
+
+<p>Under the cut you can find the interesting algorithmic solutions I’ve mentioned.</p>
+</div>
+
+        <a href="/2018/06/01/one-night-games-snake.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2017/09/18/intellij-productivity-tips.html">IntelliJ productivity tips</a></h1>
+
+    <time>18 Sep 2017 at 07:00</time>
+
+    <div class="excerpt"><p>This post is based on a <a href="https://www.youtube.com/watch?v=eq3KiAH4IBI">talk on IntelliJ productivity</a> and contains some tips and tricks I found handy in my everyday work.</p>
+<p>You may disagree with me or find these recommendations useless for yourself, but I and some of my teammates have found out these tips have made us more efficient when dealing with lots of code in a big project.</p>
+<ul>
+<li><p><strong>say “no!” to tabs</strong> – that’s it – disable them. Forever. IntellJ has many ways to navigate the project, just check them out: <kbd>Cmd+E</kbd>, <kbd>Cmd+Alt+&larr;</kbd> and <kbd>Cmd+Alt+&rarr;</kbd></p>
+</li>
+<li><p><strong>stop using mouse</strong> – just as with navigation in open files, IntelliJ offers awesome code navigation: want to go to the method definition? <kbd>Cmd+B</kbd>, want to find a file or class or method? <kbd>Shift, Shift</kbd> or <kbd>Ctrl+Shift+N</kbd> or <kbd>Ctrl+N</kbd>, want to move around in Project Manager? <kbd>Cmd+1</kbd> (and then <kbd>Esc</kbd> to switch between editor and Manager)</p>
+</li>
+<li><p><strong>use IntelliJ’s code intelligence</strong> – if you forgot what params method takes, use <kbd>Cmp+P</kbd>, if you want to find variable or class or method usage – use <kbd>Alt+F7</kbd>, use the power of <em>“Refactor -&gt; Extract Constant/Field”</em> function</p>
+</li>
+<li><p><strong>use action finder popup</strong> – that one can save you lot of time when you do not remember where the function needed is located or what key shortcut to use – <kbd>Cmd+Shift+A</kbd> is your friend</p>
+</li>
+</ul>
+<p><strong>WARNING: lots of video/gifs under the cut!</strong></p>
+</div>
+
+        <a href="/2017/09/18/intellij-productivity-tips.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2017/08/16/floyd-warshall-algorithm.html">Floyd-Warshall algorithm</a></h1>
+
+    <time>04 Sep 2017 at 00:38</time>
+
+    <div class="excerpt"><style>
+    table td {
+        padding: 0.25em 1em;
+        text-align: center;
+    }
+</style>
+
+<h2 id="the-story-behind-this-post">The story behind this post</h2>
+<p>Recently I’ve received <code>+10</code> karma on StackOverflow. I was curious for what question or answer and clicked to check this. It appeared
+to be a <a href="https://stackoverflow.com/a/4526639/330471"><strong>seven-year-old</strong> answer</a> about a Floyd-Warshall algorithm. I was surprised with both my bad English (back those days…) and the very small value the answer had. So I’ve revised it and here it is – the brand-new version!</p>
+<h2 id="the-definitions">The definitions</h2>
+<p>Let us have a graph, described by matrix <code>D</code>, where <code>D[i][j]</code> is the length of the edge <code>(i -&gt; j)</code> <em>(from graph’s vertex with index <code>i</code> to the vertex with index <code>j</code>)</em>.</p>
+<p>Matrix <code>D</code> has the size of <code>N * N</code>, where <code>N</code> is a total number of vertices in a graph because we can reach the maximum of paths by connecting each graph’s vertex to each other.</p>
+<p>Also, we’ll need matrix <code>R</code>, where we will store the vertices of the shortest paths (<code>R[i][j]</code> contains the index of a vertex, where the shortest path from vertex <code>i</code> to vertex <code>j</code> lies).</p>
+<p>Matrix <code>R</code> has the same size as <code>D</code>.</p>
+<p>The Floyd-Warshall algorithm performs these steps:</p>
+<ol>
+<li><p>initialize the matrix of all the paths between any two pairs of vertices in a graph with the edge’s end vertex <em>(this is important since this value will be used for path reconstruction)</em></p>
+</li>
+<li><p>for each pair of connected vertices <em>(read: for each edge <code>(u -&gt; v)</code>)</em>, <code>u</code> and <code>v</code>, find the vertex, which forms shortest path between them: if the vertex <code>k</code> defines two valid edges <code>(u -&gt; k)</code> and <code>(k -&gt; v)</code> <em>(if they are present in the graph)</em>, which are together shorter than path <code>(u -&gt; v)</code>, then assume the shortest path between <code>u</code> and <code>v</code> lies through <code>k</code>; set the shortest pivot point in matrix <code>R</code> for edge <code>(u -&gt; v)</code> to be the corresponding pivot point for edge <code>(u -&gt; k)</code></p>
+</li>
+</ol>
+<p>But how do we read the matrix <code>D</code>?</p>
+</div>
+
+        <a href="/2017/08/16/floyd-warshall-algorithm.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2017/08/15/easy-way-to-understand-big-o-notation.html">Easy way to understand algorithm complexity and big O notation</a></h1>
+
+    <time>15 Aug 2017 at 09:38</time>
+
+    <div class="excerpt"><h2 id="foreword">Foreword</h2>
+<p>Some time ago I’ve published an <a href="2016-08-25-big-o-notation">article about bit O notation</a>. I’ve mentioned its source but never published it. So here it is, the original article.</p>
+<h2 id="the-article">The article</h2>
+<p>Big O notation is the most widely used method which describes algorithm complexity - the execution time required or the space used in memory or in the disk by an algorithm. Often in exams or interviews, you will be asked some questions about algorithm complexity in the following form:</p>
+<blockquote>
+<p>For an algorithm that uses a data structure of size n, what is the run-time complexity or space complexity of the algorithm? The answer to such questions often uses big O notations to describe the algorithm complexity, such as <code>O(1)</code>, <code>O(n)</code>, <code>O(n^2)</code> or <code>O(log(n))</code>.</p>
+</blockquote>
+</div>
+
+        <a href="/2017/08/15/easy-way-to-understand-big-o-notation.html" class="btn svelte-7idbpu">Read more</a>
+</article></main>
+
+    <footer class="svelte-1gr3n62"><nav class="bottom svelte-14ldwbd"><div class="prev svelte-14ldwbd"><a href="/page2.html" class="prev svelte-14ldwbd">← Previous page</a></div>
+
+    <div class="current svelte-14ldwbd">Page #3 of 9</div>
+
+    <div class="next svelte-14ldwbd"><a href="/page4.html" class="next svelte-14ldwbd">Next page →</a></div>
+</nav></footer>
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

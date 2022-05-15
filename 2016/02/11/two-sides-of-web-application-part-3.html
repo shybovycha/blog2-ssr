@@ -1,0 +1,603 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Two sides of web application. Part 3: Communication Layer</h1>
+
+    <time>11 Feb 2016 at 13:47</time>
+
+    <div class="content"><div class="row" style="justify-content: space-between">
+    <div class="col-md-6 col-xs-12">
+        {% include references/two-sides-of-web-application.html %}
+    </div>
+    <div class="col-md-6 col-xs-12 text-xs-center text-md-right">
+        <LazyImg src="/images/two-sides-of-web-application/a305-1-compressed.webp" alt="Funny image" />
+    </div>
+</div>
+
+<h2 id="foreword">Foreword</h2>
+<p>In this section we will implement the communication layer for our application. It’ll handle
+all the requests to/from our web server. Have no worries - we will create server application
+in the next section!</p>
+<h2 id="first-resource">First resource</h2>
+<p>Let’s create a <code>Session</code> resource. Since we have no backend part, we should stub
+the data. We’ll use Angular <strong>Services</strong>. That’s easy: a service defines a
+function, returning, say, an object. That object will be used every time you
+call a service. And you may use not only objects - you may return functions,
+constants or literally anything from your services.</p>
+<!--more-->
+
+<p>We’ll return an object with two methods: <code>get(account)</code> and <code>create(account)</code>.
+Both methods will take an object, containing user account details - <code>email</code>,
+<code>password</code>, and, in case of <code>create()</code>, <code>name</code> and <code>password_confirmation</code>, additionally.
+You might’ve guessed already: the <code>get(account)</code> method will log the user in and
+<code>create(account)</code> will register a new account for the user.</p>
+<pre><code class="language-js">ourStatsControllers<span class="token punctuation">.</span><span class="token function">factory</span><span class="token punctuation">(</span><span class="token string">'Session'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token keyword">var</span> testAccount <span class="token operator">=</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'Artem'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">email</span><span class="token operator">:</span> <span class="token string">'artem@ourstats.com'</span>
+                <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> <span class="token punctuation">{</span>
+            <span class="token function-variable function">get</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">account</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token keyword">var</span> params <span class="token operator">=</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">email</span><span class="token operator">:</span> account<span class="token punctuation">.</span>email<span class="token punctuation">,</span>
+                    <span class="token literal-property property">password</span><span class="token operator">:</span> account<span class="token punctuation">.</span>password
+                <span class="token punctuation">}</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function-variable function">create</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">account</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token keyword">var</span> params <span class="token operator">=</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">name</span><span class="token operator">:</span> account<span class="token punctuation">.</span>name<span class="token punctuation">,</span>
+                    <span class="token literal-property property">email</span><span class="token operator">:</span> account<span class="token punctuation">.</span>email<span class="token punctuation">,</span>
+                    <span class="token literal-property property">password</span><span class="token operator">:</span> account<span class="token punctuation">.</span>password
+                <span class="token punctuation">}</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>When you inject it into your controller, you may use it via</p>
+<pre><code class="language-js">Session<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">email</span><span class="token operator">:</span> <span class="token string">''</span><span class="token punctuation">,</span> <span class="token literal-property property">password</span><span class="token operator">:</span> <span class="token string">''</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>The thing here is that we want to keep user data somewhere to simulate a
+database work. So when user <em>“signs up”</em>, he will have his data saved in the memory
+not to loose it when changing a page. We’ll use another service for that purpose.
+But contrary to our <code>sessions</code> service, this one will be used in the future and even
+barely changed.</p>
+<p>Now, here’s one more trick: we defined our <code>Session</code> factory in the <code>ourStatsControllers</code> module.
+Why did we do this? Why not just use <code>ourStatsApp</code> module? This is done mostly to keep things
+in one place, so everything related to controllers and UI processing is kept inside one module.
+Doing so we can later separate our modules into separate files and keep our main application
+module clean from unnecessary code <em>(in terms of the whole application)</em>.</p>
+<p>To store user account data we’ll use cookies. And there is a plugin for this
+already! It is called <code>ngCookies</code>. And we’ll install it right now:</p>
+<pre><code class="language-bash">bower <span class="token function">install</span> --save angular-cookies
+</code></pre>
+<p>This one’s configuration is a bit more complicated. But just a bit: it needs
+to be added to application dependency list:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> ourStatsApp <span class="token operator">=</span> angular<span class="token punctuation">.</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token string">'ourStatsApp'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'ngRoute'</span><span class="token punctuation">,</span> <span class="token string">'ngCookies'</span><span class="token punctuation">,</span> <span class="token string">'ourStatsControllers'</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>But since we use cookies directly in controllers only, we may move the <code>ngCookies</code> dependency to
+the <code>ourStatsControllers</code> module:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> ourStatsControllers <span class="token operator">=</span> angular<span class="token punctuation">.</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token string">'ourStatsControllers'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'ngCookies'</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// ...</span>
+
+<span class="token keyword">var</span> ourStatsApp <span class="token operator">=</span> angular<span class="token punctuation">.</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token string">'ourStatsApp'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'ngRoute'</span><span class="token punctuation">,</span> <span class="token string">'ourStatsControllers'</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Now we need to define our <code>AccountData</code> service. It’ll also require a <code>ngCookies</code> dependency:</p>
+<pre><code class="language-js">ourStatsControllers<span class="token punctuation">.</span><span class="token function">factory</span><span class="token punctuation">(</span><span class="token string">'AccountData'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'$cookies'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">(</span><span class="token parameter">$cookies</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token punctuation">{</span>
+            <span class="token function-variable function">get</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> $cookies<span class="token punctuation">.</span><span class="token function">getObject</span><span class="token punctuation">(</span><span class="token string">'account'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token function-variable function">set</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">account</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                $cookies<span class="token punctuation">.</span><span class="token function">putObject</span><span class="token punctuation">(</span><span class="token string">'account'</span><span class="token punctuation">,</span> account<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token function-variable function">reset</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                $cookies<span class="token punctuation">.</span><span class="token function">remove</span><span class="token punctuation">(</span><span class="token string">'account'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>And we need to modify our <code>Session</code> service a bit:</p>
+<pre><code class="language-js">ourStatsControllers<span class="token punctuation">.</span><span class="token function">factory</span><span class="token punctuation">(</span><span class="token string">'Session'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'$http'</span><span class="token punctuation">,</span> <span class="token string">'AccountData'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">(</span><span class="token parameter">$http<span class="token punctuation">,</span> AccountData</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token keyword">var</span> testAccount <span class="token operator">=</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'Artem'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">email</span><span class="token operator">:</span> <span class="token string">'artem@ourstats.com'</span>
+                <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> <span class="token punctuation">{</span>
+            <span class="token function-variable function">get</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">account</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token keyword">var</span> params <span class="token operator">=</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">email</span><span class="token operator">:</span> account<span class="token punctuation">.</span>email<span class="token punctuation">,</span>
+                    <span class="token literal-property property">password</span><span class="token operator">:</span> account<span class="token punctuation">.</span>password
+                <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+                AccountData<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>testAccount<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function-variable function">create</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">account</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token keyword">var</span> params <span class="token operator">=</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">name</span><span class="token operator">:</span> account<span class="token punctuation">.</span>name<span class="token punctuation">,</span>
+                    <span class="token literal-property property">email</span><span class="token operator">:</span> account<span class="token punctuation">.</span>email<span class="token punctuation">,</span>
+                    <span class="token literal-property property">password</span><span class="token operator">:</span> account<span class="token punctuation">.</span>password
+                <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+                AccountData<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>testAccount<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>And now we can implement the controller to pick up the newly added service:</p>
+<pre><code class="language-js">ourStatsControllers<span class="token punctuation">.</span><span class="token function">controller</span><span class="token punctuation">(</span><span class="token string">'NewSessionCtrl'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'$scope'</span><span class="token punctuation">,</span> <span class="token string">'Session'</span><span class="token punctuation">,</span> <span class="token string">'AccountData'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">(</span><span class="token parameter">$scope<span class="token punctuation">,</span> Session</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        $scope<span class="token punctuation">.</span>newAccount <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+        $scope<span class="token punctuation">.</span>existingAccount <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        $scope<span class="token punctuation">.</span><span class="token function-variable function">signIn</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            Session<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>$scope<span class="token punctuation">.</span>existingAccount<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        $scope<span class="token punctuation">.</span><span class="token function-variable function">signUp</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            Session<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span>$scope<span class="token punctuation">.</span>newAccount<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        $scope<span class="token punctuation">.</span><span class="token function-variable function">signOut</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            AccountData<span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>But here’s just one small detail: we need both <code>Session</code> and <code>AccountData</code> services to perform
+similar actions - managing session. We can refactor our code to keep all the session management
+tasks in one place - <code>Session</code> service:</p>
+<pre><code class="language-js">ourStatsControllers<span class="token punctuation">.</span><span class="token function">factory</span><span class="token punctuation">(</span><span class="token string">'Session'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'$http'</span><span class="token punctuation">,</span> <span class="token string">'AccountData'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">(</span><span class="token parameter">$http<span class="token punctuation">,</span> AccountData</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token keyword">var</span> testAccount <span class="token operator">=</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'Artem'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">email</span><span class="token operator">:</span> <span class="token string">'artem@ourstats.com'</span>
+                <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> <span class="token punctuation">{</span>
+            <span class="token function-variable function">get</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">account</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token keyword">var</span> params <span class="token operator">=</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">email</span><span class="token operator">:</span> account<span class="token punctuation">.</span>email<span class="token punctuation">,</span>
+                    <span class="token literal-property property">password</span><span class="token operator">:</span> account<span class="token punctuation">.</span>password
+                <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+                AccountData<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>testAccount<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function-variable function">create</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">account</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token keyword">var</span> params <span class="token operator">=</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">name</span><span class="token operator">:</span> account<span class="token punctuation">.</span>name<span class="token punctuation">,</span>
+                    <span class="token literal-property property">email</span><span class="token operator">:</span> account<span class="token punctuation">.</span>email<span class="token punctuation">,</span>
+                    <span class="token literal-property property">password</span><span class="token operator">:</span> account<span class="token punctuation">.</span>password
+                <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+                AccountData<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>testAccount<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function-variable function">reset</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                AccountData<span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Now our <code>NewSessionCtrl</code> could be refactored too:</p>
+<pre><code class="language-js">ourStatsControllers<span class="token punctuation">.</span><span class="token function">controller</span><span class="token punctuation">(</span><span class="token string">'NewSessionCtrl'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'$scope'</span><span class="token punctuation">,</span> <span class="token string">'Session'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">(</span><span class="token parameter">$scope<span class="token punctuation">,</span> Session</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        $scope<span class="token punctuation">.</span>newAccount <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+        $scope<span class="token punctuation">.</span>existingAccount <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        $scope<span class="token punctuation">.</span><span class="token function-variable function">signIn</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            Session<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>$scope<span class="token punctuation">.</span>existingAccount<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        $scope<span class="token punctuation">.</span><span class="token function-variable function">signUp</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            Session<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span>$scope<span class="token punctuation">.</span>newAccount<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        $scope<span class="token punctuation">.</span><span class="token function-variable function">signOut</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            Session<span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Looks better, huh?</p>
+<p>So now we have our first member of our <strong>Model</strong> layer. It works with stubbed data right now,
+but we’ll be changing that later. It is not bound to the <strong>ViewModel</strong>, because the values
+of our <code>$scope.newAccount</code> and <code>$scope.existingAccount</code> are constant and don’t depend on
+the template. To change this, we need to modify our <code>new_session.jade</code> template:</p>
+<pre><code class="language-pug"><span class="token tag"><span class="token attr-class">.row</span></span>
+    <span class="token tag"><span class="token attr-class">.col-xs-12</span><span class="token attr-class">.col-md-4</span><span class="token attr-class">.col-md-offset-1</span><span class="token attr-class">.well</span></span>
+        <span class="token tag">h3</span> <span class="token plain-text">Sign up</span>
+        <span class="token tag">form<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">ng-submit</span><span class="token punctuation">=</span><span class="token attr-value">"<span class="token function">signUp</span><span class="token punctuation">(</span></span><span class="token punctuation">)</span></span></span>")
+            <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"text"</span> placeholder<span class="token operator">=</span><span class="token string">"Your name"</span> ng<span class="token operator">-</span>model<span class="token operator">=</span><span class="token string">"newAccount.name"</span></span><span class="token punctuation">)</span></span></span>
+            <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"email"</span> placeholder<span class="token operator">=</span><span class="token string">"Email"</span> ng<span class="token operator">-</span>model<span class="token operator">=</span><span class="token string">"newAccount.email"</span></span><span class="token punctuation">)</span></span></span>
+            <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"password"</span> placeholder<span class="token operator">=</span><span class="token string">"Password"</span> ng<span class="token operator">-</span>model<span class="token operator">=</span><span class="token string">"newAccount.password"</span></span><span class="token punctuation">)</span></span></span>
+            <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"password"</span> placeholder<span class="token operator">=</span><span class="token string">"Password confirmation"</span></span><span class="token punctuation">)</span></span></span>
+            <span class="token tag">fieldset<span class="token attr-class">.form-group</span><span class="token attr-class">.text-center</span></span>
+                <span class="token tag">button<span class="token attr-class">.btn</span><span class="token attr-class">.btn-primary</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"submit"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Sign up</span>
+
+    <span class="token tag"><span class="token attr-class">.col-md-2</span></span>
+
+    <span class="token tag"><span class="token attr-class">.col-xs-12</span><span class="token attr-class">.col-md-4</span><span class="token attr-class">.well</span></span>
+        <span class="token tag">h3</span> <span class="token plain-text">Sign in</span>
+        <span class="token tag">form<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">ng-submit</span><span class="token punctuation">=</span><span class="token attr-value">"<span class="token function">signIn</span><span class="token punctuation">(</span></span><span class="token punctuation">)</span></span></span>")
+            <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"email"</span> placeholder<span class="token operator">=</span><span class="token string">"Email"</span> ng<span class="token operator">-</span>model<span class="token operator">=</span><span class="token string">"existingAccount.name"</span></span><span class="token punctuation">)</span></span></span>
+            <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"password"</span> placeholder<span class="token operator">=</span><span class="token string">"Password"</span> ng<span class="token operator">-</span>model<span class="token operator">=</span><span class="token string">"existingAccount.password"</span></span><span class="token punctuation">)</span></span></span>
+            <span class="token tag">fieldset<span class="token attr-class">.form-group</span><span class="token attr-class">.text-center</span></span>
+                <span class="token tag">button<span class="token attr-class">.btn</span><span class="token attr-class">.btn-success</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"submit"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Sign in</span>
+</code></pre>
+<p>Note the <code>ng-model</code> directive: it performs two-way data binding. It means, when user changes the
+value of our, say, <code>name</code> input, the corresponding value inside controller, namely <code>$scope.newAccount.name</code>,
+will also change. What’s more, when the value of <code>$scope.newAccount.name</code> will be changed from
+the JavaScript (or, from the controller itself), the value within the input in a user’s browser,
+will also be changed.</p>
+<p>Now, what’s about the <code>ng-submit</code> directive. It is added to form tags only. And it works exactly as
+you might’ve guessed: when form is submitted, the corresponding expression within that directive is called.</p>
+<h2 id="making-fake-calls">Making fake calls</h2>
+<p>Now that we have our stubbed signing in and up routines, we may redirect user to the right page
+when he signed in or up successfully. This is the job for <code>$location</code> service. It’s available
+in Angular core module, <code>ng</code>, so we don’t need to add any new module-wise dependencies.
+Just use it in our <code>NewSessionCtrl</code>:</p>
+<pre><code class="language-js">ourStatsControllers<span class="token punctuation">.</span><span class="token function">controller</span><span class="token punctuation">(</span><span class="token string">'NewSessionCtrl'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'$scope'</span><span class="token punctuation">,</span> <span class="token string">'$location'</span><span class="token punctuation">,</span> <span class="token string">'Session'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">(</span><span class="token parameter">$scope<span class="token punctuation">,</span> $location<span class="token punctuation">,</span> Session</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        $scope<span class="token punctuation">.</span>newAccount <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+        $scope<span class="token punctuation">.</span>existingAccount <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        $scope<span class="token punctuation">.</span><span class="token function-variable function">signIn</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            Session<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>$scope<span class="token punctuation">.</span>existingAccount<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            $location<span class="token punctuation">.</span><span class="token function">path</span><span class="token punctuation">(</span><span class="token string">'/applications'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        $scope<span class="token punctuation">.</span><span class="token function-variable function">signUp</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            Session<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span>$scope<span class="token punctuation">.</span>newAccount<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            $location<span class="token punctuation">.</span><span class="token function">path</span><span class="token punctuation">(</span><span class="token string">'/applications'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        $scope<span class="token punctuation">.</span><span class="token function-variable function">signOut</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            Session<span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            $location<span class="token punctuation">.</span><span class="token function">path</span><span class="token punctuation">(</span><span class="token string">'/'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Here comes new refactoring-able piece of code: we now have our routes declared in both
+<code>ourStatsApp</code> module and <code>ourStatsControllers</code>. So if we decide to change, let’s say,
+route <code>/new-session</code> to <code>/login</code>, we will need to change it in both modules. We can easily
+extract those URLs into a single service and use it in both <code>ourStatsControllers</code>
+and <code>ourStatsApp</code> modules, because everything we define in <code>ourStatsControllers</code> will be
+available in the <code>ourStatsApp</code> thanks to dependency injection. And since our URLs will
+always be the same <em>(except, maybe, the parametrised ones)</em>, we may define a constant
+instead of factory:</p>
+<pre><code class="language-js">ourStatsControllers<span class="token punctuation">.</span><span class="token function">constant</span><span class="token punctuation">(</span><span class="token string">'Url'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">landing</span><span class="token operator">:</span> <span class="token string">'/'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">newSession</span><span class="token operator">:</span> <span class="token string">'/new-session'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">editAccount</span><span class="token operator">:</span> <span class="token string">'/edit-account'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">listApplications</span><span class="token operator">:</span> <span class="token string">'/applications'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">newApplication</span><span class="token operator">:</span> <span class="token string">'/applications/new'</span><span class="token punctuation">,</span>
+
+        <span class="token function-variable function">showApplication</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">id</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>id<span class="token punctuation">)</span>
+                id <span class="token operator">=</span> <span class="token string">':id'</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">return</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">/applications/</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>id<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+        <span class="token function-variable function">editApplication</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">id</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>id<span class="token punctuation">)</span>
+                id <span class="token operator">=</span> <span class="token string">':id'</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">return</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">/applications/</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>id<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">/edit</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<h2 id="application-startup-phases">Application startup phases</h2>
+<p>As you can see, there are a couple of entities you can create with Angular - we’ve already
+dealt with <strong>controllers</strong>, <strong>factories</strong>, <strong>modules</strong> and <strong>constants</strong>. They all are slighty
+different from each other and the difference lies under Angular startup process.</p>
+<p>When your application <em>“starts up”</em> or initializes, there are two kingds of methods, which are
+ran first: <code>config</code> and <code>run</code>. They are user-defined and your application can have more than just
+one of those. Those methods define the initialization behaviour of your application. They both
+can deal with dependency injection. But their run order is different: <code>config</code> blocks are executed
+first, at the very beginning of the whole application initialization process. Thus you can inject
+only <strong>providers</strong> <em>(<code>$routeProvider</code> for instance)</em> and <strong>constants</strong> into <code>config</code> blocks.
+Whilst <code>run</code> blocks can only handle <strong>instances</strong> <em>(for example, <code>$scope</code>)</em> and <strong>constants</strong>.</p>
+<p>Since we have our routes defined at the <code>config</code> stage, we need to use <strong>constant</strong> to name our
+routes. And then use them like this:</p>
+<pre><code class="language-js">ourStatsApp
+    <span class="token punctuation">.</span><span class="token function">config</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'$routeProvider'</span><span class="token punctuation">,</span> <span class="token string">'Url'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">(</span><span class="token parameter">$routeProvider<span class="token punctuation">,</span> Url</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            $routeProvider
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>landing<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'landing-page.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'LandingPageCtrl'</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>newSession<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'new-session.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'NewSessionCtrl'</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>editAccount<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'edit-account.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'EditAccountCtrl'</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>listApplications<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'list-applications.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'ListApplicationsCtrl'</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>newApplication<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'new-application.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'NewApplicationCtrl'</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span><span class="token function">editApplication</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'edit-application.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'EditApplicationCtrl'</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span><span class="token function">showApplication</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'show-application.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'ShowApplicationCtrl'</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">otherwise</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+                    <span class="token literal-property property">redirectTo</span><span class="token operator">:</span> Url<span class="token punctuation">.</span>landing
+                <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+ourStatsControllers
+    <span class="token punctuation">.</span><span class="token function">controller</span><span class="token punctuation">(</span><span class="token string">'NewSessionCtrl'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'$scope'</span><span class="token punctuation">,</span> <span class="token string">'$location'</span><span class="token punctuation">,</span> <span class="token string">'Session'</span><span class="token punctuation">,</span> <span class="token string">'Url'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">(</span><span class="token parameter">$scope<span class="token punctuation">,</span> $location<span class="token punctuation">,</span> Session<span class="token punctuation">,</span> Url</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            $scope<span class="token punctuation">.</span>newAccount <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+            $scope<span class="token punctuation">.</span>existingAccount <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+            $scope<span class="token punctuation">.</span><span class="token function-variable function">signIn</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                Session<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>$scope<span class="token punctuation">.</span>existingAccount<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                $location<span class="token punctuation">.</span><span class="token function">path</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>listApplications<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+            $scope<span class="token punctuation">.</span><span class="token function-variable function">signUp</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                Session<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span>$scope<span class="token punctuation">.</span>newAccount<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                $location<span class="token punctuation">.</span><span class="token function">path</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>listApplications<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+            $scope<span class="token punctuation">.</span><span class="token function-variable function">signOut</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                AccountData<span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                $location<span class="token punctuation">.</span><span class="token function">path</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>landing<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre>
+<p>To show the difference in practice, let’s add the authentication verification. We now have our
+stubbed account and session management service, so why not? Angular provides us with two options:</p>
+<ol>
+<li>the <code>resolve</code> attribute for the <code>$routeProvider.when()</code> method</li>
+<li>the <code>$routeChangeStart</code> event</li>
+</ol>
+<p>The first approach is nice, but since we set up routes in the <code>config</code> section, we are not allowed
+to use services. And that is the problem, because we’ve got our <code>Session</code> service, handling the
+tasks we need. And one more drawback of this method: one should set it for each route, which requires
+verification:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> <span class="token function-variable function">verifyAuthentication</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+ourStatsApp
+    <span class="token punctuation">.</span><span class="token function">config</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'$routeProvider'</span><span class="token punctuation">,</span> <span class="token string">'Url'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">(</span><span class="token parameter">$routeProvider<span class="token punctuation">,</span> Url</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            $routeProvider
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>landing<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'landing-page.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'LandingPageCtrl'</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>newSession<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'new-session.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'NewSessionCtrl'</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>editAccount<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'edit-account.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'EditAccountCtrl'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">resolve</span><span class="token operator">:</span> verifyAuthentication
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>listApplications<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'list-applications.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'ListApplicationsCtrl'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">resolve</span><span class="token operator">:</span> verifyAuthentication
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>newApplication<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'new-application.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'NewApplicationCtrl'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">resolve</span><span class="token operator">:</span> verifyAuthentication
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span><span class="token function">editApplication</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'edit-application.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'EditApplicationCtrl'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">resolve</span><span class="token operator">:</span> verifyAuthentication
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span><span class="token function">showApplication</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'show-application.html'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'ShowApplicationCtrl'</span><span class="token punctuation">,</span>
+                    <span class="token literal-property property">resolve</span><span class="token operator">:</span> verifyAuthentication
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">otherwise</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+                    <span class="token literal-property property">redirectTo</span><span class="token operator">:</span> Url<span class="token punctuation">.</span>landing
+                <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Handling <code>$routeChangeStart</code> event suits us, and what’s more interesting: it shows the use of <code>run</code>
+section. But as a drawback to this, we’ll need the list of routes, which need to be checked. So
+I modified the definition of <code>Url</code> constant like this:</p>
+<pre><code class="language-js">ourStatsApp
+    <span class="token punctuation">.</span><span class="token function">constant</span><span class="token punctuation">(</span><span class="token string">'Url'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token keyword">var</span> urls <span class="token operator">=</span> <span class="token punctuation">{</span>
+            <span class="token literal-property property">landing</span><span class="token operator">:</span> <span class="token string">'/'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">newSession</span><span class="token operator">:</span> <span class="token string">'/new-session'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">editAccount</span><span class="token operator">:</span> <span class="token string">'/edit-account'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">listApplications</span><span class="token operator">:</span> <span class="token string">'/applications'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">newApplication</span><span class="token operator">:</span> <span class="token string">'/applications/new'</span><span class="token punctuation">,</span>
+
+            <span class="token function-variable function">showApplication</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">id</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>id<span class="token punctuation">)</span>
+                    id <span class="token operator">=</span> <span class="token string">':id'</span><span class="token punctuation">;</span>
+
+                <span class="token keyword">return</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">/applications/</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>id<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function-variable function">editApplication</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">id</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>id<span class="token punctuation">)</span>
+                    id <span class="token operator">=</span> <span class="token string">':id'</span><span class="token punctuation">;</span>
+
+                <span class="token keyword">return</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">/applications/</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>id<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">/edit</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        urls<span class="token punctuation">.</span>authRequired <span class="token operator">=</span> <span class="token punctuation">[</span>
+            urls<span class="token punctuation">.</span>editAccount<span class="token punctuation">,</span>
+            urls<span class="token punctuation">.</span>listApplications<span class="token punctuation">,</span>
+            urls<span class="token punctuation">.</span>newApplication<span class="token punctuation">,</span>
+            urls<span class="token punctuation">.</span><span class="token function">showApplication</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            urls<span class="token punctuation">.</span><span class="token function">editApplication</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> urls<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>A bit tricky, does not it? And here’s the handler for the <code>$routeChangeStart</code> event:</p>
+<pre><code class="language-js">ourStatsApp
+    <span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'$rootScope'</span><span class="token punctuation">,</span> <span class="token string">'$location'</span><span class="token punctuation">,</span> <span class="token string">'Session'</span><span class="token punctuation">,</span> <span class="token string">'AccountData'</span><span class="token punctuation">,</span> <span class="token string">'Url'</span><span class="token punctuation">,</span>
+        <span class="token punctuation">(</span><span class="token parameter">$rootScope<span class="token punctuation">,</span> $location<span class="token punctuation">,</span> Session<span class="token punctuation">,</span> AccountData<span class="token punctuation">,</span> Url</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            $rootScope<span class="token punctuation">.</span><span class="token function">$on</span><span class="token punctuation">(</span><span class="token string">'$routeChangeStart'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">event<span class="token punctuation">,</span> current<span class="token punctuation">,</span> next</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token comment">// check if user is authenticated for selected URLs only</span>
+                <span class="token comment">// first, try to restore his session</span>
+                <span class="token comment">// if this failed because user has no AccountData cookie - redirect him to newSession page</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>Url<span class="token punctuation">.</span>authRequired<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span>$location<span class="token punctuation">.</span><span class="token function">path</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">></span> <span class="token operator">-</span><span class="token number">1</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span>Session<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span>AccountData<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                    $location<span class="token punctuation">.</span><span class="token function">path</span><span class="token punctuation">(</span>Url<span class="token punctuation">.</span>newSession<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h2 id="rocking-on">Rocking on</h2>
+<p>Other services and controllers are much like those we already have, so I’ll just put in the code
+in the end of the page. The interesting thing here is the <code>MockData</code> service that I’ve used to keep
+data, used while we have no server side.</p>
+<pre><code class="language-js">ourStatsApp
+    <span class="token punctuation">.</span><span class="token function">constant</span><span class="token punctuation">(</span><span class="token string">'MockData'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">account</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'Artem'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">email</span><span class="token operator">:</span> <span class="token string">'artem@ourstats.com'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">password</span><span class="token operator">:</span> <span class="token string">'abc123'</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">applications</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+            <span class="token punctuation">{</span>
+                <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+                <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'App #1'</span><span class="token punctuation">,</span>
+                <span class="token literal-property property">token</span><span class="token operator">:</span> <span class="token string">'APP1TOK'</span><span class="token punctuation">,</span>
+                <span class="token literal-property property">stats</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">byCountry</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+                        <span class="token punctuation">{</span><span class="token literal-property property">country</span><span class="token operator">:</span> <span class="token string">'Poland'</span><span class="token punctuation">,</span> <span class="token literal-property property">amount</span><span class="token operator">:</span> <span class="token number">10</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">{</span><span class="token literal-property property">country</span><span class="token operator">:</span> <span class="token string">'USA'</span><span class="token punctuation">,</span> <span class="token literal-property property">amount</span><span class="token operator">:</span> <span class="token number">190</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">{</span><span class="token literal-property property">country</span><span class="token operator">:</span> <span class="token string">'Algeria'</span><span class="token punctuation">,</span> <span class="token literal-property property">amount</span><span class="token operator">:</span> <span class="token number">5</span><span class="token punctuation">}</span>
+                    <span class="token punctuation">]</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+                <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'App #2'</span><span class="token punctuation">,</span>
+                <span class="token literal-property property">token</span><span class="token operator">:</span> <span class="token string">'APP2TOK'</span><span class="token punctuation">,</span>
+                <span class="token literal-property property">stats</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">byCountry</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+                        <span class="token punctuation">{</span><span class="token literal-property property">country</span><span class="token operator">:</span> <span class="token string">'Vietnam'</span><span class="token punctuation">,</span> <span class="token literal-property property">amount</span><span class="token operator">:</span> <span class="token number">7</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">{</span><span class="token literal-property property">country</span><span class="token operator">:</span> <span class="token string">'New Zeland'</span><span class="token punctuation">,</span> <span class="token literal-property property">amount</span><span class="token operator">:</span> <span class="token number">19</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">{</span><span class="token literal-property property">country</span><span class="token operator">:</span> <span class="token string">'USA'</span><span class="token punctuation">,</span> <span class="token literal-property property">amount</span><span class="token operator">:</span> <span class="token number">15</span><span class="token punctuation">}</span>
+                    <span class="token punctuation">]</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+                <span class="token literal-property property">name</span><span class="token operator">:</span> <span class="token string">'App #3'</span><span class="token punctuation">,</span>
+                <span class="token literal-property property">token</span><span class="token operator">:</span> <span class="token string">'APP3TOK'</span><span class="token punctuation">,</span>
+                <span class="token literal-property property">stats</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+                    <span class="token literal-property property">byCountry</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+                        <span class="token punctuation">{</span><span class="token literal-property property">country</span><span class="token operator">:</span> <span class="token string">'USA'</span><span class="token punctuation">,</span> <span class="token literal-property property">amount</span><span class="token operator">:</span> <span class="token number">95</span><span class="token punctuation">}</span>
+                    <span class="token punctuation">]</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// ...</span>
+
+ourStatsApp
+    <span class="token punctuation">.</span><span class="token function">factory</span><span class="token punctuation">(</span><span class="token string">'Application'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'$http'</span><span class="token punctuation">,</span> <span class="token string">'MockData'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">$http<span class="token punctuation">,</span> MockData</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token punctuation">{</span>
+            <span class="token function-variable function">create</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">application</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token comment">// send data to the server and check if response status == 200; return application (arg)</span>
+                <span class="token keyword">return</span> application<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function-variable function">get</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">id<span class="token punctuation">,</span> fromDate<span class="token punctuation">,</span> toDate</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token comment">// fromDate and toDate are used for stats filtering</span>
+                <span class="token comment">// send data to the server and return response</span>
+                <span class="token keyword">return</span> MockData<span class="token punctuation">.</span>applications<span class="token punctuation">[</span>id<span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function-variable function">update</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">id<span class="token punctuation">,</span> application</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token comment">// send data to the server and check if response status == 200; return application (arg)</span>
+                <span class="token keyword">return</span> application<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function-variable function">all</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+                <span class="token comment">// send request to the server and return the response</span>
+                <span class="token keyword">return</span> MockData<span class="token punctuation">.</span>applications<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>And here’s the demo of what we’ve done up until now: <a href="http://codepen.io/shybovycha/pen/vLMZmd/">Simple web analytics. Communication layer. v2</a></p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

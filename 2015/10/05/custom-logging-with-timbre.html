@@ -1,0 +1,187 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Custom logging with timbre</h1>
+
+    <time>05 Oct 2015 at 00:00</time>
+
+    <div class="content"><h2 id="timbre">Timbre?</h2>
+<p>At my job we recently started researching logging tools to make our RESTful API, written in Clojure,
+writing logs in JSON format. We were using <strong>Log4j</strong> already, but decided to use another tool for
+this task, making it less painful. So we felt into <strong>timbre</strong>. Is seemed so easy to use, but it is
+really undocumented.</p>
+<p>According to timbre’s API, we needed to define our own <strong>appender</strong> for writing to a custom JSON file.
+And we found the <code>output-fn</code> option to configure this behaviour. But it is not documented at all,
+so we started looking for repositories, using timbre, examples and all the stuff. And finally,
+we ended up with our own solution.</p>
+<p>Underneath you will find description of our way to use timbre from scratch.</p>
+<!--more-->
+
+<h2 id="getting-started">Getting started</h2>
+<p>First of all, you will need a <strong>Leiningen</strong> project. We already have one, but you may want to create
+a blank one for the test purpose. But beware, you’d better generate it from an <code>app</code> template, so
+when you run it with <code>lein run</code>, you face not the problem I faced. The problem was an error I could
+not get rid of, saying <code>Cannot find anything to run for: my-ns</code>. So I just re-generated project from
+scratch and the problem gone. <em>I did no research deeper, but if I will, I’ll write about it for sure</em>.</p>
+<p>Generating project from an <code>app</code> template is done really easily:</p>
+<pre><code class="language-bash">lein new app your-app-name
+</code></pre>
+<p>The process will be finished in seconds. Then you’ll need to add a few dependencies in your <code>project.clj</code>:</p>
+<pre><code class="language-clojure"><span class="token punctuation">(</span><span class="token keyword">defproject</span> your-app-name
+    <span class="token comment">; ...</span>
+    <span class="token symbol">:dependencies</span> <span class="token punctuation">[</span><span class="token punctuation">[</span>org.clojure/clojure <span class="token string">"1.6.0"</span><span class="token punctuation">]</span>
+                 <span class="token punctuation">[</span>com.taoensso/timbre <span class="token string">"4.1.4"</span><span class="token punctuation">]</span>
+                 <span class="token punctuation">[</span>org.clojure/data.json <span class="token string">"0.2.6"</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+    <span class="token comment">; ...</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<p>To install dependencies for your project, simply run <code>lein deps</code>.</p>
+<h2 id="configuring-timbre">Configuring timbre</h2>
+<p>To use timbre in your project all you need is to require it:</p>
+<pre><code class="language-clojure"><span class="token punctuation">(</span><span class="token keyword">ns</span> timbre-test1.core
+  <span class="token punctuation">(</span><span class="token symbol">:require</span> <span class="token punctuation">[</span>taoensso.timbre <span class="token symbol">:as</span> timbre <span class="token symbol">:refer</span> <span class="token punctuation">(</span><span class="token function">log</span> info warn debug error<span class="token punctuation">)</span><span class="token punctuation">]</span>
+            <span class="token punctuation">[</span>clojure.data.json <span class="token symbol">:as</span> json<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token punctuation">(</span><span class="token keyword">defn</span> -main <span class="token punctuation">[</span>&amp; args<span class="token punctuation">]</span>
+  <span class="token punctuation">(</span><span class="token function">info</span> <span class="token punctuation">{</span><span class="token symbol">:moo</span> -<span class="token number">3.14</span><span class="token punctuation">}</span> <span class="token punctuation">{</span><span class="token symbol">:foo</span> <span class="token symbol">:bar</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">(</span><span class="token function">info</span> <span class="token punctuation">{</span><span class="token symbol">:some-complicated-hash</span> <span class="token punctuation">{</span><span class="token symbol">:inner-hash</span> <span class="token punctuation">{</span><span class="token symbol">:more-inner</span> <span class="token punctuation">[</span><span class="token string">"value1"</span> <span class="token string">"value2"</span><span class="token punctuation">]</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">(</span><span class="token function">info</span> <span class="token string">"Hello, World!"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">(</span><span class="token function">error</span> <span class="token string">"SOMETHING WENT WELL"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<p>This example shows one very important feature of timbre: <strong>it can log objects, other than strings and
+exceptions</strong>. This is really handy! Doing so, timbre is able to log a JSON object simply, almost
+out-of-the-box.</p>
+<h2 id="custom-configuration">Custom configuration</h2>
+<p>Now the time has come for something non-trivial. We need to set up our own appender to force timbre
+log everything in JSON.</p>
+<p>There is a set of default appenders in timbre already. For instance, there is a <code>spit</code> appender,
+writing logs to a file. And the default timbre’s appender, writing logs to <code>stdout</code>, is called
+<code>sample</code>. But there’s a trick: each appender in timbre should be configured by its <strong>id</strong>, not
+by its <strong>type</strong>. So you may have two different <code>spit</code> appenders, for example, writing to different
+files.</p>
+<p>Timbre provides two methods of configuration:</p>
+<ul>
+<li><strong>merging</strong>, when you can override only some options of default config</li>
+<li><strong>setting</strong>, when you override all the default options at once</li>
+</ul>
+<p>We used the first way, because some of timbre’s options were mystical to us - if we do not set them,
+we will get no output at all. And we have not researched which ones we need to set.</p>
+<p>At first, we wrote a simple config, forcing logging to be printed onto a screen with some JSON
+formatting:</p>
+<pre><code class="language-clojure"><span class="token punctuation">(</span><span class="token keyword">ns</span> timbre-test1.core
+  <span class="token punctuation">(</span><span class="token symbol">:require</span> <span class="token punctuation">[</span>taoensso.timbre <span class="token symbol">:as</span> timbre <span class="token symbol">:refer</span> <span class="token punctuation">(</span><span class="token function">log</span> info warn debug error<span class="token punctuation">)</span><span class="token punctuation">]</span>
+            <span class="token punctuation">[</span>clojure.data.json <span class="token symbol">:as</span> json<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+
+<span class="token punctuation">(</span><span class="token keyword">defn</span> json-output-fn
+  <span class="token punctuation">[</span><span class="token punctuation">{</span><span class="token symbol">:keys</span> <span class="token punctuation">[</span>vargs_ hostname_ timestamp_ level<span class="token punctuation">]</span> <span class="token symbol">:as</span> args<span class="token punctuation">}</span><span class="token punctuation">]</span>
+  <span class="token punctuation">(</span><span class="token keyword">let</span> <span class="token punctuation">[</span>
+        messages <span class="token punctuation">(</span><span class="token keyword">map</span> <span class="token punctuation">(</span><span class="token keyword">fn</span> <span class="token punctuation">[</span>msg<span class="token punctuation">]</span> <span class="token punctuation">{</span> <span class="token symbol">:timestamp</span> <span class="token operator">@</span>timestamp_
+                                  <span class="token symbol">:level</span>     level
+                                  <span class="token symbol">:hostname</span>  <span class="token operator">@</span>hostname_
+                                  <span class="token symbol">:message</span>   msg <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                   <span class="token operator">@</span>vargs_<span class="token punctuation">)</span>
+        json-messages <span class="token punctuation">(</span><span class="token keyword">map</span> <span class="token operator">#</span><span class="token punctuation">(</span><span class="token function">json/write-str</span> %<span class="token punctuation">)</span> messages<span class="token punctuation">)</span><span class="token punctuation">]</span>
+    <span class="token punctuation">(</span><span class="token function">clojure.string/join</span> <span class="token string">"\n"</span> json-messages<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+
+<span class="token punctuation">(</span><span class="token keyword">defn</span> -main <span class="token punctuation">[</span>&amp; args<span class="token punctuation">]</span>
+  <span class="token punctuation">(</span><span class="token function">timbre/merge-config!</span>
+    <span class="token punctuation">{</span><span class="token symbol">:appenders</span> <span class="token punctuation">{</span>
+                 <span class="token symbol">:println</span> <span class="token punctuation">{</span>
+                    <span class="token symbol">:output-fn</span> json-output-fn
+                 <span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">(</span><span class="token function">info</span> <span class="token punctuation">{</span><span class="token symbol">:moo</span> -<span class="token number">3.14</span><span class="token punctuation">}</span> <span class="token punctuation">{</span><span class="token symbol">:foo</span> <span class="token symbol">:bar</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<p>Note the appender id: <code>println</code>. This code overrides <code>output-fn</code> for <code>println</code> appender <em>(e. g. the
+default one)</em>. The parameter for <code>output-fn</code> is a function, receiving a map with different keys. The
+most important ones are <code>vargs_</code>, <code>hostname_</code>, <code>timestamp_</code> and <code>level</code>. Those are enough to format
+the correct and full message with any format you might want.</p>
+<p>The <code>vargs_</code> variable contains all the arguments, passed to a logging call <em>(<code>info</code>, <code>warn</code>, <code>error</code> -
+any function from <code>timbre</code> namespace, which performs logging)</em>. And the <code>clojure.data.json/write-str</code>
+function converts its params to JSON and stringifies it, returning valid JSON as a string.</p>
+<p>A function should return a string, representing a message, which will be written to a screen or a file,
+depending on appender.</p>
+<p><code>level</code> argument is set by a macro, you are logging with. For example, <code>timbre/info</code> will set
+<code>level</code> to <code>&quot;info&quot;</code>, <code>timbre/error</code> - to <code>&quot;error&quot;</code> and so on.</p>
+<p><code>hostname_</code> and <code>timestamp_</code> are helper arguments, you might not need them in all the use cases.
+But the <code>timestamp_</code> one is really helpful. Always.</p>
+<p>Then we overrided the default file appender, extending it with our <code>json-output-fn</code>:</p>
+<pre><code class="language-clojure"><span class="token punctuation">(</span><span class="token keyword">ns</span> timbre-test1.core
+  <span class="token punctuation">(</span><span class="token symbol">:require</span> <span class="token punctuation">[</span>taoensso.timbre <span class="token symbol">:as</span> timbre <span class="token symbol">:refer</span> <span class="token punctuation">(</span><span class="token function">log</span> info warn debug error<span class="token punctuation">)</span><span class="token punctuation">]</span>
+            <span class="token punctuation">[</span>taoensso.timbre.appenders.core <span class="token symbol">:as</span> appenders<span class="token punctuation">]</span>
+            <span class="token punctuation">[</span>clojure.data.json <span class="token symbol">:as</span> json<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+
+<span class="token punctuation">(</span><span class="token keyword">defn</span> json-output-fn
+  <span class="token punctuation">[</span><span class="token punctuation">{</span><span class="token symbol">:keys</span> <span class="token punctuation">[</span>vargs_ hostname_ timestamp_ level<span class="token punctuation">]</span> <span class="token symbol">:as</span> args<span class="token punctuation">}</span><span class="token punctuation">]</span>
+  <span class="token punctuation">(</span><span class="token keyword">let</span> <span class="token punctuation">[</span>
+        messages <span class="token punctuation">(</span><span class="token keyword">map</span> <span class="token punctuation">(</span><span class="token keyword">fn</span> <span class="token punctuation">[</span>msg<span class="token punctuation">]</span> <span class="token punctuation">{</span><span class="token symbol">:timestamp</span> <span class="token operator">@</span>timestamp_
+                                  <span class="token symbol">:level</span>     level
+                                  <span class="token symbol">:hostname</span>  <span class="token operator">@</span>hostname_
+                                  <span class="token symbol">:message</span>   msg<span class="token punctuation">}</span><span class="token punctuation">)</span>
+                   <span class="token operator">@</span>vargs_<span class="token punctuation">)</span>
+        json-messages <span class="token punctuation">(</span><span class="token keyword">map</span> <span class="token operator">#</span><span class="token punctuation">(</span><span class="token function">json/write-str</span> %<span class="token punctuation">)</span> messages<span class="token punctuation">)</span><span class="token punctuation">]</span>
+    <span class="token punctuation">(</span><span class="token function">clojure.string/join</span> <span class="token string">"\n"</span> json-messages<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+
+<span class="token punctuation">(</span><span class="token keyword">defn</span> -main <span class="token punctuation">[</span>&amp; args<span class="token punctuation">]</span>
+  <span class="token punctuation">(</span><span class="token function">timbre/merge-config!</span>
+    <span class="token punctuation">{</span><span class="token symbol">:appenders</span> <span class="token punctuation">{</span>
+                 <span class="token symbol">:spit</span> <span class="token punctuation">(</span><span class="token keyword">merge</span> <span class="token punctuation">(</span><span class="token function">appenders/spit-appender</span> <span class="token punctuation">{</span><span class="token symbol">:fname</span> <span class="token string">"timbre.log"</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token symbol">:output-fn</span> json-output-fn<span class="token punctuation">}</span><span class="token punctuation">)</span>
+                 <span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">(</span><span class="token function">info</span> <span class="token punctuation">{</span><span class="token symbol">:moo</span> -<span class="token number">3.14</span><span class="token punctuation">}</span> <span class="token punctuation">{</span><span class="token symbol">:foo</span> <span class="token symbol">:bar</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<p>Nothing new here, except of the appender used - now the application will log to both file and screen.
+To prevent logging to <code>stdout</code>, we disabled the <code>println</code> appender:</p>
+<pre><code class="language-clojure"><span class="token punctuation">(</span><span class="token keyword">defn</span> -main <span class="token punctuation">[</span>&amp; args<span class="token punctuation">]</span>
+  <span class="token punctuation">(</span><span class="token function">timbre/merge-config!</span>
+    <span class="token punctuation">{</span><span class="token symbol">:appenders</span> <span class="token punctuation">{</span>
+                 <span class="token symbol">:println</span> <span class="token punctuation">{</span><span class="token symbol">:enabled?</span> <span class="token boolean">true</span><span class="token punctuation">}</span>
+                 <span class="token symbol">:spit</span> <span class="token punctuation">(</span><span class="token keyword">merge</span> <span class="token punctuation">(</span><span class="token function">appenders/spit-appender</span> <span class="token punctuation">{</span><span class="token symbol">:fname</span> <span class="token string">"timbre.log"</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token symbol">:output-fn</span> json-output-fn<span class="token punctuation">}</span><span class="token punctuation">)</span>
+                 <span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">(</span><span class="token function">info</span> <span class="token punctuation">{</span><span class="token symbol">:moo</span> -<span class="token number">3.14</span><span class="token punctuation">}</span> <span class="token punctuation">{</span><span class="token symbol">:foo</span> <span class="token symbol">:bar</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<p>Here I should mention that we were not made to call our JSON appender <code>spit</code> - it was used for convention
+reasons only.</p>
+<p>And that’s basically it - we made our logging to be written to a JSON file only.</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

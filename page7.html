@@ -1,0 +1,274 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }
+nav.bottom.svelte-14ldwbd.svelte-14ldwbd{grid-area:1/2/2/3;display:inline-grid;grid-template:1fr / 1fr 1fr 1fr
+    }footer nav.svelte-14ldwbd div.svelte-14ldwbd{display:flex;align-items:center
+    }footer nav.svelte-14ldwbd .prev.svelte-14ldwbd{grid-area:1/1/2/2;justify-content:flex-start
+    }footer nav.svelte-14ldwbd .current.svelte-14ldwbd{grid-area:1/2/2/3;justify-content:center
+    }footer nav.svelte-14ldwbd .next.svelte-14ldwbd{grid-area:1/3/2/4;justify-content:flex-end
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1><a href="/tumblr/2015-03-24-how-to-adjust-widget-size-in-qt.html">How to adjust widget’ size in Qt</a></h1>
+
+    <time>24 Mar 2015 at 07:56</time>
+
+    <div class="content"><p>Have you ever thought on how this:</p>
+
+<p><figure data-orig-height="368" data-orig-width="734"><LazyImg src="/images/tumblr/qt_adjust_widget/tumblr_inline_nlphu7Lp7Q1qh5oee_500.webp" data-orig-height="368" data-orig-width="734"/></figure></p>
+
+<p>could be turned to this:</p>
+
+<p><figure data-orig-height="369" data-orig-width="730"><LazyImg src="/images/tumblr/qt_adjust_widget/tumblr_inline_nlphuiqjyZ1qh5oee_500.webp" data-orig-height="369" data-orig-width="730"/></figure></p>
+
+<p>without manually setting per-pixel sizes?</p>
+
+<p>It’s simple as 1-2! Just take a look at the top of the UI editor and you’ll find a set of buttons, dedicated to do this adjustment for you:</p>
+
+<p><figure data-orig-height="737" data-orig-width="1366"><LazyImg src="/images/tumblr/qt_adjust_widget/tumblr_inline_nlpi06oySm1qh5oee_500.webp" data-orig-height="737" data-orig-width="1366"/></figure></p>
+
+<p>Yet, there is just one small tip: first you should select a containing widget, whose children will be rearranged.</p>
+
+<p>Like this:</p>
+
+<p><figure data-orig-height="737" data-orig-width="1366"><LazyImg src="/images/tumblr/qt_adjust_widget/tumblr_inline_nlpi0pvXoe1qh5oee_500.webp" data-orig-height="737" data-orig-width="1366"/></figure></p>
+
+<p>Note the selected parent widget for <i>vertical_layout.</i></p>
+</div>
+</article><article><h1><a href="/tumblr/2015-03-12-how-did-i-came-over-from-that-to-this.md">Modelling in Blender</a></h1>
+
+    <time>12 Mar 2015 at 08:45</time>
+
+    <div class="content"><LazyImg src="/tumblr_files/tumblr_nl3cb9Adqo1qio88bo1_1280.png" />
+
+<p>How did I came over from that to this…</p>
+<LazyImg src="/tumblr_files/tumblr_nl3cb9Adqo1qio88bo2_1280.png" />
+
+<p>NB: this is a 3D model potentially to be used in my ShootThem! game. Inspired by the Chicken Hat from Fable:</p>
+<LazyImg src="/images/tumblr/chicken_head/Chicken_Hat.webp" alt="Chicken Hat from Fable" />
+</div>
+</article><article><h1><a href="/tumblr/2015-03-04-reworked-materials-for-my-rifle.md">reworked materials for my rifle</a></h1>
+
+    <time>04 Mar 2015 at 20:32</time>
+
+    <div class="content"><LazyImg src="/tumblr_files/tumblr_nkpfpqQNbY1qio88bo1_r1_1280.png" />
+
+<p>Reworked materials for my rifle</p>
+</div>
+</article><article><h1><a href="/tumblr/2015-03-04-creating-some-gun-from-a-rough-primitive-model.md">creating some gun from a rough primitive model</a></h1>
+
+    <time>04 Mar 2015 at 09:21</time>
+
+    <div class="content"><LazyImg src="/tumblr_files/tumblr_nkoko2Ofx71qio88bo1_1280.png" alt="Textured rifle made in Blender" />
+
+<LazyImg src="/tumblr_files/tumblr_nkoko2Ofx71qio88bo2_1280.png" alt="Rifle model with few material properties and a bit of sculpting" />
+
+<p>Creating some gun from a rough primitive model with some texture and sculpting. Yet, trying to get some pretty materials on this…</p>
+</div>
+</article><article><h1><a href="/tumblr/2015-03-04-have-had-some-free-time-and-tried-sculpting-in.md">Trying sculpting in Blender</a></h1>
+
+    <time>04 Mar 2015 at 09:20</time>
+
+    <div class="content"><LazyImg src="/tumblr_files/tumblr_nkoklxttap1qio88bo1_1280.png" alt="Chicken body sculpt in Blender" />
+
+<LazyImg src="/tumblr_files/tumblr_nkoklxttap1qio88bo2_1280.png" alt="Chicken head in Blender" />
+
+<p>Have had some free time and tried sculpting in Blender 😜 With some other nice stuff 😁</p>
+</div>
+</article><article><h1><a href="/tumblr/2015-02-23-having-fun-with-blender.md">Having fun with Blender</a></h1>
+
+    <time>23 Feb 2015 at 11:40</time>
+
+    <div class="content"><LazyImg src="/tumblr_files/tumblr_nk8333m6vx1qio88bo1_1280.png" alt="Having fun texturing chicken head in Blender" />
+
+<p>Just some WIP. Having fun with Blender 😊</p>
+</div>
+</article><article><h1><a href="/tumblr/2015-02-19-installing-deb-package-with-dependencies.html">Installing deb package with dependencies</a></h1>
+
+    <time>19 Feb 2015 at 09:54</time>
+
+    <div class="content"><p>Oftenly,</p>
+
+<pre><code>sudo dpkg -i package_file.deb
+</code></pre>
+
+<p>fails with messages like <em>dependency not satisfied</em>.</p>
+
+<p>To fix this, there are two ways:</p>
+
+<ol><li><code>sudo dpkg -i package_file.deb &amp;&amp; sudo apt-get -f install</code></li>
+<li><code>sudo dpkg -i --force-depends package_file.deb</code></li>
+</ol><p>Obviously, the second one is shorter =)</p>
+</div>
+</article><article><h1><a href="/tumblr/2015-02-17-my-very-first-model-in-blender.md">My very first model in Blender</a></h1>
+
+    <time>17 Feb 2015 at 08:39</time>
+
+    <div class="content"><LazyImg src="/tumblr_files/tumblr_njwqqioF171qio88bo1_1280.png" alt="Cup modelled in Blender" />
+
+<LazyImg src="/tumblr_files/tumblr_njwqqioF171qio88bo2_r1_1280.png" alt="Textured cup in Blender" />
+
+<p>Playing around with Blender - rendering, modifiers and some basic texturing and materials.</p>
+</div>
+</article><article><h1><a href="/tumblr/2015-02-09-rails-tips.md">Rails tips</a></h1>
+
+    <time>09 Feb 2015 at 09:09</time>
+
+    <div class="content"><p>Found these on HabraHabr today. Here are some tricks I found usefull.</p>
+
+<h2>Private methods are not actually private</h2>
+
+<p>Let us have class:</p>
+
+<pre><code class="language-ruby"><span class="token keyword">class</span> <span class="token class-name">Moo</span>
+  <span class="token keyword">private</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token keyword">self</span><span class="token punctuation">.</span><span class="token function">foo</span></span>
+    puts <span class="token string-literal"><span class="token string">'foo'</span></span>
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+</code></pre>
+<p>Here, class method <code>foo</code> is not private:</p>
+
+<pre><code class="language-ruby">Foo<span class="token punctuation">.</span>foo
+<span class="token operator">=></span> <span class="token string-literal"><span class="token string">'foo'</span></span>
+</code></pre>
+<h2>Instance with params</h2>
+
+<p>Oftenly there is a need to create a class instance and set it some params (or, maybe, call some methods on it). It's done usually like this:</p>
+
+<pre><code class="language-ruby">moo <span class="token operator">=</span> <span class="token class-name">Moo</span><span class="token punctuation">.</span><span class="token keyword">new</span>
+moo<span class="token punctuation">.</span>foo <span class="token operator">=</span> <span class="token string-literal"><span class="token string">'foo'</span></span>
+moo<span class="token punctuation">.</span>bar
+</code></pre>
+<p>This can be shortened with the use of `tap` method:</p>
+
+<pre><code class="language-ruby">moo <span class="token operator">=</span> <span class="token class-name">Moo</span><span class="token punctuation">.</span><span class="token keyword">new</span><span class="token punctuation">.</span>tap <span class="token punctuation">{</span> <span class="token operator">|</span>a<span class="token operator">|</span> a<span class="token punctuation">.</span>foo <span class="token operator">=</span> <span class="token string-literal"><span class="token string">'foo'</span></span><span class="token punctuation">;</span> a<span class="token punctuation">.</span>bar <span class="token punctuation">}</span>
+</code></pre>
+<p>Yet, it is more ruby-convenient and ruby-style to do it with the initialization block:</p>
+
+<pre><code class="language-ruby"><span class="token keyword">class</span> <span class="token class-name">Moo</span>
+  attr_accessor <span class="token symbol">:foo</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">initialize</span></span><span class="token punctuation">(</span><span class="token operator">&amp;</span>block<span class="token punctuation">)</span>
+    <span class="token keyword">yield</span> <span class="token keyword">self</span> <span class="token keyword">if</span> block_given<span class="token operator">?</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">bar</span></span>
+    puts <span class="token string-literal"><span class="token string">"bar!"</span></span>
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+
+moo <span class="token operator">=</span> <span class="token class-name">Moo</span><span class="token punctuation">.</span><span class="token keyword">new</span> <span class="token keyword">do</span> <span class="token operator">|</span>a<span class="token operator">|</span>
+  a<span class="token punctuation">.</span>foo <span class="token operator">=</span> <span class="token string-literal"><span class="token string">'foo'</span></span>
+  a<span class="token punctuation">.</span>bar
+<span class="token keyword">end</span>
+
+puts moo<span class="token punctuation">.</span>foo
+</code></pre>
+<p>Or even like this:</p>
+
+<pre><code class="language-ruby"><span class="token keyword">class</span> <span class="token class-name">Moo</span>
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">initialize</span></span><span class="token punctuation">(</span><span class="token operator">&amp;</span>block<span class="token punctuation">)</span>
+    instance_eval <span class="token operator">&amp;</span>block <span class="token keyword">if</span> block_given<span class="token operator">?</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">moo</span></span><span class="token punctuation">(</span>val <span class="token operator">=</span> <span class="token keyword">nil</span><span class="token punctuation">)</span>
+    <span class="token variable">@moo</span> <span class="token operator">=</span> val <span class="token keyword">unless</span> val<span class="token punctuation">.</span><span class="token keyword">nil</span><span class="token operator">?</span>
+    <span class="token variable">@moo</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">bar</span></span>
+    puts <span class="token string-literal"><span class="token string">"bar!"</span></span>
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+
+a <span class="token operator">=</span> <span class="token class-name">Moo</span><span class="token punctuation">.</span><span class="token keyword">new</span> <span class="token keyword">do</span>
+  moo <span class="token string-literal"><span class="token string">'moo~!'</span></span>
+  bar
+<span class="token keyword">end</span>
+
+puts a<span class="token punctuation">.</span>moo
+</code></pre>
+<h2>Code-dependent migrations</h2>
+
+<p>When you have your migrations using your code, for example, like this:</p>
+
+<pre><code class="language-ruby"><span class="token keyword">class</span> <span class="token class-name">CreateDataVolumes</span> <span class="token operator">&lt;</span> ActiveRecord<span class="token double-colon punctuation">::</span>Migration
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">up</span></span>
+    Data<span class="token double-colon punctuation">::</span><span class="token constant">VOLUMES</span><span class="token punctuation">.</span>times <span class="token keyword">do</span> <span class="token operator">|</span>volume<span class="token operator">|</span>
+      create_table <span class="token string-literal"><span class="token string">"data_</span><span class="token interpolation"><span class="token delimiter punctuation">#{</span><span class="token content">volume</span><span class="token delimiter punctuation">}</span></span><span class="token string">"</span></span> <span class="token keyword">do</span> <span class="token operator">|</span>t<span class="token operator">|</span>
+        <span class="token comment"># ...</span>
+      <span class="token keyword">end</span>
+    <span class="token keyword">end</span>
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+</code></pre>
+<p>you then have a problem when updating your code. In our example, if you remove the constant <code>Data::VOLUMES</code>, you will have to either manually search for all the usages of this constant, or have a really <em>intelliJent</em> IDE ;)</p>
+
+<p>Rather than using your existing code, stub it and copy-and-paste all migration-dependent code to the stubbing class:</p>
+
+<pre><code class="language-ruby"><span class="token keyword">class</span> <span class="token class-name">CreateDataVolumes</span> <span class="token operator">&lt;</span> ActiveRecord<span class="token double-colon punctuation">::</span>Migration
+  <span class="token keyword">class</span> <span class="token class-name">Data</span> <span class="token operator">&lt;</span> <span class="token constant">AR</span><span class="token double-colon punctuation">::</span>Base
+    <span class="token constant">VOLUMES</span>
+  <span class="token keyword">end</span>
+
+  <span class="token keyword">def</span> <span class="token method-definition"><span class="token function">up</span></span>
+    Data<span class="token double-colon punctuation">::</span><span class="token constant">VOLUMES</span><span class="token punctuation">.</span>times <span class="token keyword">do</span> <span class="token operator">|</span>volume<span class="token operator">|</span>
+      <span class="token comment"># ...</span>
+    <span class="token keyword">end</span>
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+</code></pre>
+<p>Example with constant is rather stupid, whilst you may have some more critical code.</p>
+</div>
+</article><article><h1><a href="/tumblr/2015-02-03-abstract-classes-vs-interfaces.html">Abstract classes vs interfaces</a></h1>
+
+    <time>03 Feb 2015 at 19:31</time>
+
+    <div class="excerpt"><p>Lately I was a few times asked a question <em>"what do we need abstract classes for?"</em></p>
+
+<p>And today I've got one more question, which inspired me to write this.</p>
+
+</div>
+
+        <a href="/tumblr/2015-02-03-abstract-classes-vs-interfaces.html" class="btn svelte-7idbpu">Read more</a>
+</article></main>
+
+    <footer class="svelte-1gr3n62"><nav class="bottom svelte-14ldwbd"><div class="prev svelte-14ldwbd"><a href="/page6.html" class="prev svelte-14ldwbd">← Previous page</a></div>
+
+    <div class="current svelte-14ldwbd">Page #7 of 9</div>
+
+    <div class="next svelte-14ldwbd"><a href="/page8.html" class="next svelte-14ldwbd">Next page →</a></div>
+</nav></footer>
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

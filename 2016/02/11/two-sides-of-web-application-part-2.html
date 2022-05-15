@@ -1,0 +1,661 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Two sides of web application. Part 2: sketching</h1>
+
+    <time>11 Feb 2016 at 12:47</time>
+
+    <div class="content"><div class="row" style="justify-content: space-between">
+    <div class="col-md-6 col-xs-12">
+        {% include references/two-sides-of-web-application.html %}
+    </div>
+    <div class="col-md-6 col-xs-12 text-xs-center text-md-right">
+        <LazyImg src="/images/two-sides-of-web-application/Gyroscopic-Navigational-Footwear-compressed.webp" alt="Funny image" />
+    </div>
+</div>
+
+<h2 id="general-architecture">General architecture</h2>
+<p>The first thing we need to think of is how we’ll be gathering the information about users.
+It’s quite easy - we just need to get a request from a visitor. Of any kind -
+it may be a request to get an image, a file, a stylesheet or a script.</p>
+<p>Then we’ll just parse headers from that request and save the extracted data in the
+database. The only problem here is: <em>how to get unique key from each request?</em>. We may use
+visitor’s IP address. It’s the easiest way.</p>
+<!--more-->
+
+<p>Now, let’s decide what pages will our application have and what will they look like:</p>
+<div class="row">
+    <div class="col-xs-12 col-md-3">
+        <a href="/images/two-sides-of-web-application/part1/screen1.webp">
+            <LazyImg src="/images/two-sides-of-web-application/part1/screen1.webp" alt="page 1" class="image-responsive" />
+        </a>
+    </div>
+
+<pre><code>&lt;div class=&quot;col-xs-12 col-md-3&quot;&gt;
+    &lt;a href=&quot;/images/two-sides-of-web-application/part1/screen2.webp&quot;&gt;
+        &lt;LazyImg src=&quot;/images/two-sides-of-web-application/part1/screen2.webp&quot; alt=&quot;page 2&quot; class=&quot;image-responsive&quot; /&gt;
+    &lt;/a&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;col-xs-12 col-md-3&quot;&gt;
+    &lt;a href=&quot;/images/two-sides-of-web-application/part1/screen3.webp&quot;&gt;
+        &lt;LazyImg src=&quot;/images/two-sides-of-web-application/part1/screen3.webp&quot; alt=&quot;page 3&quot; class=&quot;image-responsive&quot; /&gt;
+    &lt;/a&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;col-xs-12 col-md-3&quot;&gt;
+    &lt;a href=&quot;/images/two-sides-of-web-application/part1/screen4.webp&quot;&gt;
+        &lt;LazyImg src=&quot;/images/two-sides-of-web-application/part1/screen4.webp&quot; alt=&quot;page 4&quot; class=&quot;image-responsive&quot; /&gt;
+    &lt;/a&gt;
+&lt;/div&gt;
+</code></pre>
+</div>
+
+<h2 id="templates">Templates</h2>
+<p>Let’s create a set of pages, we described above. They will be used later to display real data, but for now
+we’ll stub the real data with constants.</p>
+<p>To make our prototyping smooth and fast, we’ll use <em>Twitter Bootstrap</em>. We’ve installed it already with
+<em>Bower</em>, so we’ll be just using it. We need to implement these pages only:</p>
+<ul>
+<li>landing page</li>
+<li>sign up / sign in page</li>
+<li>account settings page</li>
+<li>apps list page</li>
+<li>application page</li>
+<li>application create / edit page</li>
+</ul>
+<p>Six pages, huh? Let’s do it quick:</p>
+<p><em><code>src/views/layouts/default.jade</code>:</em></p>
+<pre><code class="language-pug"><span class="token doctype">doctype html</span>
+<span class="token tag">html<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">lang</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"en"</span></span><span class="token punctuation">)</span></span></span>
+    <span class="token tag">head</span>
+        <span class="token keyword">block head</span>
+            <span class="token tag">title</span> <span class="token plain-text">ourStats</span>
+            <span class="token tag">link<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">rel</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"stylesheet"</span> href<span class="token operator">=</span><span class="token string">"bootstrap/dist/css/bootstrap.css"</span></span><span class="token punctuation">)</span></span></span>
+            <span class="token tag">link<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">rel</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"stylesheet"</span> href<span class="token operator">=</span><span class="token string">"bootstrap/dist/css/bootstrap-theme.css"</span></span><span class="token punctuation">)</span></span></span>
+            <span class="token tag">script<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">src</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"bootstrap/dist/js/bootstrap.js"</span></span><span class="token punctuation">)</span></span></span>
+
+    <span class="token tag">body</span>
+        <span class="token keyword">block body</span>
+</code></pre>
+<p><em><code>src/views/index.jade</code>:</em></p>
+<pre><code class="language-pug"><span class="token keyword">extends layouts/default.jade</span>
+
+<span class="token keyword">block content</span>
+    <span class="token tag"><span class="token attr-class">.jumbotron</span></span>
+        <span class="token tag">h1<span class="token attr-class">.display-3</span></span> <span class="token plain-text">Welcome to ourStats!</span>
+        <span class="token tag">p<span class="token attr-class">.lead</span></span> <span class="token plain-text">This is a simple stats application</span>
+        <span class="token tag">hr<span class="token attr-class">.m-y-md</span></span>
+
+        <span class="token tag">p<span class="token attr-class">.lead</span></span>
+            <span class="token tag"><span class="token attr-class">.row</span></span>
+                <span class="token tag"><span class="token attr-class">.col-xs-12</span><span class="token attr-class">.text-center</span></span>
+                    <span class="token tag">a<span class="token attr-class">.btn</span><span class="token attr-class">.btn-primary</span><span class="token attr-class">.btn-lg</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">href</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"#"</span> role<span class="token operator">=</span><span class="token string">"button"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Sign in</span>
+</code></pre>
+<p><em><code>src/views/new-session.jade</code>:</em></p>
+<pre><code class="language-pug"><span class="token keyword">extends layouts/default.jade</span>
+
+<span class="token keyword">block content</span>
+    <span class="token tag"><span class="token attr-class">.row</span></span>
+        <span class="token tag"><span class="token attr-class">.col-xs-12</span><span class="token attr-class">.col-md-4</span><span class="token attr-class">.col-md-offset-1</span><span class="token attr-class">.well</span></span>
+            <span class="token tag">h3</span> <span class="token plain-text">Sign up</span>
+            <span class="token tag">form</span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"text"</span> placeholder<span class="token operator">=</span><span class="token string">"Your name"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"email"</span> placeholder<span class="token operator">=</span><span class="token string">"Email"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"password"</span> placeholder<span class="token operator">=</span><span class="token string">"Password"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"password"</span> placeholder<span class="token operator">=</span><span class="token string">"Password confirmation"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span><span class="token attr-class">.text-center</span></span>
+                    <span class="token tag">button<span class="token attr-class">.btn</span><span class="token attr-class">.btn-primary</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"submit"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Sign up</span>
+
+        <span class="token tag"><span class="token attr-class">.col-md-2</span></span>
+
+        <span class="token tag"><span class="token attr-class">.col-xs-12</span><span class="token attr-class">.col-md-4</span><span class="token attr-class">.well</span></span>
+            <span class="token tag">h3</span> <span class="token plain-text">Sign in</span>
+            <span class="token tag">form</span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"email"</span> placeholder<span class="token operator">=</span><span class="token string">"Email"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"password"</span> placeholder<span class="token operator">=</span><span class="token string">"Password"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span><span class="token attr-class">.text-center</span></span>
+                    <span class="token tag">button<span class="token attr-class">.btn</span><span class="token attr-class">.btn-success</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"submit"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Sign in</span>
+</code></pre>
+<p><em><code>src/views/edit_account.jade</code>:</em></p>
+<pre><code class="language-pug"><span class="token keyword">extends layouts/default.jade</span>
+
+<span class="token keyword">block content</span>
+    <span class="token tag"><span class="token attr-class">.row</span><span class="token attr-class">.m-t-md</span></span>
+        <span class="token tag"><span class="token attr-class">.col-xs-12</span><span class="token attr-class">.col-md-4</span></span>
+            <span class="token tag">h3</span> <span class="token plain-text">Account settings</span>
+            <span class="token tag">form</span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"text"</span> placeholder<span class="token operator">=</span><span class="token string">"Your name"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"password"</span> placeholder<span class="token operator">=</span><span class="token string">"Password"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"password"</span> placeholder<span class="token operator">=</span><span class="token string">"Password confirmation"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span><span class="token attr-class">.text-center</span></span>
+                    <span class="token tag">button<span class="token attr-class">.btn</span><span class="token attr-class">.btn-success</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"submit"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Save</span>
+</code></pre>
+<p><em><code>src/views/application_list.jade</code>:</em></p>
+<pre><code class="language-pug"><span class="token keyword">extends layouts/default.jade</span>
+
+<span class="token keyword">block content</span>
+    <span class="token tag"><span class="token attr-class">.row</span><span class="token attr-class">.m-t-md</span></span>
+        <span class="token tag"><span class="token attr-class">.col-xs-12</span><span class="token attr-class">.col-md-4</span></span>
+            <span class="token tag">h3</span> <span class="token plain-text">Your applications</span>
+            <span class="token tag">ul</span>
+                <span class="token tag">li</span>
+                    <span class="token tag">a<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">href</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"/application_details.html"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Test application #1</span>
+                <span class="token tag">li</span>
+                    <span class="token tag">a<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">href</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"/application_details.html"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Test application #2</span>
+                <span class="token tag">li</span>
+                    <span class="token tag">a<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">href</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"/application_details.html"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Test application #3</span>
+                <span class="token tag">li</span>
+                    <span class="token tag">a<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">href</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"/application_details.html"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Test application #4</span>
+                <span class="token tag">li</span>
+                    <span class="token tag">a<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">href</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"/application_details.html"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Test application #5</span>
+
+        <span class="token tag"><span class="token attr-class">.col-md-offset-2</span></span>
+
+        <span class="token tag"><span class="token attr-class">.col-xs-12</span><span class="token attr-class">.col-md-6</span></span>
+            <span class="token tag">h3</span> <span class="token plain-text">Application stats</span>
+
+            <span class="token tag">h4</span> <span class="token plain-text">New users:</span>
+            <span class="token tag"><span class="token attr-class">.progress</span></span>
+                <span class="token tag">progress<span class="token attr-class">.progress-bar</span><span class="token attr-class">.progress-bar-success</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">role</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"progress"</span> style<span class="token operator">=</span><span class="token string">"width:30%"</span></span><span class="token punctuation">)</span></span></span>
+</code></pre>
+<p><em><code>src/views/application_details.jade</code>:</em></p>
+<pre><code class="language-pug"><span class="token keyword">extends layouts/default.jade</span>
+
+<span class="token keyword">block content</span>
+    <span class="token tag"><span class="token attr-class">.row</span></span>
+        <span class="token tag"><span class="token attr-class">.col-xs-12</span><span class="token attr-class">.col-md-6</span><span class="token attr-class">.col-md-offset-6</span></span>
+            <span class="token tag">form<span class="token attr-class">.form-inline</span></span>
+                <span class="token tag"><span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"text"</span> placeholder<span class="token operator">=</span><span class="token string">"From date"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag"><span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"text"</span> placeholder<span class="token operator">=</span><span class="token string">"To date"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag"><span class="token attr-class">.form-group</span></span>
+                    <span class="token tag"><span class="token attr-class">.btn</span><span class="token attr-class">.btn-primary</span></span> <span class="token plain-text">Update</span>
+
+    <span class="token tag"><span class="token attr-class">.row</span></span>
+        <span class="token tag"><span class="token attr-class">.col-xs-12</span></span>
+            <span class="token tag"><span class="token attr-class">.well</span></span>
+                <span class="token punctuation">|</span> You can track your application visitors with this URL:
+                <span class="token tag">br</span>
+                <span class="token punctuation">|</span> http://localhost:3000/track/APP1TOKN
+
+    <span class="token tag"><span class="token attr-class">.row</span><span class="token attr-class">.m-t-md</span></span>
+        <span class="token tag"><span class="token attr-class">.col-xs-12</span></span>
+            <span class="token tag">h3</span> <span class="token plain-text">Visitors</span>
+            <span class="token tag"><span class="token attr-class">.well</span></span>
+                <span class="token punctuation">|</span> Chart goes here
+
+        <span class="token tag"><span class="token attr-class">.col-xs-12</span><span class="token attr-class">.col-md-6</span></span>
+            <span class="token tag">h3</span> <span class="token plain-text">Visitors by country</span>
+
+            <span class="token tag">table<span class="token attr-class">.table</span><span class="token attr-class">.table-bordered</span></span>
+                <span class="token tag">thead</span>
+                    <span class="token tag">tr</span>
+                        <span class="token tag">th</span> <span class="token plain-text">Country</span>
+                        <span class="token tag">th</span> <span class="token plain-text">Visitors</span>
+                <span class="token tag">tbody</span>
+                    <span class="token tag">tr</span>
+                        <span class="token tag">td</span> <span class="token plain-text">USA</span>
+                        <span class="token tag">td</span> <span class="token plain-text">100</span>
+                    <span class="token tag">tr</span>
+                        <span class="token tag">td</span> <span class="token plain-text">Germany</span>
+                        <span class="token tag">td</span> <span class="token plain-text">50</span>
+                    <span class="token tag">tr</span>
+                        <span class="token tag">td</span> <span class="token plain-text">North Korea</span>
+                        <span class="token tag">td</span> <span class="token plain-text">42</span>
+                    <span class="token tag">tr</span>
+                        <span class="token tag">td</span> <span class="token plain-text">Greenland</span>
+                        <span class="token tag">td</span> <span class="token plain-text">39</span>
+                    <span class="token tag">tr</span>
+                        <span class="token tag">td</span> <span class="token plain-text">Spain</span>
+                        <span class="token tag">td</span> <span class="token plain-text">2</span>
+</code></pre>
+<p><em><code>src/views/edit_application.jade</code>:</em></p>
+<pre><code class="language-pug"><span class="token keyword">extends layouts/default.jade</span>
+
+<span class="token keyword">block content</span>
+    <span class="token tag"><span class="token attr-class">.row</span><span class="token attr-class">.m-t-md</span></span>
+        <span class="token tag"><span class="token attr-class">.col-xs-12</span><span class="token attr-class">.col-md-6</span></span>
+            <span class="token tag">h3</span> <span class="token plain-text">Application settings</span>
+            <span class="token tag">form</span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"text"</span> placeholder<span class="token operator">=</span><span class="token string">"Name"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span><span class="token attr-class">.text-center</span></span>
+                    <span class="token tag"><span class="token attr-class">.btn</span><span class="token attr-class">.btn-danger</span></span> <span class="token plain-text">Reset stats</span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span><span class="token attr-class">.text-center</span></span>
+                    <span class="token tag">button<span class="token attr-class">.btn</span><span class="token attr-class">.btn-success</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"submit"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Save</span>
+</code></pre>
+<p><em><code>src/views/new_application.jade</code>:</em></p>
+<pre><code class="language-pug"><span class="token keyword">extends layouts/default.jade</span>
+
+<span class="token keyword">block content</span>
+    <span class="token tag"><span class="token attr-class">.row</span><span class="token attr-class">.m-t-md</span></span>
+        <span class="token tag"><span class="token attr-class">.col-xs-12</span><span class="token attr-class">.col-md-6</span></span>
+            <span class="token tag">h3</span> <span class="token plain-text">New application</span>
+            <span class="token tag">form</span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span></span>
+                    <span class="token tag">input<span class="token attr-class">.form-control</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"text"</span> placeholder<span class="token operator">=</span><span class="token string">"Name"</span></span><span class="token punctuation">)</span></span></span>
+                <span class="token tag">fieldset<span class="token attr-class">.form-group</span><span class="token attr-class">.text-center</span></span>
+                    <span class="token tag">button<span class="token attr-class">.btn</span><span class="token attr-class">.btn-success</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"submit"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Create</span>
+</code></pre>
+<p>And to make Bower-managed libraries available in our views, we need to add one more path to
+the server configuration:</p>
+<pre><code class="language-js">gulp<span class="token punctuation">.</span><span class="token function">src</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'public/'</span><span class="token punctuation">,</span> <span class="token string">'bower_components/'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span><span class="token function">server</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+        <span class="token literal-property property">port</span><span class="token operator">:</span> <span class="token number">3000</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">livereload</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">directoryListing</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">open</span><span class="token operator">:</span> <span class="token boolean">true</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>As you can see, we used Jade’s block extending and split our templates into one layout and many partials, so
+our file tree is clean and changing any of the pages will not be a hard task.</p>
+<p><a href="https://github.com/shybovycha/two-sides-of-web-application/tree/628f216b8e7d904e040035b31c3d0c546d8f1e5e" class="btn btn-info">Full code of these steps</a></p>
+<h2 id="architecture-details">Architecture details</h2>
+<p>In our frontend application we’ll use something called <em>MVVM</em>. That is a design pattern, kindly provided
+by Angular. So our <em>views</em> will be displaying data and transferring it to controllers <em>(or ViewModels)</em>, and
+all the logic, handling that data will be defined in <em>controllers</em> and <em>services</em>, representing <em>Models</em>.
+Actually, our models will be handled on a server-side, and services will only provide an interface to them.
+But that is totally another story and will be described later.</p>
+<p>For now let’s integrate Angular in our application. And we’ll start, deciding how we’ll split our
+application on the Angular layer. Pages we described above are used for these actions:</p>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Action</th>
+            <th>Resource <em>(model)</em></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>sign in</td>
+            <td rowspan="2">Session</td>
+        </tr>
+        <tr>
+            <td>sign out</td>
+        </tr>
+        <tr>
+            <td>sign up</td>
+            <td rowspan="3">User</td>
+        </tr>
+        <tr>
+            <td>edit profile</td>
+        </tr>
+        <tr>
+            <td>update profile</td>
+        </tr>
+        <tr>
+            <td>add application</td>
+            <td rowspan="5">Application</td>
+        </tr>
+        <tr>
+            <td>edit application</td>
+        </tr>
+        <tr>
+            <td>update application</td>
+        </tr>
+        <tr>
+            <td>remove application</td>
+        </tr>
+        <tr>
+            <td>show application</td>
+        </tr>
+        <tr>
+            <td>track visitor</td>
+            <td>Visitor</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>And so we can define corresponding Angular controllers:</p>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Url</th>
+            <th>Controller</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>/</td>
+            <td>LandingPage</td>
+        </tr>
+        <tr>
+            <td>/new-session</td>
+            <td>Session</td>
+        </tr>
+        <tr>
+            <td>/applications</td>
+            <td>ListApplications</td>
+        </tr>
+        <tr>
+            <td>/applications/new</td>
+            <td>NewApplication</td>
+        </tr>
+        <tr>
+            <td>/applications/:id</td>
+            <td>ShowApplication</td>
+        </tr>
+        <tr>
+            <td>/applications/:id/edit</td>
+            <td>EditApplication</td>
+        </tr>
+        <tr>
+            <td>/edit-account</td>
+            <td>EditAccount</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2 id="angular">Angular</h2>
+<p><em>Angular.js</em> is a framework by Google for making <strong>SPA</strong>s (<em>Single-Page Application</em>).
+SPA is a great architecture, where you have a thin backend server, providing an API
+to your slim frontend application. And the most interesting part here, is that you have
+all your application’ pages in a one place, loaded once. And they are switched by a router
+in a user’s web-browser. So all the communication with server is stripped to data
+manipulation requests (<em>creation, updating and reading data from server</em>) and first-time
+request, sending the HTML, CSS and JavaScripts to user’s browser. And then, all the
+interactions are performed in a browser. At maximum, frontend application can request
+a partial or some assets (<em>like images</em>) from a web-server.</p>
+<p>Basically, here’s how SPA works:</p>
+<ol>
+<li>user enters a website</li>
+<li>server sends application’ code (implemented in JavaScript) and HTML to user</li>
+<li>user, say, clicks on a link to change the page</li>
+<li>if application needs partial, it requests server for a HTML partial</li>
+<li>application renders a retrieved (or cached) partial in a browser</li>
+</ol>
+<p>Let’s start and you will see how easy it is!</p>
+<h2 id="kickstarting">Kickstarting</h2>
+<p>We’ll start, adding Angular to our <code>bower.json</code> dependencies:</p>
+<pre><code class="language-bash">bower <span class="token function">install</span> --save angular
+</code></pre>
+<p>Now when we have Angular inside the <code>bower_components</code> directory, let’s add its references to
+our layout:</p>
+<pre><code class="language-pug"><span class="token tag">head</span>
+    <span class="token tag">script<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">src</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"angular/angular.js"</span></span><span class="token punctuation">)</span></span></span>
+</code></pre>
+<p>Now, the only two things we need to start using Angular right away are:</p>
+<ol>
+<li>Angular application, defined in the JavaScript and referenced in the <code>&lt;html&gt;</code>
+tag with <code>ng-app</code> <strong>directive</strong></li>
+<li>Angular controller, which will contain <strong>scope</strong> with variables and functions for
+the page’ portion</li>
+</ol>
+<p>Yeah, we definitely need some clarifications about those two new words.</p>
+<h2 id="theory-bits">Theory bits</h2>
+<p>Angular defines a few kind of bricks, you may use to build an entire application:</p>
+<ol>
+<li><strong>templates</strong> - dynamically changed HTML files</li>
+<li><strong>two-way data binding</strong>, used mostly within <strong>interpolations</strong> - a mechanism
+for sharing dynamically changed <em>(by either user of javascript)</em> data between
+views and code</li>
+<li><strong>controllers</strong>, holding <strong>scope</strong> - are JavaScript objects, containing variables and
+functions to be used in templates <em>(functions and variables are put inside a scope, which
+is an argument to corresponding controller; I’ll describe it later)</em></li>
+<li><strong>factories</strong> (or <strong>services</strong>) - helper objects, containing logic which is not
+<em>directly</em> related to views <em>(displaying and retrieving data)</em></li>
+<li><strong>directive</strong> - is a place, where HTML-related code is placed</li>
+</ol>
+<p>On the other hand, in MVVM architecture we have three layers:</p>
+<ol>
+<li><strong>Model</strong> - layer, performing manipulations on data; kind of <em>database layer</em></li>
+<li><strong>View</strong> - user interface layer</li>
+<li><strong>ViewModel</strong> - stores data to be shown on UI or which was retrieved from UI</li>
+</ol>
+<p>Accordingly to this scheme, in Angular we have the next logic structure:</p>
+<ol>
+<li><strong>Model</strong> - <strong>Services</strong></li>
+<li><strong>Views</strong> - <strong>Templates</strong>, <strong>Directives</strong></li>
+<li><strong>ViewModel</strong> - <strong>Controllers</strong></li>
+</ol>
+<p>Here I did not mention <em>two-way data binding</em> and <em>scopes</em>, because first one is a part of <em>templates</em> and the second one is a part of <em>controllers</em>. And they may not be separated one from another.</p>
+<h2 id="kickstarting-for-real">Kickstarting. For real</h2>
+<p>Let’s add some Angular logic into our project. We’ll split our app into all those
+controllers and services very soon. But first, we need our application in Angular to be
+registered. Create a file <code>config.js</code> inside the <code>src/javascripts/</code> directory
+with the following content:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> ourStatsApp <span class="token operator">=</span> angular<span class="token punctuation">.</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token string">'ourStatsApp'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>  <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>And point the whole layout to use that application with the <code>ng-app</code> directive on <code>&lt;html&gt;</code> tag:</p>
+<pre><code class="language-js">doctype html
+<span class="token function">html</span><span class="token punctuation">(</span>lang<span class="token operator">=</span><span class="token string">"en"</span> ng<span class="token operator">-</span>app<span class="token operator">=</span><span class="token string">"ourStatsApp"</span><span class="token punctuation">)</span>
+    head
+        block head
+</code></pre>
+<p>Now when we have our app accessible by all our pages, let’s create our first controller,
+which will handle exactly one page, the landing page. To expose our controllers,
+we need to make a module, consisting of controllers and add it as a dependency
+to our application. If you take a look at the application definition, it is also
+a module. The first parameter to <code>angular.module()</code> function is a module name,
+the second one is a list of dependencies.</p>
+<p>Controllers are defined in a same way, but the dependency list for them contains
+module definition as the last element as well. Let’s define a <code>LandingPageCtrl</code> controller
+in a <code>src/javascripts/controllers.js</code> file:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> ourStatsControllers <span class="token operator">=</span> angular<span class="token punctuation">.</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token string">'ourStatsControllers'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+ourStatsControllers<span class="token punctuation">.</span><span class="token function">controller</span><span class="token punctuation">(</span><span class="token string">'LandingPageCtrl'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'$scope'</span><span class="token punctuation">,</span>
+    <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">$scope</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        $scope<span class="token punctuation">.</span>apps <span class="token operator">=</span> <span class="token number">142</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Here we defined a module <code>ourStatsControllers</code>, which will contain all the controllers
+and a <code>LandingPageCtrl</code> controller, which is a module of the same name, with a single
+dependency - <code>$scope</code> and its implementation. As you can see, the <code>$scope</code> appears
+here twice - first time as a dependency name and second time as an argument
+to controller’ definition function. That’s exactly how <strong>dependency injection</strong> is made
+with Angular. Here we defined a scope variable for our controller too, called <code>apps</code>.
+We’ll use it in just a moment.</p>
+<p>Note the second argument: it’s not required to be a list with dependencies’ names first and
+controller implementation function, taking all those dependencies as arguments last. This
+is done only for the sake of minification. That’s it, if you decide to minify your javascript
+files, you’ll get a lot of errors if you will not specify dependencies’ names as first list
+items, because most of javascript minifiers shorten your variables’ names to just a few
+symbols, while keeping strings all the same. So if you are not minifying your javascript files,
+this code will work perfectly:</p>
+<pre><code class="language-js">ourStatsControllers<span class="token punctuation">.</span><span class="token function">controller</span><span class="token punctuation">(</span><span class="token string">'LandingPageCtrl'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">$scope</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token operator">...</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<p>Instead, when minified, this controller will be transformed into something like this:</p>
+<pre><code class="language-js">a<span class="token punctuation">.</span><span class="token function">controller</span><span class="token punctuation">(</span><span class="token string">'LandingPageCtrl'</span><span class="token punctuation">,</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">b</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token operator">...</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<p>And Angular will try to find a controller, factory or a service, named <code>b</code>. And will probably fail.
+But if you use <em>“explicit”</em> dependency injection, like this:</p>
+<pre><code class="language-js">ourStatsControllers<span class="token punctuation">.</span><span class="token function">controller</span><span class="token punctuation">(</span><span class="token string">'LandingPageCtrl'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'$scope'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">$scope</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token operator">...</span> <span class="token punctuation">}</span> <span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre>
+<p>then this code will be minified to something like this:</p>
+<pre><code class="language-js">a<span class="token punctuation">.</span><span class="token function">controller</span><span class="token punctuation">(</span><span class="token string">'LandingPageCtrl'</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token string">'$scope'</span><span class="token punctuation">,</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">b</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token operator">...</span><span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+</code></pre>
+<p>And then Angular will try to inject the <code>$scope</code> service and will succeed.
+Just keep this small trick in mind, when developing a real-world Angular applications.</p>
+<p>Now we need to inject our controllers module into our application. So we just add a
+dependency entry inside our application declaration:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> ourStatsApp <span class="token operator">=</span> angular<span class="token punctuation">.</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token string">'ourStatsApp'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'ourStatsControllers'</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>As we already defined the <code>ourStatsControllers</code> module, we don’t need to provide
+an implementation for it.</p>
+<p>But to make our controller work properly, we need either to declare it on frontend,
+making it handle static piece of a page, or make our application use different
+controller and view, depending on a route in a browser’s address line.</p>
+<p>The first approach is good when you use Angular for complex widgets on a page. But
+we need something more from our application, so we’ll set up router. It’ll
+parse URL from browser and run the corresponding controller.</p>
+<p>Router we’ll be using is <code>ngRoute</code>. This is a third-party plugin for Angular.
+And in order to use it, we need to add a Bower dependency to our project:</p>
+<pre><code class="language-bash">bower <span class="token function">install</span> --save-dev angular-route
+</code></pre>
+<p>Now we only need to reference it in our app definition:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> ourStatsApp <span class="token operator">=</span> angular<span class="token punctuation">.</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token string">'ourStatsApp'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'ngRoute'</span><span class="token punctuation">,</span> <span class="token string">'ourStatsControllers'</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>The next step is configuring our application routes, making application to
+“understand”, which controller and which template it should run. This may
+be done in the same file, as the application definition:</p>
+<pre><code class="language-js">ourStatsApp<span class="token punctuation">.</span><span class="token function">config</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token string">'$routeProvider'</span><span class="token punctuation">,</span>
+    <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">$routeProvider</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        $routeProvider<span class="token punctuation">.</span>
+            <span class="token function">when</span><span class="token punctuation">(</span><span class="token string">'/home'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'partials/landing-page.html'</span><span class="token punctuation">,</span>
+                <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'LandingPageCtrl'</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+            <span class="token function">otherwise</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+                <span class="token literal-property property">redirectTo</span><span class="token operator">:</span> <span class="token string">'/home'</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>This configuration makes our application run <code>LandingPageCtrl</code> when the <code>/home</code> page is
+entered. And if the URL entered is not known, application will redirect user to the
+<code>/home</code> page. All Angular routes are passed as an anchor, so saying <em>the <code>/home</code> page</em>
+we actually mean <code>http://your.host/#/home</code>. This makes browser not send requests
+to the server, requesting non-existent pages.</p>
+<p>Also, note we point our application to use the <code>partials/home.html</code> template.
+But we did not tell the Angular where to render it. To fix that, we’ll
+add a <code>ng-view</code> directive to the <code>.container-fluid</code> element of our <code>&lt;body&gt;</code> tag,
+right in our layout:</p>
+<pre><code class="language-pug"><span class="token tag">body</span>
+    <span class="token keyword">block body</span>
+        <span class="token tag"><span class="token attr-class">.container-fluid</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">ng-view</span><span class="token punctuation">)</span></span></span>
+</code></pre>
+<p>Currently, when the project is built with the Gulp’ <code>build</code> task,
+we have a <code>public/home.html</code> page, but it is not a partial - it is a standalone
+page, extending the layout. But what we need is to compile all our Jade templates
+into a <code>public/partials</code> directory, making them available through the
+<code>/partials/partial_name.html</code> URL. And they should not extend the layout, because
+then we’ll end up with an incorrect HTML code.</p>
+<p>To make the magic happen, we only need to change our <code>build</code> task for Gulp
+to build views directly to the <code>public</code> directory. So the <code>src/views/index.jade</code>
+file will be the main HTML page of our application, available through
+<code>/index.html</code> URL. And all the partials would be our Angular controllers’ templates,
+available through <code>/partials/template_name.html</code> URLs.</p>
+<p>Now the views part of Gulp <code>build</code> task should look like this:</p>
+<pre><code class="language-js">gulp<span class="token punctuation">.</span><span class="token function">src</span><span class="token punctuation">(</span><span class="token string">'src/views/**/*.jade'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span><span class="token function">jade</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span>gulp<span class="token punctuation">.</span><span class="token function">dest</span><span class="token punctuation">(</span><span class="token string">'public/'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>And let’s just extract the content of <code>index.jade</code> partial as it is now, all the
+content into a separate Angular partial, <code>src/views/partials/home.jade</code>.</p>
+<p>And let’s add only one small change - add only one line there:</p>
+<pre><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h1</span><span class="token punctuation">></span></span>Currently running {{ apps }} apps<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h1</span><span class="token punctuation">></span></span>
+</code></pre>
+<p>Remember, we have the <code>$scope</code> parameter for our <code>LandingPageCtrl</code> controller?
+And that there we set the <code>apps</code> variable? That is it, displaying on our home page.
+All the other parameters, added to the <code>$scope</code> are available on the corresponding
+template, by default. You may display them with some formatting, looping through the list
+with <code>ng-repeat</code> and using them as conditionals with <code>ng-if</code> or <code>ng-show</code>.
+But let’s go step-by-step.</p>
+<p><a class="btn btn-primary btn-lg" href="https://github.com/shybovycha/two-sides-of-web-application/commit/b443618ca13179cc33b7ff2e08d0d6209b323113">Code goes here</a></p>
+<h2 id="populating-our-app-with-stuff">Populating our app with stuff</h2>
+<p>For now, let’s add all the other controllers to our app. Just create empty
+controllers according to the table from <strong>part one</strong>, using the same approach as
+described right above.</p>
+<p>We’ll define each controller in its own file, but all of them will be concatenated
+into one big application javacript file. We’ll use Gulp for this purpose with
+its <code>gulp-concat</code> plugin.</p>
+<p>Let’s install it:</p>
+<pre><code class="language-bash"><span class="token function">npm</span> <span class="token function">install</span> --save gulp-concat
+</code></pre>
+<p>Its usage is super-easy: you just redirect the output of our CSS and JS files compiler
+to the <code>concat(filename)</code> function, providing it with a resulting filename. Like this:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> concat <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'gulp-concat'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+gulp<span class="token punctuation">.</span><span class="token function">src</span><span class="token punctuation">(</span><span class="token string">'src/javascripts/**/*.js'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span><span class="token function">babel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span><span class="token function">concat</span><span class="token punctuation">(</span><span class="token string">'all.js'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span>gulp<span class="token punctuation">.</span><span class="token function">dest</span><span class="token punctuation">(</span><span class="token string">'public/javascripts'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+gulp<span class="token punctuation">.</span><span class="token function">src</span><span class="token punctuation">(</span><span class="token string">'src/stylesheets/**/*.scss'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span><span class="token function">sass</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">style</span><span class="token operator">:</span> <span class="token string">'expanded'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span><span class="token function">concat</span><span class="token punctuation">(</span><span class="token string">'all.css'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span>gulp<span class="token punctuation">.</span><span class="token function">dest</span><span class="token punctuation">(</span><span class="token string">'public/stylesheets'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Now, the controllers. First we need to set the routes.
+The router configuration for our application will look just like this:</p>
+<pre><code class="language-js">$routeProvider
+    <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span><span class="token string">'/'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'landing-page.html'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'LandingPageCtrl'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span><span class="token string">'/new-session'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'new-session.html'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'NewSessionCtrl'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span><span class="token string">'/edit-account'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'edit-account.html'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'EditAccountCtrl'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span><span class="token string">'/applications/:id'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'show-application.html'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'ShowApplicationCtrl'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span><span class="token string">'/applications'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'list-applications.html'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'ListApplicationsCtrl'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span><span class="token string">'/applications/:id/edit'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'edit-application.html'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'EditApplicationCtrl'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">when</span><span class="token punctuation">(</span><span class="token string">'/applications/new'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">templateUrl</span><span class="token operator">:</span> <span class="token string">'new-application.html'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">controller</span><span class="token operator">:</span> <span class="token string">'NewApplicationCtrl'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">otherwise</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+        <span class="token literal-property property">redirectTo</span><span class="token operator">:</span> <span class="token string">'/'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>And we currently have a lot of pages with broken links. We should fix that,
+providing URLs to our <em>(empty for now)</em> controllers. Like this one:</p>
+<pre><code class="language-pug"><span class="token tag">a<span class="token attr-class">.btn</span><span class="token attr-class">.btn-primary</span><span class="token attr-class">.btn-lg</span><span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">href</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"#/sign-in"</span> role<span class="token operator">=</span><span class="token string">"button"</span></span><span class="token punctuation">)</span></span></span> <span class="token plain-text">Sign in</span>
+</code></pre>
+<p>Fix those links for all the views by yourself - that is not a complex task.
+All the routes are described both in the app configuration and in a table
+above.</p>
+<h2 id="demo">Demo</h2>
+<p><a href="http://codepen.io/shybovycha/pen/obQbvX/">Simple web analytics. Angular injection. v1</a></p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

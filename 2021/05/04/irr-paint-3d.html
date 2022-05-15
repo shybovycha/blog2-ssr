@@ -1,0 +1,144 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>irrPaint3d</h1>
+
+    <time>04 May 2021 at 06:49</time>
+
+    <div class="content"><p>Recently I was reviving some of my old projects. And to my surprise, there were some people actually interested in those!
+That was a good enough reason for me to revise the old pet projects of mine and exercise my skills (mostly in C++ though).</p>
+<p>One really interesting project I had back in the day was irrPaint3d. It all started as an idea for my B.Sc. thesis and
+the ultimate goal was to enable users paint 3D objects and immediately see the results in realtime, in 3D.</p>
+<p>This is a no unique feature nowadays, but back in 2013, to my knowledge, the only way to texture 3D models was to either
+unwrap them to UV maps and then paint the textures in graphics editor (such as Gimp or Paint.NET) or to use a proprietary
+software, 3D Coat.</p>
+<img data-src="/images/irr-paint-3d/blender_unwrapping.webp" alt="Unwrapping 3D model texture in Blender in 2013" />
+
+<p>And a mere idea of implementing such tool myself was quite exciting. Darn, if I managed to implement it
+back in 2013, my thesis would shine among best thesises in my uni!</p>
+<p>Long story short, I have failed with that. And now, after spending just few days on this, I am happy to say I have achieved
+something with yet another glorious pet project revival:</p>
+<img data-src="/images/irr-paint-3d/final_version_screenshot.webp" alt="Revised 3D model painting" />
+
+<p>And it actually allows to paint the model in 3D, displaying the results in real-time!</p>
+<p>A bit of history on how I got there and maths behind the solution under the cut.</p>
+<!--more-->
+
+<h2 id="a-brief-history">A brief history</h2>
+<p>Back in the day I have put too little thought into the project so I ended up trying to implement LSCM algorithm to
+unwrap 3D models. And after numerous failures I came up with my own, very simple algorithm to unwrap models and that made
+my B.Sc. thesis.</p>
+<p>The algorithm was a simple system of numerous circle equations following the logic of pinning down a vertex from a triangle
+on 2D plane at point <code>(0, 0)</code> and figuring out the 2D coordinates of the other two vertices using the lengths of the triangle
+edges in 3D, using two circles, with centres at the pinned point (<code>(0, 0)</code>) and radiuses equal to triangle edges’ lengths.
+The circles would overlap in two points, and both are candidates for the other two triangle’ verices mapping:</p>
+<img data-src="/images/irr-paint-3d/mapping_near.webp" alt="The idea behind my unwrapping algorithm" />
+
+<p>The algorithm… worked… in some cases:</p>
+<img data-src="/images/irr-paint-3d/cube_unwrapped.webp" alt="Sample algorithm result, unwrapped cube" />
+
+<p>I did try to understand the concept of barycentric coordinates, but that is something completely different to what I imagined,
+apparently:</p>
+<img data-src="/images/irr-paint-3d/barycentric_coordinates.webp" alt="My previous understanding of barycentric coordinates" />
+
+<h2 id="the-maths-behind">The maths behind</h2>
+<p>With my new approach, I took an idea from the enormously cool introduction to computer graphics and the math underneath
+by <a href="https://www.youtube.com/watch?v=ih20l3pJoeU">One Lone Coder</a>. The idea itself is rather trivial: any vector could be represented
+as a sum of two other (not necessarily orthogonal) vectors (plus a condition that the angle between the two should not be 180 degrees).</p>
+<img data-src="/images/irr-paint-3d/vector_as_a_sum.webp" alt="Vector as a sum of other vectors" />
+
+<p>In the example above, vector <code>p</code> could be represented as a sum of vectors <code>a</code> and <code>b</code>, each multiplied by certain coefficients:
+<code>p = u*a + v*b</code>.</p>
+<p>And the dimensions of the vectors do not matter - this logic will work just as well in 3D as in 2D.</p>
+<p>Now, if we have a triangle in 3D, <code>ABC</code> and a point inside that triangle <code>P</code>, we can represent the vector <code>AP</code> as a sum of vectors
+<code>AB</code> and <code>AC</code> multiplied by some coefficients, <code>u*AB + v*AC = AP</code>.</p>
+<p>It is only the matter of finding those coefficients, <code>u</code> and <code>v</code>. Luckily, this could be done with a system of three linear equations
+with just two variables:</p>
+<pre><code>ax * u + bx * v = px
+ay * u + by * v = py
+az * u + bz * v = pz
+</code></pre>
+<p>where</p>
+<ul>
+<li>vector <code>AB &lt;=&gt; a(ax, ay, az)</code></li>
+<li>vector <code>AC &lt;=&gt; b(bx, by, bz)</code></li>
+<li>vector <code>AP &lt;=&gt; p(px, py, pz)</code></li>
+</ul>
+<p>Simply using the substitution, we can first express <code>u</code> as a function of <code>v</code> and then calculate <code>v</code> to then find <code>u</code>.
+The only bit here is that the multiplier of <code>v</code> must not be zero.</p>
+<p>In C++ this looks like this (I am using Irrlicht for this application, so bare with <code>irr::</code> namespaces):</p>
+<pre><code class="language-cpp">irr<span class="token double-colon punctuation">::</span>video<span class="token double-colon punctuation">::</span>S3DVertex A<span class="token punctuation">,</span> B<span class="token punctuation">,</span> C<span class="token punctuation">;</span>
+
+<span class="token comment">// find A, B and C from the selected triangle</span>
+<span class="token comment">// also collisionPoint is the point in question, inside the selected triangle</span>
+
+irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>vector3df a <span class="token operator">=</span> B<span class="token punctuation">.</span>Pos <span class="token operator">-</span> A<span class="token punctuation">.</span>Pos<span class="token punctuation">;</span>
+irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>vector3df b <span class="token operator">=</span> C<span class="token punctuation">.</span>Pos <span class="token operator">-</span> A<span class="token punctuation">.</span>Pos<span class="token punctuation">;</span>
+irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>vector3df p <span class="token operator">=</span> collisionPoint <span class="token operator">-</span> A<span class="token punctuation">.</span>Pos<span class="token punctuation">;</span>
+
+<span class="token keyword">float</span> u<span class="token punctuation">,</span> v<span class="token punctuation">;</span>
+
+<span class="token comment">// au + bv = p</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span>a<span class="token punctuation">.</span>X <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    v <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>a<span class="token punctuation">.</span>X <span class="token operator">*</span> p<span class="token punctuation">.</span>Y<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token punctuation">(</span>a<span class="token punctuation">.</span>Y <span class="token operator">*</span> p<span class="token punctuation">.</span>X<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>a<span class="token punctuation">.</span>X <span class="token operator">*</span> b<span class="token punctuation">.</span>Y<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token punctuation">(</span>a<span class="token punctuation">.</span>Y <span class="token operator">*</span> b<span class="token punctuation">.</span>X<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    u <span class="token operator">=</span> <span class="token punctuation">(</span>p<span class="token punctuation">.</span>X <span class="token operator">-</span> <span class="token punctuation">(</span>b<span class="token punctuation">.</span>X <span class="token operator">*</span> v<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">/</span> a<span class="token punctuation">.</span>X<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>a<span class="token punctuation">.</span>Y <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    v <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>a<span class="token punctuation">.</span>Y <span class="token operator">*</span> p<span class="token punctuation">.</span>Z<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token punctuation">(</span>a<span class="token punctuation">.</span>Z <span class="token operator">*</span> p<span class="token punctuation">.</span>Y<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>a<span class="token punctuation">.</span>Y <span class="token operator">*</span> b<span class="token punctuation">.</span>Z<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token punctuation">(</span>a<span class="token punctuation">.</span>Z <span class="token operator">*</span> b<span class="token punctuation">.</span>Y<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    u <span class="token operator">=</span> <span class="token punctuation">(</span>p<span class="token punctuation">.</span>Y <span class="token operator">-</span> <span class="token punctuation">(</span>b<span class="token punctuation">.</span>Y <span class="token operator">*</span> v<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">/</span> a<span class="token punctuation">.</span>Y<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>a<span class="token punctuation">.</span>Z <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    v <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>a<span class="token punctuation">.</span>Z <span class="token operator">*</span> p<span class="token punctuation">.</span>X<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token punctuation">(</span>a<span class="token punctuation">.</span>X <span class="token operator">*</span> p<span class="token punctuation">.</span>Z<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>a<span class="token punctuation">.</span>Z <span class="token operator">*</span> b<span class="token punctuation">.</span>X<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token punctuation">(</span>a<span class="token punctuation">.</span>X <span class="token operator">*</span> b<span class="token punctuation">.</span>Z<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    u <span class="token operator">=</span> <span class="token punctuation">(</span>p<span class="token punctuation">.</span>Z <span class="token operator">-</span> <span class="token punctuation">(</span>b<span class="token punctuation">.</span>Z <span class="token operator">*</span> v<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">/</span> a<span class="token punctuation">.</span>Z<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">else</span> <span class="token punctuation">{</span>
+    <span class="token keyword">throw</span> <span class="token string">"Invalid input - zero basis vector"</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Now the last bit of the maths: given the points of a selected triangle all have their texture coordinates (hence using <code>irr::video::S3DVertex</code>),
+how do we find the texture coordinates of a given point <code>P</code>? Simple: by applying the same vector maths to the texture coordinates:
+we can represent a given triangle in 2D space of texture coordinates and using the vectors <code>AB</code>, <code>AC</code> and <code>AP</code> and the multipliers <code>u</code> and <code>v</code>
+which we have just obtained from 3D space, we can “interpolate” the texture coordinates of vector <code>AP</code>:</p>
+<pre><code class="language-cpp">irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>vector2df t2 <span class="token operator">=</span> B<span class="token punctuation">.</span>TCoords <span class="token operator">-</span> A<span class="token punctuation">.</span>TCoords<span class="token punctuation">;</span>
+irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>vector2df t1 <span class="token operator">=</span> C<span class="token punctuation">.</span>TCoords <span class="token operator">-</span> A<span class="token punctuation">.</span>TCoords<span class="token punctuation">;</span>
+
+irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>vector2df uvCoords <span class="token operator">=</span> A<span class="token punctuation">.</span>TCoords <span class="token operator">+</span> t1 <span class="token operator">*</span> u <span class="token operator">+</span> t2 <span class="token operator">*</span> v<span class="token punctuation">;</span>
+</code></pre>
+<p>The rest is just rendering and drawing on a texture. The full version of the project is available <a href="https://github.com/shybovycha/irrPaint3D">on GitHub</a>.</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

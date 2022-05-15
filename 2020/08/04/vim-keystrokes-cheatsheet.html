@@ -1,0 +1,92 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Vim keystrokes cheatsheet</h1>
+
+    <time>04 Aug 2020 at 01:04</time>
+
+    <div class="content"><p>The time has come for me to list few of the commands and keystrokes that I use (and the ones that I don’t but would like to start) in Vim.</p>
+<p>I am actually running a Vim plugin for Visual Studio Code (this and the previous blogs are actually written with this plugin ON) at this very moment.</p>
+<p>Bear 🐻 in mind: this blog is aboout <em>keystrokes</em> only, it is not about plugins or configuration I use - I shall cover that one day.</p>
+<h2 id="things-i-know-by-heart">Things I know by heart</h2>
+<ul>
+<li><kbd>h</kbd>, <kbd>j</kbd>, <kbd>k</kbd>, <kbd>l</kbd> for slow but precise character-wise movement</li>
+<li><kbd>w</kbd>, <kbd>b</kbd> for faster forward (and, correspondingly) backward word-by-word movement</li>
+<li><kbd>$</kbd> and <kbd>^</kbd> to go to the last and first word character of the line</li>
+<li><kbd>gg</kbd> and <kbd>G</kbd> to go to the beginning and the end of the file</li>
+<li><kbd>O</kbd> (capital <code>o</code>) to create a blank line and go to INSERT mode above and below (lower-case <code>o</code>) the cursor</li>
+<li><kbd>f</kbd>, <kbd>F</kbd> and <kbd>t</kbd> and <kbd>T</kbd> for single character lookup within the current line</li>
+<li><kbd>/</kbd> and <kbd>?</kbd> to search forwards and backwards</li>
+<li><kbd>c</kbd> (followed by the object) to change the <em>object</em>; this expands to the following few commands:<ul>
+<li><kbd>cw</kbd> to change the current word under cursor</li>
+<li><kbd>cit</kbd> to change the text within the current XML tag</li>
+<li><kbd>ca'</kbd> to change the text surrounded by single quote</li>
+<li><kbd>ci&lt;</kbd> to change the text surrounded with <code>&amp;lt;</code> and <code>&amp;gt;</code></li>
+<li><kbd>ci{symbol}</kbd> to change the text surrounded by <em>symbol</em>, which could be <code>&#39;</code>, <code>&quot;</code>, <code>&amp;#96;</code>; you can also use <kbd>b(</kbd> for block of text, surrounded by braces, <kbd>B{</kbd> for block of text surrounded by curly braces or <kbd>p</kbd> for paragraph, all instead of <em>symbol</em></li>
+</ul>
+</li>
+<li><kbd>v</kbd> to enter the VISUAL mode, followed by the command:<ul>
+<li><kbd>v{select}c</kbd> immediately change the selection</li>
+<li><kbd>v{select}d</kbd> cut the selected text</li>
+</ul>
+</li>
+<li><kbd>y</kbd> and <kbd>p</kbd> copy and paste the selected text (lower-case <code>p</code> pastes above the current line, capital-case <code>P</code> pastes below; capital-case <code>Y</code> copies the entire line, so the duplicate line command in Vim is <kbd>Y, P</kbd>)</li>
+<li><kbd>{number}{command}</kbd> repeat the <em>command</em> <em>number</em> times</li>
+<li><kbd>.</kbd> (the period or dot symbol) repeats the last command</li>
+<li><kbd>x</kbd> to remove the character under cursor</li>
+<li><kbd>r{char}</kbd> to replace the character under cursor with <em>char</em></li>
+<li><kbd>A</kbd> to go to the end of the line and enter INSERT mode (“append”)</li>
+<li><kbd>u</kbd> and <kbd>Ctrl+r</kbd> to undo and redo actions</li>
+<li><kbd>&gt;</kbd> and <kbd>&lt;</kbd> adds or removes the indentation</li>
+</ul>
+<h2 id="things-that-i-am-still-getting-used-to">Things that I am still getting used to</h2>
+<ul>
+<li><kbd>{number}{motion}</kbd> instead of <kbd>h</kbd>, <kbd>j</kbd>, <kbd>k</kbd>, <kbd>l</kbd></li>
+<li><kbd>a</kbd> instead of <kbd>i</kbd> to enter INSERT mode <em>after</em> the cursor (as opposed to <kbd>i</kbd> which enters INSERT mode <em>before</em> the cursor)</li>
+<li><kbd>H</kbd>, <kbd>M</kbd> and <kbd>L</kbd> to go to the top, middle and the bottom of the screen (High, Mid and Low)</li>
+<li><kbd>*</kbd> and <kbd>#</kbd> to search for the word under cursor forwards and backwards</li>
+<li><kbd>{count}/{query}⏎</kbd> to go to the <em>count</em>-th occurrence of <em>query</em>; it is same as searching with <kbd>/</kbd> and then hitting <kbd>n</kbd> <em>count</em> times</li>
+<li><kbd>gd</kbd> navigates to a definition of an entity under the cursor</li>
+<li><kbd>gf</kbd> navigates to the path under cursor</li>
+<li><kbd>%</kbd> moves the cursor to the matching brace, bracket or curly brace</li>
+<li><kbd>g~</kbd> toggle the case</li>
+<li><kbd>=</kbd> format the selection</li>
+<li><kbd>gU</kbd> makes the selection uppercase</li>
+</ul>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

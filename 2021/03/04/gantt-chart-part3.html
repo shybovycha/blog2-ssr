@@ -1,0 +1,154 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Gantt chart. Part 3</h1>
+
+    <time>04 Mar 2021 at 08:46</time>
+
+    <div class="content"><p>I have been writing about and improving on <a href="https://github.com/shybovycha/gantt-chart/">my Gantt chart implementation</a> for quite some time now.</p>
+<p>It all started with this (<a href="2017-04-09-gantt-chart-with-d3">blog</a>):</p>
+<LazyImg src="/images/gantt_chart_part3/gantt-chart-v1.webp" alt="First revision of Gantt chart" />
+
+<p>Then I added few features (<a href="2020-08-02-gantt-chart-part2">blog</a>):</p>
+<LazyImg src="/images/gantt_chart_part3/gantt-chart-v2.webp" alt="Second revision of Gantt chart" />
+
+<p>Back then I have promised to re-write the implementation in Canvas. And so I did.</p>
+<p>Curious fact: I did not plan on doing this at this time - it was a private email from <em>darekeapp12</em> who wrote this:</p>
+<blockquote>
+I have looked at your blog for Gantt chart and implementation. I am doing a project using React and Node/Express and need to implement Gantt chart that is also draggable i.e. the bars can be moved and also resized from either end. I have researched heavily but could not find anything. I am thinking if there is no library, something could be built from scratch.
+</blockquote>
+
+<p>The sender seemed dodgy (<em>DAREKE app</em>) so I did not want to reply to avoid unnecessary spam subscriptions, but I was happy to improve my old project.</p>
+<p>Here are few new features and improvements added to the chart:</p>
+<ul>
+<li>scrolling and zooming in &amp; out is now a thing</li>
+<li>you can drag the milestones around and stretch &amp; shrink them</li>
+<li>an event will be fired whenever a milestone is changed (moved / stretched / shrinked)</li>
+<li>dependencies are now typed: start-to-start, end-to-end or end-to-start are the only supported types</li>
+</ul>
+<p>Here, you can even play around with it now!</p>
+<LazyImg src="/images/gantt_chart_part3/screenshot.webp" id="gantt-chart-screenshot" />
+
+<div class="chart-container" style="display:none;">
+  <div class="controls">
+    <button id="zoom-out">-</button>
+    <button id="zoom-in">+</button>
+  </div>
+
+  <div id="gantt-chart"></div>
+</div>
+
+<!-- TBD -->
+
+<p>More about the implementation specifics under the cut.</p>
+<!--more-->
+
+<p>The main goal I had in mind was getting rid of D3, since it is a rather heavy dependency which is only used for few rather simple functions.
+By the end of this rework I ended up adding a ton of visual and functional improvements to the implementation, but I’ll talk about it in detail later.</p>
+<p>To start with, I created a function to convert a timestamp into a position on canvas. This requires knowing the boundaries of timeline and canvas
+to be able to map the beginning of a timeline to a beginning of canvas. I started off by trying to figure out the formulae myself, but quickly realized
+it is not as simple as few additions and divisions (well, it actually is, but it is tricky to figure out from start). So I turned myself to the maths -
+linear interpolation, to be specific.</p>
+<p>If we know the beginning of a range and the end of a range and values they map to, in  order to figure out the corresponding mapping of a point on that
+range, we can utilize linear interpolation (given the range values changes linearly, which is true, since we work with time span on one hand and canvas
+coordinates on the other).</p>
+<p>Here’s a visual representation of what I am talking about:</p>
+<LazyImg src="/images/gantt_chart_part3/interpolation.png" alt="Interpolation explained" />
+
+<p>There’s a formulae to tell the <code>y</code> coordinate of a point on a line by its <code>x</code> coordinate if you know two points on that line.</p>
+<p>Now in our case, the two known points are the start and the end of the time span.
+<em>“But wait, why are we even taling about <code>x</code> and <code>y</code> coordinates?”</em> - you might ask.
+A given timestamp can be represented as a single number (number of milliseconds since Unix was started).
+That would give us the <code>x</code> coordinate of any given point. The <code>y</code> coordinate would be the <code>x</code> coordinate of the same point
+on canvas. We do not care about the <code>y</code> coordinate on canvas, since all the vertical layout will be done later and does not
+depend on the timestmap. We will have to arrange elements on the canvas vertically in a different order, so we can easily exclude it
+from the interpolation.</p>
+<p>Let’s reiterate the formulae:</p>
+<pre><code>y = y1 + (x - x1) * ((y2 - y1) / (x2 - x1))
+</code></pre>
+<p>Considering the explanation above:</p>
+<ul>
+<li><code>x1</code> is the first timestamp from the time span on a screen</li>
+<li><code>y1</code> is the lowest of canvas’ <code>x</code> coordinate (<code>0</code>)</li>
+<li><code>x2</code> is the last timestamp from the time span on a screen</li>
+<li><code>y2</code> is the highest of canvas’ <code>x</code> coordinate (<code>canvas.width</code>)</li>
+<li><code>x</code> is a numeric timestamp value</li>
+<li><code>y</code> is a corresponding <code>x</code> coordinate of that timestamp on canvas</li>
+</ul>
+<p>Substitute these in the formulae:</p>
+<pre><code>y = 0 + (x - firstTimestamp) * ((canvas.width - 0) / (lastTimestamp - firstTimestamp))
+</code></pre>
+<p>And simplify it:</p>
+<pre><code>y = (x - firstTimestamp) * (canvas.width / (lastTimestamp - firstTimestamp))
+</code></pre>
+<p>In terms of code, the interpolation function looks like this:</p>
+<pre><code class="language-js"><span class="token function">scaleX</span><span class="token punctuation">(</span><span class="token parameter">date<span class="token punctuation">,</span> minStart<span class="token punctuation">,</span> overallDuration<span class="token punctuation">,</span> canvasWidth</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> Math<span class="token punctuation">.</span><span class="token function">ceil</span><span class="token punctuation">(</span><span class="token punctuation">(</span>date<span class="token punctuation">.</span><span class="token function">getTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> minStart<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>canvasWidth <span class="token operator">/</span> overallDuration<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Now, for a given canvas size and time span range we can figure out the <code>x</code> coordinate of <em>any</em> date (even if it is far out from the time span -
+this will actually give us the ability to scroll the chart). Hence we can start drawing both milestones and current time line (marking “now” on a chart).
+It is as easy as figuring out the coresponding <code>y</code> coordinate of an object you want to render. For instance, the current time line would start with <code>y = 0</code> and
+end at <code>y = canvas.height</code>. The milestone bars, however, could have their <code>y</code> coordinate calculated as <code>y = milestoneIndex * (milestoneHeight + (verticalPadding * 2))</code>.</p>
+<p>And that is what makes the core of the new chart implementation. The rest is a ton of fanciness in form of pretty colors, drag&amp;drop milestones (updating the underlying data)
+and scaling them, rendering connection lines between them. For the most part it is a combination of plain JS and Canvas API.</p>
+<p>The only trick-ier bit is moving and resizing the milestones - if you want to update the underlying milestone data, you will need to have an inverse
+of linear interpolation above - you will need to figure out the date based on <code>x</code> coordinate on canvas. This is as simple as swapping the parameters in the interpolation:
+instead of <code>y</code> variable representing the <code>x</code> coordinate on canvas, it should represent the date on the time span and <code>x</code> variable should represent the <code>x</code> coordinate
+on canvas:</p>
+<ul>
+<li><code>y1</code> is the first timestamp from the time span on a screen</li>
+<li><code>x1</code> is the lowest of canvas’ <code>x</code> coordinate (<code>0</code>)</li>
+<li><code>y2</code> is the last timestamp from the time span on a screen</li>
+<li><code>x2</code> is the highest of canvas’ <code>x</code> coordinate (<code>canvas.width</code>)</li>
+<li><code>y</code> is a numeric timestamp value</li>
+<li><code>x</code> is a corresponding <code>x</code> coordinate of that timestamp on canvas</li>
+</ul>
+<p>In JS it looks like this:</p>
+<pre><code class="language-js"><span class="token function">scaleDate</span><span class="token punctuation">(</span><span class="token parameter">x<span class="token punctuation">,</span> minStart<span class="token punctuation">,</span> overallDuration<span class="token punctuation">,</span> canvasWidth</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> Math<span class="token punctuation">.</span><span class="token function">ceil</span><span class="token punctuation">(</span>minStart<span class="token punctuation">.</span><span class="token function">getTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token punctuation">(</span>x <span class="token operator">*</span> <span class="token punctuation">(</span>overallDuration <span class="token operator">/</span> canvasWidth<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Using Canvas for this project sounds reasonable, especially given the time span can potentially be very large. This also enables rendering nice controls and
+connection (dependency) lines.</p>
+<p>However, the big disadvantage of using Canvas is the complexity to use the custom HTML elements for description or other milestone details
+(for instance, to show the additional details about mileston - goal, assignee, etc.).</p>
+<p>This is the reason this implementation is still not a standalone React component - I am still trying to figure out the best way to render the chart.</p>
+<p>Anyhow, that’s it for now. I will improve this solution when the time comes.</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

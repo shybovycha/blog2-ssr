@@ -1,0 +1,414 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Gantt chart with D3</h1>
+
+    <time>09 Apr 2017 at 09:04</time>
+
+    <div class="content"><p>At work, I’ve had a task to implement a Gantt chart diagram to show dependencies and order of some… let’s say, milestones.
+Given this feature is in a very unstable beta in Google Charts, I thought to myself: <em>“Why don’t I implement it on my own?”</em>.
+And tried to recall my D3 knowledge.</p>
+<p>I’ve also found a minimalistic, but helpful example / screenshot of some Gantt chart implementation:</p>
+<LazyImg src="/images/gantt_chart_with_d3/gantt-sample_optimized.webp" alt="" />
+
+<p>The challenges I’ve faced were:</p>
+<ol>
+<li>order milestones on a timeline</li>
+<li>scale milestones to fit in a viewport</li>
+<li>create pretty connection lines</li>
+<li>center text inside each milestone</li>
+</ol>
+<p>And since D3 is a data-driven library, I’ve used map/reduce where possible.</p>
+<p>Here’s how the result looked like:</p>
+<LazyImg src="/images/gantt_chart_with_d3/d3-gantt-chart_optimized.webp" alt="" />
+
+<p>The implementation details are under the cut.</p>
+<h2 id="update-august-2020">Update August 2020</h2>
+<p>There are few updates to this original implementation in my <a href="2020-08-02-gantt-chart-part2">new blog</a>.</p>
+<!--more-->
+
+<p>I hope the implementation is more or less clear, but here are some details: the algorithm consists of three main parts - initial data pre-processing - (parsing and validating dates, calculating the default values and so on); calculating the graphics params (positions, sizes) and finally, rendering that into SVG.</p>
+<p>I’ve tried using caches whenever possible to optimize the performance and save some calculation time by just creating maps <code>id -&gt; object</code>, since the algorithm refers to objects by their IDs a lot (like getting all the children of an element or getting a particular child’s data).</p>
+<p>The data pre-processing is basically computing the length of each element based on either <code>startDate</code> and <code>endDate</code> or <code>startDate</code> and <code>duration</code>. Adding the <code>endDate</code> and <code>duration</code> option is possible and trivial, but I thought this is a less useful feature.</p>
+<p>The transformation of data is the most interesting part - we need to calculate the positions of each element on a “screen”, and it heavily relies on data sorting mode - if we need to sort the data by the amount of children - this is somewhat simple. But if we sort data by dates - we need to count for element’s index in the overall list of elements.</p>
+<p>Then we calculate the parameters of connection lines. They might be redundant for some users, but in my case it was essential to show the dependencies between elements sorted by children count. This is less trivial, since one needs to find the bends of each line. Hence I decided to simplify this problem by putting all the lines <em>under</em> the rectangles and assuming every line consists of these sections:</p>
+<ol>
+<li>the “input” and “output” pins (near the <code>endDate</code> end of a parent element and near <code>startDate</code> end of children element)</li>
+<li>two vertical sections to reach the height of a children element</li>
+<li>a connection between the lines from p. 2</li>
+</ol>
+<p>The last piece of an algorithm is generating SVG. This is where D3 strikes in and, given all the params generated in the previous section, creates SVG elements in DOM tree and scales them considering <code>svgOptions</code> passed to the main function.</p>
+<p>The implementation is below and the live demo is <a href="https://codepen.io/shybovycha/pen/vxdePv">here</a></p>
+<pre><code class="language-js"><span class="token keyword">import</span> <span class="token operator">*</span> <span class="token keyword">as</span> d3 <span class="token keyword">from</span> <span class="token string">'d3'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> moment <span class="token keyword">from</span> <span class="token string">'moment'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">prepareDataElement</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> id<span class="token punctuation">,</span> label<span class="token punctuation">,</span> startDate<span class="token punctuation">,</span> endDate<span class="token punctuation">,</span> duration<span class="token punctuation">,</span> dependsOn <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token operator">!</span>startDate <span class="token operator">||</span> <span class="token operator">!</span>endDate<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span>duration<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">Error</span><span class="token punctuation">(</span><span class="token string">'Wrong element format: should contain either startDate and duration, or endDate and duration or startDate and endDate'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>startDate<span class="token punctuation">)</span> startDate <span class="token operator">=</span> <span class="token function">moment</span><span class="token punctuation">(</span>startDate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>endDate<span class="token punctuation">)</span> endDate <span class="token operator">=</span> <span class="token function">moment</span><span class="token punctuation">(</span>endDate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>startDate <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span>endDate <span class="token operator">&amp;&amp;</span> duration<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    endDate <span class="token operator">=</span> <span class="token function">moment</span><span class="token punctuation">(</span>startDate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    endDate<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>duration<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> duration<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>startDate <span class="token operator">&amp;&amp;</span> endDate <span class="token operator">&amp;&amp;</span> duration<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    startDate <span class="token operator">=</span> <span class="token function">moment</span><span class="token punctuation">(</span>endDate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    startDate<span class="token punctuation">.</span><span class="token function">subtract</span><span class="token punctuation">(</span>duration<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> duration<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>dependsOn<span class="token punctuation">)</span>
+    dependsOn <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">{</span>
+    id<span class="token punctuation">,</span>
+    label<span class="token punctuation">,</span>
+    startDate<span class="token punctuation">,</span>
+    endDate<span class="token punctuation">,</span>
+    duration<span class="token punctuation">,</span>
+    dependsOn
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">findDateBoundaries</span> <span class="token operator">=</span> <span class="token parameter">data</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">let</span> minStartDate<span class="token punctuation">,</span> maxEndDate<span class="token punctuation">;</span>
+
+  data<span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> startDate<span class="token punctuation">,</span> endDate <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>minStartDate <span class="token operator">||</span> startDate<span class="token punctuation">.</span><span class="token function">isBefore</span><span class="token punctuation">(</span>minStartDate<span class="token punctuation">)</span><span class="token punctuation">)</span> minStartDate <span class="token operator">=</span> <span class="token function">moment</span><span class="token punctuation">(</span>startDate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>minStartDate <span class="token operator">||</span> endDate<span class="token punctuation">.</span><span class="token function">isBefore</span><span class="token punctuation">(</span>minStartDate<span class="token punctuation">)</span><span class="token punctuation">)</span> minStartDate <span class="token operator">=</span> <span class="token function">moment</span><span class="token punctuation">(</span>endDate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>maxEndDate <span class="token operator">||</span> endDate<span class="token punctuation">.</span><span class="token function">isAfter</span><span class="token punctuation">(</span>maxEndDate<span class="token punctuation">)</span><span class="token punctuation">)</span> maxEndDate <span class="token operator">=</span> <span class="token function">moment</span><span class="token punctuation">(</span>endDate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>maxEndDate <span class="token operator">||</span> startDate<span class="token punctuation">.</span><span class="token function">isAfter</span><span class="token punctuation">(</span>maxEndDate<span class="token punctuation">)</span><span class="token punctuation">)</span> maxEndDate <span class="token operator">=</span> <span class="token function">moment</span><span class="token punctuation">(</span>startDate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">{</span>
+    minStartDate<span class="token punctuation">,</span>
+    maxEndDate
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">createDataCacheById</span> <span class="token operator">=</span> <span class="token parameter">data</span> <span class="token operator">=></span> data<span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">cache<span class="token punctuation">,</span> elt</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token operator">...</span>cache<span class="token punctuation">,</span> <span class="token punctuation">[</span>elt<span class="token punctuation">.</span>id<span class="token punctuation">]</span><span class="token operator">:</span> elt <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">createChildrenCache</span> <span class="token operator">=</span> <span class="token parameter">data</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> dataCache <span class="token operator">=</span> <span class="token function">createDataCacheById</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> <span class="token function-variable function">fillDependenciesForElement</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">eltId<span class="token punctuation">,</span> dependenciesByParent</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    dataCache<span class="token punctuation">[</span>eltId<span class="token punctuation">]</span><span class="token punctuation">.</span>dependsOn<span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span><span class="token parameter">parentId</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>dependenciesByParent<span class="token punctuation">[</span>parentId<span class="token punctuation">]</span><span class="token punctuation">)</span>
+        dependenciesByParent<span class="token punctuation">[</span>parentId<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>dependenciesByParent<span class="token punctuation">[</span>parentId<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span>eltId<span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span>
+        dependenciesByParent<span class="token punctuation">[</span>parentId<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>eltId<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      <span class="token function">fillDependenciesForElement</span><span class="token punctuation">(</span>parentId<span class="token punctuation">,</span> dependenciesByParent<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> data<span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">cache<span class="token punctuation">,</span> elt</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>cache<span class="token punctuation">[</span>elt<span class="token punctuation">.</span>id<span class="token punctuation">]</span><span class="token punctuation">)</span>
+      cache<span class="token punctuation">[</span>elt<span class="token punctuation">.</span>id<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    <span class="token function">fillDependenciesForElement</span><span class="token punctuation">(</span>elt<span class="token punctuation">.</span>id<span class="token punctuation">,</span> cache<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> cache<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">sortElementsByChildrenCount</span> <span class="token operator">=</span> <span class="token parameter">data</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> childrenByParentId <span class="token operator">=</span> <span class="token function">createChildrenCache</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> data<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">e1<span class="token punctuation">,</span> e2</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>childrenByParentId<span class="token punctuation">[</span>e1<span class="token punctuation">.</span>id<span class="token punctuation">]</span> <span class="token operator">&amp;&amp;</span> childrenByParentId<span class="token punctuation">[</span>e2<span class="token punctuation">.</span>id<span class="token punctuation">]</span> <span class="token operator">&amp;&amp;</span> childrenByParentId<span class="token punctuation">[</span>e1<span class="token punctuation">.</span>id<span class="token punctuation">]</span><span class="token punctuation">.</span>length <span class="token operator">></span> childrenByParentId<span class="token punctuation">[</span>e2<span class="token punctuation">.</span>id<span class="token punctuation">]</span><span class="token punctuation">.</span>length<span class="token punctuation">)</span>
+      <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token keyword">else</span>
+      <span class="token keyword">return</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">sortElementsByEndDate</span> <span class="token operator">=</span> <span class="token parameter">data</span> <span class="token operator">=></span>
+  data<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">e1<span class="token punctuation">,</span> e2</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">moment</span><span class="token punctuation">(</span>e1<span class="token punctuation">.</span>endDate<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">isBefore</span><span class="token punctuation">(</span><span class="token function">moment</span><span class="token punctuation">(</span>e2<span class="token punctuation">.</span>endDate<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+      <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token keyword">else</span>
+      <span class="token keyword">return</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">sortElements</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> sortMode</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>sortMode <span class="token operator">===</span> <span class="token string">'childrenCount'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">sortElementsByChildrenCount</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>sortMode <span class="token operator">===</span> <span class="token string">'date'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">sortElementsByEndDate</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">parseUserData</span> <span class="token operator">=</span> <span class="token parameter">data</span> <span class="token operator">=></span> data<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>prepareDataElement<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">createPolylineData</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">rectangleData<span class="token punctuation">,</span> elementHeight</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token comment">// prepare dependencies polyline data</span>
+  <span class="token keyword">const</span> cachedData <span class="token operator">=</span> <span class="token function">createDataCacheById</span><span class="token punctuation">(</span>rectangleData<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// used to calculate offsets between elements later</span>
+  <span class="token keyword">const</span> storedConnections <span class="token operator">=</span> rectangleData<span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">acc<span class="token punctuation">,</span> e</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token operator">...</span>acc<span class="token punctuation">,</span> <span class="token punctuation">[</span>e<span class="token punctuation">.</span>id<span class="token punctuation">]</span><span class="token operator">:</span> <span class="token number">0</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// create data describing connections' lines</span>
+  <span class="token keyword">return</span> rectangleData<span class="token punctuation">.</span><span class="token function">flatMap</span><span class="token punctuation">(</span><span class="token parameter">d</span> <span class="token operator">=></span>
+    d<span class="token punctuation">.</span>dependsOn
+      <span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token parameter">parentId</span> <span class="token operator">=></span> cachedData<span class="token punctuation">[</span>parentId<span class="token punctuation">]</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token parameter">parent</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token keyword">const</span> color <span class="token operator">=</span> <span class="token string">'#'</span> <span class="token operator">+</span> <span class="token punctuation">(</span>Math<span class="token punctuation">.</span><span class="token function">max</span><span class="token punctuation">(</span><span class="token number">0.1</span><span class="token punctuation">,</span> Math<span class="token punctuation">.</span><span class="token function">min</span><span class="token punctuation">(</span><span class="token number">0.9</span><span class="token punctuation">,</span> Math<span class="token punctuation">.</span><span class="token function">random</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">0xFFF</span> <span class="token operator">&lt;&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// increase the amount rows occupied by both parent and current element (d)</span>
+        storedConnections<span class="token punctuation">[</span>parent<span class="token punctuation">.</span>id<span class="token punctuation">]</span><span class="token operator">++</span><span class="token punctuation">;</span>
+        storedConnections<span class="token punctuation">[</span>d<span class="token punctuation">.</span>id<span class="token punctuation">]</span><span class="token operator">++</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">const</span> deltaParentConnections <span class="token operator">=</span> storedConnections<span class="token punctuation">[</span>parent<span class="token punctuation">.</span>id<span class="token punctuation">]</span> <span class="token operator">*</span> <span class="token punctuation">(</span>elementHeight <span class="token operator">/</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">const</span> deltaChildConnections <span class="token operator">=</span> storedConnections<span class="token punctuation">[</span>d<span class="token punctuation">.</span>id<span class="token punctuation">]</span> <span class="token operator">*</span> <span class="token punctuation">(</span>elementHeight <span class="token operator">/</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">const</span> points <span class="token operator">=</span> <span class="token punctuation">[</span>
+          d<span class="token punctuation">.</span>x<span class="token punctuation">,</span> <span class="token punctuation">(</span>d<span class="token punctuation">.</span>y <span class="token operator">+</span> <span class="token punctuation">(</span>elementHeight <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+          d<span class="token punctuation">.</span>x <span class="token operator">-</span> deltaChildConnections<span class="token punctuation">,</span> <span class="token punctuation">(</span>d<span class="token punctuation">.</span>y <span class="token operator">+</span> <span class="token punctuation">(</span>elementHeight <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+          d<span class="token punctuation">.</span>x <span class="token operator">-</span> deltaChildConnections<span class="token punctuation">,</span> <span class="token punctuation">(</span>d<span class="token punctuation">.</span>y <span class="token operator">-</span> <span class="token punctuation">(</span>elementHeight <span class="token operator">*</span> <span class="token number">0.25</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+          parent<span class="token punctuation">.</span>xEnd <span class="token operator">+</span> deltaParentConnections<span class="token punctuation">,</span> <span class="token punctuation">(</span>d<span class="token punctuation">.</span>y <span class="token operator">-</span> <span class="token punctuation">(</span>elementHeight <span class="token operator">*</span> <span class="token number">0.25</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+          parent<span class="token punctuation">.</span>xEnd <span class="token operator">+</span> deltaParentConnections<span class="token punctuation">,</span> <span class="token punctuation">(</span>parent<span class="token punctuation">.</span>y <span class="token operator">+</span> <span class="token punctuation">(</span>elementHeight <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+          parent<span class="token punctuation">.</span>xEnd<span class="token punctuation">,</span> <span class="token punctuation">(</span>parent<span class="token punctuation">.</span>y <span class="token operator">+</span> <span class="token punctuation">(</span>elementHeight <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> <span class="token punctuation">{</span>
+          <span class="token literal-property property">points</span><span class="token operator">:</span> points<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span><span class="token string">','</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+          color
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">createElementData</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> elementHeight<span class="token punctuation">,</span> xScale<span class="token punctuation">,</span> fontSize</span><span class="token punctuation">)</span> <span class="token operator">=></span>
+  data<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">d<span class="token punctuation">,</span> i</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> x <span class="token operator">=</span> <span class="token function">xScale</span><span class="token punctuation">(</span>d<span class="token punctuation">.</span>startDate<span class="token punctuation">.</span><span class="token function">toDate</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> xEnd <span class="token operator">=</span> <span class="token function">xScale</span><span class="token punctuation">(</span>d<span class="token punctuation">.</span>endDate<span class="token punctuation">.</span><span class="token function">toDate</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> y <span class="token operator">=</span> i <span class="token operator">*</span> elementHeight <span class="token operator">*</span> <span class="token number">1.5</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> width <span class="token operator">=</span> xEnd <span class="token operator">-</span> x<span class="token punctuation">;</span>
+    <span class="token keyword">const</span> height <span class="token operator">=</span> elementHeight<span class="token punctuation">;</span>
+
+    <span class="token keyword">const</span> charWidth <span class="token operator">=</span> <span class="token punctuation">(</span>width <span class="token operator">/</span> fontSize<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> dependsOn <span class="token operator">=</span> d<span class="token punctuation">.</span>dependsOn<span class="token punctuation">;</span>
+    <span class="token keyword">const</span> id <span class="token operator">=</span> d<span class="token punctuation">.</span>id<span class="token punctuation">;</span>
+
+    <span class="token keyword">const</span> tooltip <span class="token operator">=</span> d<span class="token punctuation">.</span>label<span class="token punctuation">;</span>
+
+    <span class="token keyword">const</span> singleCharWidth <span class="token operator">=</span> fontSize <span class="token operator">*</span> <span class="token number">0.5</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> singleCharHeight <span class="token operator">=</span> fontSize <span class="token operator">*</span> <span class="token number">0.45</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">let</span> label <span class="token operator">=</span> d<span class="token punctuation">.</span>label<span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>label<span class="token punctuation">.</span>length <span class="token operator">></span> charWidth<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      label <span class="token operator">=</span> label<span class="token punctuation">.</span><span class="token function">split</span><span class="token punctuation">(</span><span class="token string">''</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> charWidth <span class="token operator">-</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span><span class="token string">''</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">'...'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">const</span> labelX <span class="token operator">=</span> x <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>width <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>label<span class="token punctuation">.</span>length <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">*</span> singleCharWidth<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> labelY <span class="token operator">=</span> y <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>height <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token punctuation">(</span>singleCharHeight<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+      x<span class="token punctuation">,</span>
+      y<span class="token punctuation">,</span>
+      xEnd<span class="token punctuation">,</span>
+      width<span class="token punctuation">,</span>
+      height<span class="token punctuation">,</span>
+      id<span class="token punctuation">,</span>
+      dependsOn<span class="token punctuation">,</span>
+      label<span class="token punctuation">,</span>
+      labelX<span class="token punctuation">,</span>
+      labelY<span class="token punctuation">,</span>
+      tooltip
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">createChartSVG</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> placeholder<span class="token punctuation">,</span> <span class="token punctuation">{</span> svgWidth<span class="token punctuation">,</span> svgHeight<span class="token punctuation">,</span> elementHeight<span class="token punctuation">,</span> scaleWidth<span class="token punctuation">,</span> fontSize<span class="token punctuation">,</span> minStartDate<span class="token punctuation">,</span> maxEndDate<span class="token punctuation">,</span> margin<span class="token punctuation">,</span> showRelations <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token comment">// create container element for the whole chart</span>
+  <span class="token keyword">const</span> svg <span class="token operator">=</span> d3<span class="token punctuation">.</span><span class="token function">select</span><span class="token punctuation">(</span>placeholder<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'svg'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'width'</span><span class="token punctuation">,</span> svgWidth<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'height'</span><span class="token punctuation">,</span> svgHeight<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> xScale <span class="token operator">=</span> d3<span class="token punctuation">.</span><span class="token function">scaleTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">domain</span><span class="token punctuation">(</span><span class="token punctuation">[</span>minStartDate<span class="token punctuation">.</span><span class="token function">toDate</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> maxEndDate<span class="token punctuation">.</span><span class="token function">toDate</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">range</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> scaleWidth<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// prepare data for every data element</span>
+  <span class="token keyword">const</span> rectangleData <span class="token operator">=</span> <span class="token function">createElementData</span><span class="token punctuation">(</span>data<span class="token punctuation">,</span> elementHeight<span class="token punctuation">,</span> xScale<span class="token punctuation">,</span> fontSize<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> xAxis <span class="token operator">=</span> d3<span class="token punctuation">.</span><span class="token function">axisBottom</span><span class="token punctuation">(</span>xScale<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// create container for the data</span>
+  <span class="token keyword">const</span> g1 <span class="token operator">=</span> svg<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'g'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'transform'</span><span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">translate(</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>margin<span class="token punctuation">.</span>left<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">,</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>margin<span class="token punctuation">.</span>top<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">)</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// add milestone relationship lines to the SVG</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>showRelations<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// create data describing connections' lines</span>
+    <span class="token keyword">const</span> polylineData <span class="token operator">=</span> <span class="token function">createPolylineData</span><span class="token punctuation">(</span>rectangleData<span class="token punctuation">,</span> elementHeight<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">const</span> linesContainer <span class="token operator">=</span> g1<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'g'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'transform'</span><span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">translate(0,</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>margin<span class="token punctuation">.</span>top<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">)</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    linesContainer
+      <span class="token punctuation">.</span><span class="token function">selectAll</span><span class="token punctuation">(</span><span class="token string">'polyline'</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">data</span><span class="token punctuation">(</span>polylineData<span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">enter</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'polyline'</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'fill'</span><span class="token punctuation">,</span> <span class="token string">'none'</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'stroke'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>color<span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'points'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>points<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// append milestones only after we have rendered the connections to prevent lines overlapping the milestones</span>
+  <span class="token keyword">const</span> barsContainer <span class="token operator">=</span> g1<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'g'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'transform'</span><span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">translate(0,</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>margin<span class="token punctuation">.</span>top<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">)</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  g1<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'g'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>xAxis<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// create axes</span>
+  <span class="token keyword">const</span> bars <span class="token operator">=</span> barsContainer
+    <span class="token punctuation">.</span><span class="token function">selectAll</span><span class="token punctuation">(</span><span class="token string">'g'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">data</span><span class="token punctuation">(</span>rectangleData<span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">enter</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'g'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  bars
+    <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'rect'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'rx'</span><span class="token punctuation">,</span> elementHeight <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'ry'</span><span class="token punctuation">,</span> elementHeight <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'x'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>x<span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'y'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>y<span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'width'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>width<span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'height'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>height<span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'fill'</span><span class="token punctuation">,</span> <span class="token string">'#ddd'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'stroke'</span><span class="token punctuation">,</span> <span class="token string">'black'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  bars
+    <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'text'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'fill'</span><span class="token punctuation">,</span> <span class="token string">'black'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'font-family'</span><span class="token punctuation">,</span> <span class="token string">'sans-serif'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'x'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>labelX<span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'y'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>labelY<span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>label<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  bars
+    <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'title'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>tooltip<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">const</span> createGanttChart <span class="token operator">=</span> <span class="token punctuation">(</span>placeholder<span class="token punctuation">,</span> data<span class="token punctuation">,</span> <span class="token punctuation">{</span> elementHeight<span class="token punctuation">,</span> sortMode <span class="token operator">=</span> <span class="token string">'date'</span><span class="token punctuation">,</span> showRelations <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> svgOptions <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token comment">// prepare data</span>
+  <span class="token keyword">const</span> margin <span class="token operator">=</span> <span class="token punctuation">(</span>svgOptions <span class="token operator">&amp;&amp;</span> svgOptions<span class="token punctuation">.</span>margin<span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">top</span><span class="token operator">:</span> elementHeight <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">left</span><span class="token operator">:</span> elementHeight <span class="token operator">*</span> <span class="token number">2</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> scaleWidth <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>svgOptions <span class="token operator">&amp;&amp;</span> svgOptions<span class="token punctuation">.</span>width<span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token number">600</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token punctuation">(</span>margin<span class="token punctuation">.</span>left <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> scaleHeight <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token function">max</span><span class="token punctuation">(</span><span class="token punctuation">(</span>svgOptions <span class="token operator">&amp;&amp;</span> svgOptions<span class="token punctuation">.</span>height<span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token number">200</span><span class="token punctuation">,</span> data<span class="token punctuation">.</span>length <span class="token operator">*</span> elementHeight <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token punctuation">(</span>margin<span class="token punctuation">.</span>top <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> svgWidth <span class="token operator">=</span> scaleWidth <span class="token operator">+</span> <span class="token punctuation">(</span>margin<span class="token punctuation">.</span>left <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> svgHeight <span class="token operator">=</span> scaleHeight <span class="token operator">+</span> <span class="token punctuation">(</span>margin<span class="token punctuation">.</span>top <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> fontSize <span class="token operator">=</span> <span class="token punctuation">(</span>svgOptions <span class="token operator">&amp;&amp;</span> svgOptions<span class="token punctuation">.</span>fontSize<span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token number">12</span><span class="token punctuation">;</span>
+
+  data <span class="token operator">=</span> <span class="token function">parseUserData</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// transform raw user data to valid values</span>
+  data <span class="token operator">=</span> <span class="token function">sortElements</span><span class="token punctuation">(</span>data<span class="token punctuation">,</span> sortMode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> <span class="token punctuation">{</span> minStartDate<span class="token punctuation">,</span> maxEndDate <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">findDateBoundaries</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// add some padding to axes</span>
+  minStartDate<span class="token punctuation">.</span><span class="token function">subtract</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token string">'days'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  maxEndDate<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token string">'days'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token function">createChartSVG</span><span class="token punctuation">(</span>data<span class="token punctuation">,</span> placeholder<span class="token punctuation">,</span> <span class="token punctuation">{</span> svgWidth<span class="token punctuation">,</span> svgHeight<span class="token punctuation">,</span> scaleWidth<span class="token punctuation">,</span> elementHeight<span class="token punctuation">,</span> scaleHeight<span class="token punctuation">,</span> fontSize<span class="token punctuation">,</span> minStartDate<span class="token punctuation">,</span> maxEndDate<span class="token punctuation">,</span> margin<span class="token punctuation">,</span> showRelations <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<p>The data format is like follows</p>
+<pre><code class="language-js"><span class="token keyword">const</span> data <span class="token operator">=</span> <span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token literal-property property">startDate</span><span class="token operator">:</span> <span class="token string">'2017-02-27'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">endDate</span><span class="token operator">:</span> <span class="token string">'2017-03-04'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">label</span><span class="token operator">:</span> <span class="token string">'milestone 01'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token string">'m01'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">dependsOn</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">startDate</span><span class="token operator">:</span> <span class="token string">'2017-02-23'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">endDate</span><span class="token operator">:</span> <span class="token string">'2017-03-01'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">label</span><span class="token operator">:</span> <span class="token string">'milestone 06'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token string">'m06'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">dependsOn</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'m01'</span><span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">duration</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">,</span> <span class="token string">'days'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">endDate</span><span class="token operator">:</span> <span class="token string">'2017-03-24'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">label</span><span class="token operator">:</span> <span class="token string">'milestone 02'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token string">'m02'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">dependsOn</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'m04'</span><span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">startDate</span><span class="token operator">:</span> <span class="token string">'2017-02-27'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">duration</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">,</span> <span class="token string">'days'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">label</span><span class="token operator">:</span> <span class="token string">'milestone 03'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token string">'m03'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">dependsOn</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'m01'</span><span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">endDate</span><span class="token operator">:</span> <span class="token string">'2017-03-17'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">duration</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">,</span> <span class="token string">'days'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">label</span><span class="token operator">:</span> <span class="token string">'milestone 04'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">id</span><span class="token operator">:</span> <span class="token string">'m04'</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">dependsOn</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'m01'</span><span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre>
+<p>To create a chard on a page, you need to pass the reference to a valid existing DOM element where you want the diagram to appear, the data and the SVG options. These options define the looks of a chart - width, height of an element (rectangle), font size and so on. One more option is</p>
+<pre><code class="language-js"><span class="token function">createGanttChart</span><span class="token punctuation">(</span>document<span class="token punctuation">.</span><span class="token function">querySelector</span><span class="token punctuation">(</span><span class="token string">'body'</span><span class="token punctuation">)</span><span class="token punctuation">,</span> data<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">elementHeight</span><span class="token operator">:</span> <span class="token number">20</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">sortMode</span><span class="token operator">:</span> <span class="token string">'date'</span><span class="token punctuation">,</span> <span class="token comment">// alternatively, 'childrenCount'</span>
+  <span class="token literal-property property">svgOptions</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token literal-property property">width</span><span class="token operator">:</span> <span class="token number">1200</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">height</span><span class="token operator">:</span> <span class="token number">400</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">fontSize</span><span class="token operator">:</span> <span class="token number">12</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>A lot of things are happening here. In short, here are few key points:</p>
+<ul>
+<li>we have to render entities (milestones, lines, labels) in a specific “layered” order, to prevent one set of things covering the other</li>
+<li>it is both good for performance and is kind of a requirement to calculate the data before rendering it</li>
+</ul>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

@@ -1,0 +1,122 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>What is a Monad?</h1>
+
+    <time>02 Jul 2021 at 00:00</time>
+
+    <div class="content"><p>There is a talk by Gilad Bracha, <a href="https://www.infoq.com/presentations/functional-pros-cons/">“Deconstructing functional programming”</a>. This is a very good introduction to functional programming, monads included.</p>
+<p>As per that talk, think about monad as a class like this:</p>
+<pre><code class="language-java"><span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">FlatMappable</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@Immutable</span>
+  <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">A</span> a<span class="token punctuation">;</span>
+  
+  <span class="token class-name">FlatMappable</span><span class="token punctuation">(</span><span class="token class-name">A</span> a<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>a <span class="token operator">=</span> a<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  
+  <span class="token class-name">FlatMappable</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">B</span><span class="token punctuation">></span></span> flatMap<span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">B</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token class-name">Function</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">,</span> <span class="token class-name">FlatMappable</span><span class="token punctuation">&lt;</span><span class="token class-name">B</span><span class="token punctuation">></span><span class="token punctuation">></span></span> fn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> fn<span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Just rename <code>FlatMappable</code> to <code>Monad</code> and there you go.</p>
+<p>Now, if you want more Haskell naming (gonna implement it in C++ for more correct syntax):</p>
+<pre><code class="language-cpp"><span class="token keyword">template</span> <span class="token operator">&lt;</span><span class="token keyword">typename</span> <span class="token class-name">A</span><span class="token operator">></span>
+cass Monad <span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+  <span class="token keyword">static</span> Monad<span class="token operator">&lt;</span>A<span class="token operator">></span> <span class="token keyword">return</span><span class="token punctuation">(</span>A a<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">Monad</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  
+  <span class="token keyword">template</span> <span class="token operator">&lt;</span><span class="token keyword">typename</span> <span class="token class-name">B</span><span class="token operator">></span> Monad<span class="token operator">&lt;</span>B<span class="token operator">></span> <span class="token keyword">operator</span><span class="token operator">>>=</span><span class="token punctuation">(</span>std<span class="token double-colon punctuation">::</span>function<span class="token operator">&lt;</span>A<span class="token punctuation">,</span> Monad<span class="token operator">&lt;</span>B<span class="token operator">>></span> fn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> fn<span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+<span class="token keyword">private</span><span class="token operator">:</span>
+  <span class="token function">Monad</span><span class="token punctuation">(</span>A a<span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token function">m_a</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+  
+  immutable<span class="token operator">&lt;</span>A<span class="token operator">></span> m_a<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Essentially, renaming constructor to <code>return</code> and <code>flatMap</code> to <code>operator&gt;&gt;=</code></p>
+<p>Also, in terms of <code>Mappable</code> vs <code>FlatMappable</code>:</p>
+<pre><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">Mappable</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token punctuation">{</span>
+  <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">A</span> a<span class="token punctuation">;</span>
+  
+  <span class="token class-name">Mappable</span><span class="token punctuation">(</span><span class="token class-name">A</span> a<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token keyword">this</span><span class="token punctuation">.</span>a <span class="token operator">=</span> a<span class="token punctuation">;</span> <span class="token punctuation">}</span>
+  
+  <span class="token class-name">Mappable</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">B</span><span class="token punctuation">></span></span> <span class="token function">map</span><span class="token punctuation">(</span><span class="token class-name">Function</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">,</span> <span class="token class-name">B</span><span class="token punctuation">></span></span> fn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token class-name">Mappable</span><span class="token punctuation">(</span>fn<span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Flattable</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token keyword">extends</span> <span class="token class-name">Mappable</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token punctuation">{</span>
+  <span class="token class-name">Flattable</span><span class="token punctuation">(</span><span class="token class-name">A</span> a<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token keyword">super</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+  
+  <span class="token class-name">Flattable</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token function">flatten</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>a instanceOf <span class="token class-name">Flattable</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> a<span class="token punctuation">.</span><span class="token function">flatten</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    
+    <span class="token keyword">return</span> a<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">FlatMappable</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token keyword">extends</span> <span class="token class-name">Flattable</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token punctuation">{</span>
+  <span class="token class-name">FlatMappable</span><span class="token punctuation">(</span><span class="token class-name">A</span> a<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token keyword">super</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+  
+  <span class="token class-name">FlatMappable</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> flatMap<span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">B</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token class-name">Function</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">,</span> <span class="token class-name">FlatMappable</span><span class="token punctuation">&lt;</span><span class="token class-name">B</span><span class="token punctuation">></span><span class="token punctuation">></span></span> fn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">map</span><span class="token punctuation">(</span>fn<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">flatten</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="why-do-we-need-monads">Why do we need monads?</h2>
+<p>In order to preserve purity of programs in functional programming languages, you can not have side-effects in your program.</p>
+<p>But if you need interaction with outside systems (IO, database, system clock, random number generator, etc.), you will need to somehow make these operations without side-effects.</p>
+<p>So you write your entire program as a description of a workflow (e.g. how data will be processed). Basically your program becomes a chain of functions calling other functions. No waiting for events, nothing like that.</p>
+<p>Then, when you run your program, “at the execution edge” (aka “event horizon”), just before your program finishes, the runtime will do all the “unsafe” (or rather “impure”) operations (interaction with IO, system clock, etc.) and will feed all the input to your functions, take the output and modify “the state of the world outside”.</p>
+<p>Where are monads on this? Monads are basically just wrappers around other values, telling the runtime what to do. So that your code is still pure and all the impure side-effects will be eventually handled by runtime.</p>
+<p>For example, reading from STDIN would be something like <code>IO&lt;String&gt;</code> - a monad, whose value will be provided eventually. So your program will be defined as a function something like</p>
+<pre><code class="language-scala"><span class="token keyword">def</span> main<span class="token punctuation">(</span>IO<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span> input<span class="token punctuation">)</span><span class="token operator">:</span> IO<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span> <span class="token operator">=</span>
+  input<span class="token punctuation">.</span>map <span class="token punctuation">{</span> name <span class="token operator">-></span> printLn<span class="token punctuation">(</span><span class="token string">"Hello, ${name}"</span><span class="token punctuation">)</span> <span class="token punctuation">}</span>
+</code></pre>
+<p>As you can see, <code>main</code> is a function which simply returns another <code>IO[String]</code> by mapping a monad parameter.</p>
+<p>When you run it, the program will effectively stop until the <code>IO[String] input</code> parameter is filled with value. When the value will be provided, runtime will execute the rest of the code (the <code>map { ... }</code> part).</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

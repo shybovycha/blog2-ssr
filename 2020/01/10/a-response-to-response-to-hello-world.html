@@ -1,0 +1,441 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>A response to response to hello world</h1>
+
+    <time>10 Jan 2020 at 04:10</time>
+
+    <div class="content"><p>Recently I’ve received an email from StackOverflow newsletters with a link to a quite controversial (at first glance) blog, <a href="https://www.doxsey.net/blog/a-response-to-hello-world">A response to Hello World</a> by Caleb Doxsey. This blog is a response to another curious read, <a href="https://drewdevault.com/2020/01/04/Slow.html">Hello world</a> by Drew DeVault.</p>
+<p>In the former article, author compared the performance of a tiny “Hello, World” program in Assembly to the same program in Go.
+He then tried to optimize the program in Go to run faster and towards the end of an article comes up with a program that is faster than its Assembly counterpart.</p>
+<LazyImg src="/images/a-response-to-response-to-hello-world/hello-world-original-chart-min.webp" />
+<LazyImg src="/images/a-response-to-response-to-hello-world/hello-world-new-chart-min.webp" />
+<LazyImg src="/images/a-response-to-response-to-hello-world/hello-world-new-chart2-min.webp" />
+
+<p>And this totally makes sense, since if you give it a good read, you will notice that author did optimize the program in Go but did not do that for the Assembly program.</p>
+<p>I have decided to burn few hours of my life and jump onto this topic, since, in my opinion, author did not do a fair comparison.</p>
+<!--more-->
+
+<p>The original code Caleb has used is (I have added the imports and package declaration required to run the program):</p>
+<h3 id="go">Go</h3>
+<pre><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token string">"strconv"</span>
+<span class="token keyword">import</span> <span class="token string">"os"</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    n<span class="token punctuation">,</span> <span class="token boolean">_</span> <span class="token operator">:=</span> strconv<span class="token punctuation">.</span><span class="token function">Atoi</span><span class="token punctuation">(</span>os<span class="token punctuation">.</span>Args<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">for</span> i <span class="token operator">:=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> i<span class="token operator">++</span> <span class="token punctuation">{</span>
+        os<span class="token punctuation">.</span>Stdout<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span><span class="token string">"hello world\n"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="assembly">Assembly</h3>
+<pre><code class="language-nasm"><span class="token label function">_start:</span>
+    mov <span class="token register variable">rdi</span>, <span class="token operator">[</span><span class="token register variable">rsp</span> <span class="token operator">+</span> <span class="token number">16</span><span class="token operator">]</span>
+    call atoi
+
+    mov <span class="token register variable">r12</span>, <span class="token register variable">rax</span>
+
+<span class="token label function">.helloloop:</span>
+    mov <span class="token register variable">rdx</span>, len
+    mov <span class="token register variable">rsi</span>, msg
+    mov <span class="token register variable">rdi</span>, <span class="token number">1</span>
+    mov <span class="token register variable">rax</span>, <span class="token number">1</span>
+    syscall
+    dec <span class="token register variable">r12</span>
+    cmp <span class="token register variable">r12</span>, <span class="token number">0</span>
+    jg .helloloop
+
+    mov <span class="token register variable">rdi</span>, <span class="token number">0</span>
+    mov <span class="token register variable">rax</span>, <span class="token number">60</span>
+    syscall
+</code></pre>
+<h3 id="optimized-go">Optimized Go</h3>
+<pre><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token string">"strconv"</span>
+<span class="token keyword">import</span> <span class="token string">"os"</span>
+<span class="token keyword">import</span> <span class="token string">"bufio"</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    n<span class="token punctuation">,</span> <span class="token boolean">_</span> <span class="token operator">:=</span> strconv<span class="token punctuation">.</span><span class="token function">Atoi</span><span class="token punctuation">(</span>os<span class="token punctuation">.</span>Args<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    w <span class="token operator">:=</span> bufio<span class="token punctuation">.</span><span class="token function">NewWriter</span><span class="token punctuation">(</span>os<span class="token punctuation">.</span>Stdout<span class="token punctuation">)</span>
+    <span class="token keyword">defer</span> w<span class="token punctuation">.</span><span class="token function">Flush</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">for</span> i <span class="token operator">:=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> i<span class="token operator">++</span> <span class="token punctuation">{</span>
+        w<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span><span class="token string">"hello world"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>What Caleb did was string concatenation in memory, creating a big string in memory and then calling the system function to print it out only once.
+Indeed this is way more performant than making an IO syscall every iteration.</p>
+<p>Since Caleb did not provide an equal program in Assembly, I decided to fill this gap.
+I have spent quite some time (predominantly because I am quite rusty with Assembly at the moment and I forgot that different OSes use <a href="https://en.wikipedia.org/wiki/X86_calling_conventions">different calling conventions</a>).
+I came up with the code in Assembly that does exactly the same - allocates the memory, fills it with the repeated <code>&quot;hello world&quot;</code> string and then makes a syscall to print it to the console.</p>
+<h3 id="my-optimized-assembly">My optimized Assembly</h3>
+<pre><code class="language-nasm"><span class="token comment">;; compile me on OSX: nasm -fmacho64 helloworld.asm &amp;&amp; ld helloworld.o -lSystem -macosx_version_min 10.13</span>
+<span class="token comment">;; compile me on Linux: nasm -felf64 helloworld.asm &amp;&amp; ld helloworld.o # AND DO NOT FORGET TO ALIGN WITH THE SYSCALL CONVENTION BY USING STACK INSTEAD OF REGISTERS</span>
+
+<span class="token keyword">global _main</span>
+
+<span class="token keyword">extern _malloc, _puts, _atoi, _free</span>
+
+<span class="token keyword">section .text</span>
+
+<span class="token label function">_main:</span>
+<span class="token label function">.load_counter:</span>
+    cmp <span class="token register variable">rdi</span>, <span class="token number">2</span>
+    jne .exit_failure
+
+    mov <span class="token register variable">r12</span>, <span class="token register variable">rdi</span>
+    mov <span class="token register variable">r13</span>, <span class="token operator">[</span><span class="token register variable">rsi</span> <span class="token operator">+</span> <span class="token number">8</span><span class="token operator">]</span>
+
+    push <span class="token register variable">rdi</span>
+
+    mov <span class="token register variable">rdi</span>, <span class="token register variable">r13</span>
+    call _atoi
+
+    mov <span class="token register variable">r13</span>, <span class="token register variable">rax</span>
+
+    pop <span class="token register variable">rdi</span>
+
+<span class="token label function">.calculate_memory_length:</span>
+    mov <span class="token register variable">rdi</span>, <span class="token register variable">r13</span>
+    mov <span class="token register variable">rax</span>, len
+    imul <span class="token register variable">rdi</span>, <span class="token register variable">rax</span>
+    inc <span class="token register variable">rdi</span>
+    mov <span class="token register variable">r12</span>, <span class="token register variable">rdi</span>
+
+<span class="token label function">.allocate_memory:</span>
+    push <span class="token register variable">rax</span>
+
+    mov <span class="token register variable">rdi</span>, <span class="token register variable">r12</span>
+    xor <span class="token register variable">rax</span>, <span class="token register variable">rax</span>
+    call _malloc
+
+    test <span class="token register variable">rax</span>, <span class="token register variable">rax</span>
+    jz .exit_failure
+
+    mov <span class="token register variable">r12</span>, <span class="token register variable">rax</span>
+
+    pop <span class="token register variable">rax</span>
+
+<span class="token label function">.repeat_message:</span>
+    mov <span class="token register variable">rcx</span>, <span class="token register variable">r13</span>
+    mov <span class="token register variable">rdi</span>, <span class="token register variable">r12</span>
+
+<span class="token label function">.repeat_message_1:</span>
+    push <span class="token register variable">rcx</span>
+    lea <span class="token register variable">rsi</span>, <span class="token operator">[</span>rel msg<span class="token operator">]</span>
+    mov <span class="token register variable">rcx</span>, len
+    cld
+
+<span class="token label function">.copy_message:</span>
+    mov <span class="token register variable">rax</span>, <span class="token operator">[</span><span class="token register variable">rsi</span><span class="token operator">]</span>
+    mov <span class="token operator">[</span><span class="token register variable">rdi</span><span class="token operator">]</span>, <span class="token register variable">rax</span>
+    inc <span class="token register variable">rsi</span>
+    inc <span class="token register variable">rdi</span>
+    dec <span class="token register variable">rcx</span>
+    jnz .copy_message
+
+<span class="token label function">.repeat_message_2:</span>
+    pop <span class="token register variable">rcx</span>
+    dec <span class="token register variable">rcx</span>
+    jnz .repeat_message_1
+
+    xor <span class="token register variable">rax</span>, <span class="token register variable">rax</span>
+    mov <span class="token operator">[</span><span class="token register variable">rdi</span><span class="token operator">]</span>, <span class="token register variable">rax</span>
+
+<span class="token label function">.print_string_builder:</span>
+    push <span class="token register variable">rdi</span>
+
+    mov <span class="token register variable">rdi</span>, <span class="token register variable">r12</span>
+    xor <span class="token register variable">rax</span>, <span class="token register variable">rax</span>
+    call _puts
+
+    pop <span class="token register variable">rdi</span>
+
+<span class="token label function">.free_memory:</span>
+    push <span class="token register variable">rdi</span>
+
+    mov <span class="token register variable">rdi</span>, <span class="token register variable">r12</span>
+    call _free
+
+    pop <span class="token register variable">rdi</span>
+
+<span class="token label function">.exit_success:</span>
+    xor <span class="token register variable">rdi</span>, <span class="token register variable">rdi</span>
+    jmp .exit
+
+<span class="token label function">.exit_failure:</span>
+    mov <span class="token register variable">rdi</span>, <span class="token number">1</span>
+
+<span class="token label function">.exit:</span>
+    mov <span class="token register variable">rax</span>, <span class="token number">0x02000001</span>
+    syscall
+
+<span class="token keyword">section .data</span>
+
+<span class="token label function">msg:</span> db <span class="token string">"Hello, world"</span>, <span class="token number">10</span>
+len equ <span class="token operator">$</span> <span class="token operator">-</span> msg
+</code></pre>
+<h3 id="my-version-with-logs">My version with logs</h3>
+<p>As Caleb highlights in his blog, a lot of “burden” introduced by many languages (referring to the original blog by Drew DeVault) is the debugging and safety related information.</p>
+<p>I went ahead and added few logs, memory deallocation and test for allocation success to the code in Assembly:</p>
+<pre><code class="language-nasm"><span class="token comment">;; compile me on OSX: nasm -fmacho64 helloworld.asm &amp;&amp; ld helloworld.o -lSystem -macosx_version_min 10.13</span>
+<span class="token comment">;; compile me on Linux: nasm -felf64 helloworld.asm &amp;&amp; ld helloworld.o # AND DO NOT FORGET TO ALIGN WITH THE SYSCALL CONVENTION BY USING STACK INSTEAD OF REGISTERS</span>
+
+<span class="token keyword">global _main </span><span class="token comment">;; a function declaration - an entry point; use `_start` for Linux</span>
+
+<span class="token keyword">extern _malloc, _puts, _atoi, _printf</span>
+
+<span class="token keyword">section .text</span>
+
+<span class="token label function">_main:</span>
+<span class="token label function">.load_counter:</span>
+    push <span class="token register variable">r12</span>
+    push <span class="token register variable">r13</span>
+
+    cmp <span class="token register variable">rdi</span>, <span class="token number">2</span> <span class="token comment">;; check ARGC - program takes exactly ONE argument, so checking if ARGC == 2 (first one being program name)</span>
+    jne .exit_failure
+
+<span class="token comment">;; log</span>
+    mov <span class="token register variable">r12</span>, <span class="token register variable">rdi</span> <span class="token comment">;; store ARGC in R12</span>
+    mov <span class="token register variable">r13</span>, <span class="token operator">[</span><span class="token register variable">rsi</span> <span class="token operator">+</span> <span class="token number">8</span><span class="token operator">]</span> <span class="token comment">;; store the ARGV[2] (by addressing it with *(ARGV + 1)) in R13</span>
+
+    push <span class="token register variable">rsi</span> <span class="token comment">;; preserve all the used registers on stack - required by OSX calling convention</span>
+    push <span class="token register variable">rdi</span>
+    push <span class="token register variable">rdx</span>
+
+    mov <span class="token register variable">rdi</span>, log1 <span class="token comment">;; copy format string to RDI</span>
+    mov <span class="token register variable">rsi</span>, <span class="token register variable">r12</span> <span class="token comment">;; copy first argument for _printf to RSI</span>
+    mov <span class="token register variable">rdx</span>, <span class="token register variable">r13</span> <span class="token comment">;; copy second argument for _printf to RDX</span>
+    xor <span class="token register variable">rax</span>, <span class="token register variable">rax</span> <span class="token comment">;; zero out RAX to enable variable function arguments</span>
+
+    call _printf <span class="token comment">;; syscall to printf()</span>
+
+    pop <span class="token register variable">rdx</span> <span class="token comment">;; restore the registers' values</span>
+    pop <span class="token register variable">rdi</span>
+    pop <span class="token register variable">rsi</span>
+
+<span class="token comment">;; end log</span>
+
+    <span class="token comment">; mov r12, rsi ;; pointer to argv (which is a pointer on its own)</span>
+
+    push <span class="token register variable">rdi</span>
+
+    mov <span class="token register variable">rdi</span>, <span class="token register variable">r13</span> <span class="token comment">;; move the address of argv[1] (r12 + 0 => argv[0], r12 + 8 => argv[1]) to rdi</span>
+    call _atoi <span class="token comment">;; convert char* argv[1] to int and store the result in rax</span>
+
+    mov <span class="token register variable">r13</span>, <span class="token register variable">rax</span> <span class="token comment">;; store counter as int in r13</span>
+
+    pop <span class="token register variable">rdi</span>
+
+<span class="token comment">;; log</span>
+
+    push <span class="token register variable">rdi</span>
+    push <span class="token register variable">rsi</span>
+
+    mov <span class="token register variable">rdi</span>, log2
+    mov <span class="token register variable">rsi</span>, <span class="token register variable">r13</span>
+    xor <span class="token register variable">rax</span>, <span class="token register variable">rax</span>
+    call _printf
+
+    pop <span class="token register variable">rsi</span>
+    pop <span class="token register variable">rdi</span>
+
+<span class="token comment">;; end log</span>
+
+<span class="token label function">.calculate_memory_length:</span>
+    <span class="token comment">;; rdi = counter * len</span>
+    mov <span class="token register variable">rdi</span>, <span class="token register variable">r13</span>
+    mov <span class="token register variable">rax</span>, len
+    imul <span class="token register variable">rdi</span>, <span class="token register variable">rax</span>
+    inc <span class="token register variable">rdi</span> <span class="token comment">;; +1 for the terminal character (\0)</span>
+    mov <span class="token register variable">r12</span>, <span class="token register variable">rdi</span> <span class="token comment">;; store total length in r12</span>
+
+<span class="token label function">.allocate_memory:</span>
+    push <span class="token register variable">rax</span>
+
+    mov <span class="token register variable">rdi</span>, <span class="token register variable">r12</span> <span class="token comment">;; number of bytes to allocate</span>
+    xor <span class="token register variable">rax</span>, <span class="token register variable">rax</span>
+    call _malloc
+
+    test <span class="token register variable">rax</span>, <span class="token register variable">rax</span> <span class="token comment">;; test the return code of _malloc syscall</span>
+    jz .exit_failure <span class="token comment">;; if it is an error - go to exit(1)</span>
+
+    mov <span class="token register variable">r12</span>, <span class="token register variable">rax</span> <span class="token comment">;; store address in r12</span>
+
+    pop <span class="token register variable">rax</span>
+
+<span class="token label function">.repeat_message:</span>
+    mov <span class="token register variable">rcx</span>, <span class="token register variable">r13</span> <span class="token comment">;; set outer loop counter to COUNTER</span>
+    mov <span class="token register variable">rdi</span>, <span class="token register variable">r12</span> <span class="token comment">;; set destination address to the stored address from malloc call</span>
+
+<span class="token label function">.repeat_message_1:</span>
+    push <span class="token register variable">rcx</span> <span class="token comment">;; push outer loop counter onto stack - we don't need it just yet, but will need it after the inner loop is done</span>
+    lea <span class="token register variable">rsi</span>, <span class="token operator">[</span>rel msg<span class="token operator">]</span> <span class="token comment">;; load address of our message to repeat into the source address</span>
+    mov <span class="token register variable">rcx</span>, len <span class="token comment">;; set inner loop counter to the length of a message</span>
+    cld <span class="token comment">;; reset the string copying direction flag</span>
+
+<span class="token label function">.copy_message:</span>
+    mov <span class="token register variable">rax</span>, <span class="token operator">[</span><span class="token register variable">rsi</span><span class="token operator">]</span> <span class="token comment">;; load the next byte from the source memory</span>
+    mov <span class="token operator">[</span><span class="token register variable">rdi</span><span class="token operator">]</span>, <span class="token register variable">rax</span> <span class="token comment">;; copy the loaded byte to the destination memory</span>
+    inc <span class="token register variable">rsi</span> <span class="token comment">;; advance source pointer</span>
+    inc <span class="token register variable">rdi</span> <span class="token comment">;; advamce destimation pointer</span>
+    dec <span class="token register variable">rcx</span> <span class="token comment">;; decrease the inner loop counter</span>
+    jnz .copy_message
+
+<span class="token label function">.repeat_message_2:</span>
+    pop <span class="token register variable">rcx</span> <span class="token comment">;; restore the outer loop counter</span>
+    dec <span class="token register variable">rcx</span> <span class="token comment">;; decrement the outer loop counter</span>
+    jnz .repeat_message_1
+
+    xor <span class="token register variable">rax</span>, <span class="token register variable">rax</span>
+    mov <span class="token operator">[</span><span class="token register variable">rdi</span><span class="token operator">]</span>, <span class="token register variable">rax</span> <span class="token comment">;; put \0 at current RDI</span>
+
+<span class="token label function">.print_string_builder:</span>
+    push <span class="token register variable">rdi</span>
+
+    mov <span class="token register variable">rdi</span>, <span class="token register variable">r12</span> <span class="token comment">;; set first argument to the allocated memory start</span>
+    xor <span class="token register variable">rax</span>, <span class="token register variable">rax</span>
+    call _puts
+
+    pop <span class="token register variable">rdi</span>
+
+<span class="token label function">.exit_success:</span>
+    xor <span class="token register variable">rdi</span>, <span class="token register variable">rdi</span> <span class="token comment">;; exit argument - exit status - 0</span>
+    jmp .exit
+
+<span class="token label function">.exit_failure:</span>
+    mov <span class="token register variable">rdi</span>, <span class="token number">1</span>
+
+<span class="token label function">.exit:</span>
+    mov <span class="token register variable">rax</span>, <span class="token number">0x02000001</span> <span class="token comment">;; syscall id - exit; use `60` for Linux</span>
+    syscall
+
+<span class="token keyword">section .data</span>
+
+<span class="token label function">msg:</span> db <span class="token string">"Hello, world"</span>, <span class="token number">10</span>
+len equ <span class="token operator">$</span> <span class="token operator">-</span> msg
+
+<span class="token label function">log1:</span> db <span class="token string">"argc = %d, argv[1] = %s"</span>, <span class="token number">10</span>, <span class="token number">0</span>
+<span class="token label function">log2:</span> db <span class="token string">"atoi = %d"</span>, <span class="token number">10</span>, <span class="token number">0</span>
+</code></pre>
+<h2 id="comparison">Comparison</h2>
+<p>Finally, I ran the aforementioned programs with the following arguments: <code>1M</code>, <code>2.5M</code>, <code>5M</code>, <code>7.5M</code>, <code>10M</code>, <code>12.5M</code>, <code>15M</code> and <code>17.5M</code> (where <code>M</code> stands for “million”).</p>
+<p>The results became more reasonable:</p>
+<LazyImg src="/images/a-response-to-response-to-hello-world/go_vs_asm_hello_world-min.webp" />
+
+<!--
+```
+[
+  [1000000, "./helloworld1", 0.85],
+  [1000000, "go run go/helloworld1.go", 1.135],
+  [1000000, "./helloworld3", 0.03],
+  [1000000, "go run go/helloworld2.go", 0.352],
+  [2500000, "./helloworld1", 2.074],
+  [2500000, "go run go/helloworld1.go", 2.419],
+  [2500000, "./helloworld3", 0.056],
+  [2500000, "go run go/helloworld2.go", 0.4],
+  [5000000, "./helloworld1", 4.376],
+  [5000000, "go run go/helloworld1.go", 4.516],
+  [5000000, "./helloworld3", 0.097],
+  [5000000, "go run go/helloworld2.go", 0.473],
+  [7500000, "./helloworld1", 6.274],
+  [7500000, "go run go/helloworld1.go", 6.535],
+  [7500000, "./helloworld3", 0.154],
+  [7500000, "go run go/helloworld2.go", 0.794],
+  [10000000, "./helloworld1", 8.352],
+  [10000000, "go run go/helloworld1.go", 8.693],
+  [10000000, "./helloworld3", 0.223],
+  [10000000, "go run go/helloworld2.go", 0.656],
+  [12500000, "./helloworld1", 10.567],
+  [12500000, "go run go/helloworld1.go", 10.883],
+  [12500000, "./helloworld3", 0.227],
+  [12500000, "go run go/helloworld2.go", 0.721],
+  [15000000, "./helloworld1", 12.529],
+  [15000000, "go run go/helloworld1.go", 13.844],
+  [15000000, "./helloworld3", 0.373],
+  [15000000, "go run go/helloworld2.go", 0.881],
+  [17500000, "./helloworld1", 16.307],
+  [17500000, "go run go/helloworld1.go", 15.158],
+  [17500000, "./helloworld3", 0.36],
+  [17500000, "go run go/helloworld2.go", 1.039]
+]
+```
+
+```
+[
+  [1000000, "./helloworld1", 0.837],
+  [1000000, "./go/helloworld1", 1.395],
+  [1000000, "./helloworld3", 0.03],
+  [1000000, "./go/helloworld2", 0.51],
+  [2500000, "./helloworld1", 2.1],
+  [2500000, "./go/helloworld1", 2.36],
+  [2500000, "./helloworld3", 0.062],
+  [2500000, "./go/helloworld2", 0.094],
+  [5000000, "./helloworld1", 4.203],
+  [5000000, "./go/helloworld1", 4.201],
+  [5000000, "./helloworld3", 0.113],
+  [5000000, "./go/helloworld2", 0.171],
+  [7500000, "./helloworld1", 6.238],
+  [7500000, "./go/helloworld1", 6.197],
+  [7500000, "./helloworld3", 0.17],
+  [7500000, "./go/helloworld2", 0.26],
+  [10000000, "./helloworld1", 8.226],
+  [10000000, "./go/helloworld1", 8.355],
+  [10000000, "./helloworld3", 0.219],
+  [10000000, "./go/helloworld2", 0.335],
+  [12500000, "./helloworld1", 10.359],
+  [12500000, "./go/helloworld1", 10.571],
+  [12500000, "./helloworld3", 0.258],
+  [12500000, "./go/helloworld2", 0.458],
+  [15000000, "./helloworld1", 13.388],
+  [15000000, "./go/helloworld1", 12.554],
+  [15000000, "./helloworld3", 0.319],
+  [15000000, "./go/helloworld2", 0.498],
+  [17500000, "./helloworld1", 14.625],
+  [17500000, "./go/helloworld1", 14.529],
+  [17500000, "./helloworld3", 0.347],
+  [17500000, "./go/helloworld2", 0.575]
+]
+```
+--></div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

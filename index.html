@@ -1,0 +1,716 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }
+nav.bottom.svelte-14ldwbd.svelte-14ldwbd{grid-area:1/2/2/3;display:inline-grid;grid-template:1fr / 1fr 1fr 1fr
+    }footer nav.svelte-14ldwbd div.svelte-14ldwbd{display:flex;align-items:center
+    }footer nav.svelte-14ldwbd .prev.svelte-14ldwbd{grid-area:1/1/2/2;justify-content:flex-start
+    }footer nav.svelte-14ldwbd .current.svelte-14ldwbd{grid-area:1/2/2/3;justify-content:center
+    }footer nav.svelte-14ldwbd .next.svelte-14ldwbd{grid-area:1/3/2/4;justify-content:flex-end
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1><a href="/2022/04/04/distributed-erlang-example.html">Distributed Erlang example</a></h1>
+
+    <time>04 Apr 2022 at 00:00</time>
+
+    <div class="excerpt"><p>As promised in <a href="2020-11-07-erlang-example-2">my previous blog about Erlang</a>, I continue
+on a journey to more practical Erlang examples.</p>
+<p>This might sound super ambitious, but let us build a distributed database.</p>
+<p>For sake of simplicity, let’s make it a reduced version of Redis - a key-value distributed in-memory storage.
+Essentially, an over-engineered hashmap.</p>
+<p>To draw some boundaries around this, let’s focus on these key features:</p>
+<ul>
+<li>simple CRUD actions - get, set and delete a value; this should operate on REST-like API:<ul>
+<li><code>get(&lt;key&gt;)</code> - get key value</li>
+<li><code>set(&lt;key&gt;)</code> - use request body for value and associate the value with the key</li>
+<li><code>delete(&lt;key&gt;)</code> - remove the key from the storage</li>
+</ul>
+</li>
+<li>running on multiple nodes (machines)</li>
+<li>synchronizing the data between the nodes; this should support:<ul>
+<li>ability to rotate the nodes in the cluster (switch off nodes and add new ones randomly) without the loss of data</li>
+<li>distributing the operations across the nodes to keep the data in sync</li>
+</ul>
+</li>
+</ul>
+<p>Sounds unbelievable, but with Erlang this is actually pretty simple.
+Erlang is actually a great choice for an application like this, since we do not have to worry about setting up the cluster
+and deal with communication protocols (as in how to pass data over the network between the nodes).</p>
+<p>We will need a “main” process, which will take the requests from the users and pass them to the nodes.
+Each node will store its own copy of the data in memory. On startup, each new node will receive the copy of the data
+from the first available node. If no nodes are available - that means the cluster is fresh and we can safely assume
+the data is empty (or the cluster has died altogether and that state is unrecoverable).</p>
+</div>
+
+        <a href="/2022/04/04/distributed-erlang-example.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2021/07/02/what-is-a-monad.html">What is a Monad?</a></h1>
+
+    <time>02 Jul 2021 at 00:00</time>
+
+    <div class="content"><p>There is a talk by Gilad Bracha, <a href="https://www.infoq.com/presentations/functional-pros-cons/">“Deconstructing functional programming”</a>. This is a very good introduction to functional programming, monads included.</p>
+<p>As per that talk, think about monad as a class like this:</p>
+<pre><code class="language-java"><span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">FlatMappable</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@Immutable</span>
+  <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">A</span> a<span class="token punctuation">;</span>
+  
+  <span class="token class-name">FlatMappable</span><span class="token punctuation">(</span><span class="token class-name">A</span> a<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>a <span class="token operator">=</span> a<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  
+  <span class="token class-name">FlatMappable</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">B</span><span class="token punctuation">></span></span> flatMap<span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">B</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token class-name">Function</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">,</span> <span class="token class-name">FlatMappable</span><span class="token punctuation">&lt;</span><span class="token class-name">B</span><span class="token punctuation">></span><span class="token punctuation">></span></span> fn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> fn<span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Just rename <code>FlatMappable</code> to <code>Monad</code> and there you go.</p>
+<p>Now, if you want more Haskell naming (gonna implement it in C++ for more correct syntax):</p>
+<pre><code class="language-cpp"><span class="token keyword">template</span> <span class="token operator">&lt;</span><span class="token keyword">typename</span> <span class="token class-name">A</span><span class="token operator">></span>
+cass Monad <span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+  <span class="token keyword">static</span> Monad<span class="token operator">&lt;</span>A<span class="token operator">></span> <span class="token keyword">return</span><span class="token punctuation">(</span>A a<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">Monad</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  
+  <span class="token keyword">template</span> <span class="token operator">&lt;</span><span class="token keyword">typename</span> <span class="token class-name">B</span><span class="token operator">></span> Monad<span class="token operator">&lt;</span>B<span class="token operator">></span> <span class="token keyword">operator</span><span class="token operator">>>=</span><span class="token punctuation">(</span>std<span class="token double-colon punctuation">::</span>function<span class="token operator">&lt;</span>A<span class="token punctuation">,</span> Monad<span class="token operator">&lt;</span>B<span class="token operator">>></span> fn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> fn<span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+<span class="token keyword">private</span><span class="token operator">:</span>
+  <span class="token function">Monad</span><span class="token punctuation">(</span>A a<span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token function">m_a</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+  
+  immutable<span class="token operator">&lt;</span>A<span class="token operator">></span> m_a<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Essentially, renaming constructor to <code>return</code> and <code>flatMap</code> to <code>operator&gt;&gt;=</code></p>
+<p>Also, in terms of <code>Mappable</code> vs <code>FlatMappable</code>:</p>
+<pre><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">Mappable</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token punctuation">{</span>
+  <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">A</span> a<span class="token punctuation">;</span>
+  
+  <span class="token class-name">Mappable</span><span class="token punctuation">(</span><span class="token class-name">A</span> a<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token keyword">this</span><span class="token punctuation">.</span>a <span class="token operator">=</span> a<span class="token punctuation">;</span> <span class="token punctuation">}</span>
+  
+  <span class="token class-name">Mappable</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">B</span><span class="token punctuation">></span></span> <span class="token function">map</span><span class="token punctuation">(</span><span class="token class-name">Function</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">,</span> <span class="token class-name">B</span><span class="token punctuation">></span></span> fn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token class-name">Mappable</span><span class="token punctuation">(</span>fn<span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Flattable</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token keyword">extends</span> <span class="token class-name">Mappable</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token punctuation">{</span>
+  <span class="token class-name">Flattable</span><span class="token punctuation">(</span><span class="token class-name">A</span> a<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token keyword">super</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+  
+  <span class="token class-name">Flattable</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token function">flatten</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>a instanceOf <span class="token class-name">Flattable</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> a<span class="token punctuation">.</span><span class="token function">flatten</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    
+    <span class="token keyword">return</span> a<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">FlatMappable</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token keyword">extends</span> <span class="token class-name">Flattable</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> <span class="token punctuation">{</span>
+  <span class="token class-name">FlatMappable</span><span class="token punctuation">(</span><span class="token class-name">A</span> a<span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token keyword">super</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+  
+  <span class="token class-name">FlatMappable</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">></span></span> flatMap<span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">B</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token class-name">Function</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">A</span><span class="token punctuation">,</span> <span class="token class-name">FlatMappable</span><span class="token punctuation">&lt;</span><span class="token class-name">B</span><span class="token punctuation">></span><span class="token punctuation">></span></span> fn<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">map</span><span class="token punctuation">(</span>fn<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">flatten</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="why-do-we-need-monads">Why do we need monads?</h2>
+<p>In order to preserve purity of programs in functional programming languages, you can not have side-effects in your program.</p>
+<p>But if you need interaction with outside systems (IO, database, system clock, random number generator, etc.), you will need to somehow make these operations without side-effects.</p>
+<p>So you write your entire program as a description of a workflow (e.g. how data will be processed). Basically your program becomes a chain of functions calling other functions. No waiting for events, nothing like that.</p>
+<p>Then, when you run your program, “at the execution edge” (aka “event horizon”), just before your program finishes, the runtime will do all the “unsafe” (or rather “impure”) operations (interaction with IO, system clock, etc.) and will feed all the input to your functions, take the output and modify “the state of the world outside”.</p>
+<p>Where are monads on this? Monads are basically just wrappers around other values, telling the runtime what to do. So that your code is still pure and all the impure side-effects will be eventually handled by runtime.</p>
+<p>For example, reading from STDIN would be something like <code>IO&lt;String&gt;</code> - a monad, whose value will be provided eventually. So your program will be defined as a function something like</p>
+<pre><code class="language-scala"><span class="token keyword">def</span> main<span class="token punctuation">(</span>IO<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span> input<span class="token punctuation">)</span><span class="token operator">:</span> IO<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span> <span class="token operator">=</span>
+  input<span class="token punctuation">.</span>map <span class="token punctuation">{</span> name <span class="token operator">-></span> printLn<span class="token punctuation">(</span><span class="token string">"Hello, ${name}"</span><span class="token punctuation">)</span> <span class="token punctuation">}</span>
+</code></pre>
+<p>As you can see, <code>main</code> is a function which simply returns another <code>IO[String]</code> by mapping a monad parameter.</p>
+<p>When you run it, the program will effectively stop until the <code>IO[String] input</code> parameter is filled with value. When the value will be provided, runtime will execute the rest of the code (the <code>map { ... }</code> part).</p>
+</div>
+</article><article><h1><a href="/2021/05/04/irr-paint-3d.html">irrPaint3d</a></h1>
+
+    <time>04 May 2021 at 06:49</time>
+
+    <div class="excerpt"><p>Recently I was reviving some of my old projects. And to my surprise, there were some people actually interested in those!
+That was a good enough reason for me to revise the old pet projects of mine and exercise my skills (mostly in C++ though).</p>
+<p>One really interesting project I had back in the day was irrPaint3d. It all started as an idea for my B.Sc. thesis and
+the ultimate goal was to enable users paint 3D objects and immediately see the results in realtime, in 3D.</p>
+<p>This is a no unique feature nowadays, but back in 2013, to my knowledge, the only way to texture 3D models was to either
+unwrap them to UV maps and then paint the textures in graphics editor (such as Gimp or Paint.NET) or to use a proprietary
+software, 3D Coat.</p>
+<img data-src="/images/irr-paint-3d/blender_unwrapping.webp" alt="Unwrapping 3D model texture in Blender in 2013" />
+
+<p>And a mere idea of implementing such tool myself was quite exciting. Darn, if I managed to implement it
+back in 2013, my thesis would shine among best thesises in my uni!</p>
+<p>Long story short, I have failed with that. And now, after spending just few days on this, I am happy to say I have achieved
+something with yet another glorious pet project revival:</p>
+<img data-src="/images/irr-paint-3d/final_version_screenshot.webp" alt="Revised 3D model painting" />
+
+<p>And it actually allows to paint the model in 3D, displaying the results in real-time!</p>
+<p>A bit of history on how I got there and maths behind the solution under the cut.</p>
+</div>
+
+        <a href="/2021/05/04/irr-paint-3d.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2021/05/02/irrlicht-template.html">Irrlicht application template</a></h1>
+
+    <time>02 May 2021 at 04:00</time>
+
+    <div class="excerpt"><p>Often when I start revising my old applicaitons with Irrlicht engine, I do few things very similarly.
+Especially when the application contains GUI and uses Irrlicht tools for it.</p>
+<p>This is mostly due to the <strong>extremely</strong> outdated nature of Irrlicht itself.
+There are all sorts of things in it like the lack of 4K monitors support, the use of a very obscure font,
+sample applications being a simple yet messy single CPP files, etc.</p>
+<p>The common things I do include:</p>
+<ul>
+<li>using new C++ standard features such as:<ul>
+<li>shared pointers</li>
+<li>automatic type inference</li>
+<li>standard containers</li>
+<li>C++-style string operations</li>
+</ul>
+</li>
+<li>setting the new font for GUI, adopted to higher screen resolutions</li>
+<li>using CMake to build the project and vcpkg to manage dependencies</li>
+<li>utilizing object-oriented approach</li>
+<li>moving the classes to separate header and CPP files</li>
+</ul>
+<p>In this blog I describe in bloody detail what I do and why.</p>
+</div>
+
+        <a href="/2021/05/02/irrlicht-template.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2021/04/19/strongly-typed-front-end.html">Strongly-typed front-end</a></h1>
+
+    <time>19 Apr 2021 at 01:35</time>
+
+    <div class="content"><LazyImg src="/images/strongly-typed-front-end/serial_experiments_lain.gif" alt="Serial experiments Lain" />
+
+<p>In this little research project I describe my journey through a series of experiments trying out a number of technologies and clashing them against each other.</p>
+<ul>
+<li><a href="strongly-typed-front-end/2021-04-19-introduction">Introduction</a></li>
+<li><a href="strongly-typed-front-end/experiment-1/2021-04-19-experiment-1">Experiment 1 - type safety</a></li>
+<li>Experiment 2 - simple application<ul>
+<li><a href="strongly-typed-front-end/experiment-2/2021-04-19-experiment-2-elm">Elm</a></li>
+<li><a href="strongly-typed-front-end/experiment-2/2021-04-19-experiment-2-fsharp">F#</a></li>
+<li><a href="strongly-typed-front-end/experiment-2/2021-04-19-experiment-2-purescript">PureScript</a></li>
+<li><a href="strongly-typed-front-end/experiment-2/2021-04-19-experiment-2-reasonml">ReasonML</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</article><article><h1><a href="/strongly-typed-front-end/experiment-2/2021-04-19-experiment-2-purescript.md">Strongly-typed front-end: experiment 2, simple application, in PureScript</a></h1>
+
+    <time>19 Apr 2021 at 00:47</time>
+
+    <div class="excerpt"><p>In PureScript world there are quite a few libraries for React. And all of them have terrible (or rather non-existent) documentation, so I had to use as much intuition as outdated and barely working code samples.</p>
+<p>Initial application structure:</p>
+<pre><code class="language-haskell"><span class="token keyword">module</span> <span class="token constant">Main</span> <span class="token keyword">where</span>
+
+<span class="token import-statement"><span class="token keyword">import</span> Prelude</span>
+
+<span class="token import-statement"><span class="token keyword">import</span> Control<span class="token punctuation">.</span>Monad<span class="token punctuation">.</span>Eff</span>
+
+<span class="token import-statement"><span class="token keyword">import</span> Data<span class="token punctuation">.</span>Maybe</span>
+<span class="token import-statement"><span class="token keyword">import</span> Data<span class="token punctuation">.</span>Maybe<span class="token punctuation">.</span>Unsafe</span> <span class="token punctuation">(</span><span class="token hvariable">fromJust</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Data<span class="token punctuation">.</span>Nullable</span> <span class="token punctuation">(</span><span class="token hvariable">toMaybe</span><span class="token punctuation">)</span>
+
+<span class="token import-statement"><span class="token keyword">import</span> Effect</span> <span class="token punctuation">(</span><span class="token constant">Effect</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Effect<span class="token punctuation">.</span>Console</span> <span class="token punctuation">(</span><span class="token builtin">log</span><span class="token punctuation">)</span>
+
+<span class="token import-statement"><span class="token keyword">import</span> DOM</span> <span class="token punctuation">(</span><span class="token constant">DOM</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> DOM<span class="token punctuation">.</span>HTML</span> <span class="token punctuation">(</span><span class="token hvariable">window</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> DOM<span class="token punctuation">.</span>HTML<span class="token punctuation">.</span>Document</span> <span class="token punctuation">(</span><span class="token hvariable">body</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> DOM<span class="token punctuation">.</span>HTML<span class="token punctuation">.</span>Types</span> <span class="token punctuation">(</span><span class="token hvariable">htmlElementToElement</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> DOM<span class="token punctuation">.</span>HTML<span class="token punctuation">.</span>Window</span> <span class="token punctuation">(</span><span class="token hvariable">document</span><span class="token punctuation">)</span>
+
+<span class="token import-statement"><span class="token keyword">import</span> DOM<span class="token punctuation">.</span>Node<span class="token punctuation">.</span>Types</span> <span class="token punctuation">(</span><span class="token constant">Element</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token import-statement"><span class="token keyword">import</span> React</span>
+
+<span class="token import-statement"><span class="token keyword">import</span> React<span class="token punctuation">.</span>DOM <span class="token keyword">as</span> DOM</span>
+<span class="token import-statement"><span class="token keyword">import</span> React<span class="token punctuation">.</span>DOM<span class="token punctuation">.</span>Props <span class="token keyword">as</span> Props</span>
+
+<span class="token keyword">type</span> <span class="token constant">Shape</span> <span class="token operator">=</span> <span class="token constant">Circle</span> <span class="token operator">|</span> <span class="token constant">Square</span>
+
+<span class="token hvariable">calculateArea</span> <span class="token operator">::</span> <span class="token constant">Maybe</span> <span class="token constant">Shape</span> <span class="token operator">-></span> <span class="token constant">Float</span> <span class="token operator">-></span> <span class="token constant">Float</span>
+<span class="token hvariable">calculateArea</span> <span class="token constant">Nothing</span> <span class="token hvariable">_</span> <span class="token operator">=</span> <span class="token number">0</span>
+<span class="token hvariable">calculateArea</span> <span class="token punctuation">(</span><span class="token constant">Just</span> <span class="token constant">Circle</span><span class="token punctuation">)</span> <span class="token hvariable">value</span> <span class="token operator">=</span> <span class="token builtin">pi</span> <span class="token operator">*</span> <span class="token hvariable">value</span> <span class="token operator">*</span> <span class="token hvariable">value</span>
+<span class="token hvariable">calculateArea</span> <span class="token punctuation">(</span><span class="token constant">Just</span> <span class="token constant">Square</span><span class="token punctuation">)</span> <span class="token hvariable">value</span> <span class="token operator">=</span> <span class="token hvariable">value</span> <span class="token operator">*</span> <span class="token hvariable">value</span>
+
+<span class="token hvariable">getShape</span> <span class="token operator">::</span> <span class="token constant">String</span> <span class="token operator">-></span> <span class="token constant">Maybe</span> <span class="token constant">Shape</span>
+<span class="token hvariable">getShape</span> <span class="token string">"circle"</span> <span class="token operator">=</span> <span class="token constant">Just</span> <span class="token constant">Circle</span>
+<span class="token hvariable">getShape</span> <span class="token string">"square"</span> <span class="token operator">=</span> <span class="token constant">Just</span> <span class="token constant">Square</span>
+<span class="token hvariable">getShape</span> <span class="token hvariable">_</span> <span class="token operator">=</span> <span class="token constant">Nothing</span>
+
+<span class="token hvariable">onShapeChanged</span> <span class="token hvariable">ctx</span> <span class="token hvariable">evt</span> <span class="token operator">=</span> <span class="token keyword">do</span>
+  <span class="token hvariable">writeState</span> <span class="token hvariable">ctx</span> <span class="token punctuation">{</span> <span class="token hvariable">shape</span><span class="token operator">:</span> <span class="token hvariable">getShape</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token hvariable">unsafeCoerce</span> <span class="token hvariable">evt</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token hvariable">target</span><span class="token punctuation">.</span><span class="token hvariable">value</span><span class="token punctuation">)</span> <span class="token punctuation">}</span>
+
+<span class="token hvariable">onCalculateAreaClicked</span> <span class="token hvariable">ctx</span> <span class="token hvariable">evt</span> <span class="token operator">=</span> <span class="token keyword">do</span>
+  <span class="token punctuation">{</span> <span class="token hvariable">shape</span><span class="token punctuation">,</span> <span class="token hvariable">value</span> <span class="token punctuation">}</span> <span class="token operator">&lt;-</span> <span class="token hvariable">readState</span> <span class="token hvariable">ctx</span>
+  <span class="token hvariable">writeState</span> <span class="token hvariable">ctx</span> <span class="token punctuation">{</span> <span class="token hvariable">area</span><span class="token operator">:</span> <span class="token hvariable">calculateArea</span> <span class="token hvariable">shape</span> <span class="token hvariable">value</span> <span class="token punctuation">}</span>
+
+<span class="token hvariable">areaCalculator</span> <span class="token operator">=</span> <span class="token hvariable">createClass</span> <span class="token operator">$</span> <span class="token hvariable">spec</span> <span class="token punctuation">{</span> <span class="token hvariable">shape</span><span class="token operator">:</span> <span class="token constant">Nothing</span><span class="token punctuation">,</span> <span class="token hvariable">value</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token hvariable">area</span><span class="token operator">:</span> <span class="token number">0</span> <span class="token punctuation">}</span> <span class="token operator">\</span><span class="token hvariable">ctx</span> <span class="token operator">-></span> <span class="token keyword">do</span>
+  <span class="token punctuation">{</span> <span class="token hvariable">shape</span><span class="token punctuation">,</span> <span class="token hvariable">value</span><span class="token punctuation">,</span> <span class="token hvariable">area</span> <span class="token punctuation">}</span> <span class="token operator">&lt;-</span> <span class="token hvariable">readState</span> <span class="token hvariable">ctx</span>
+  <span class="token builtin">return</span> <span class="token operator">$</span> <span class="token constant">DOM</span><span class="token punctuation">.</span><span class="token builtin">div</span> <span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token punctuation">[</span>
+    <span class="token constant">DOM</span><span class="token punctuation">.</span><span class="token builtin">div</span> <span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token punctuation">[</span>
+      <span class="token hvariable">DOM<span class="token punctuation">.</span>select</span> <span class="token punctuation">[</span> <span class="token hvariable">Props<span class="token punctuation">.</span>onChange</span> <span class="token punctuation">(</span><span class="token hvariable">onShapeChanged</span> <span class="token hvariable">ctx</span><span class="token punctuation">)</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span>
+          <span class="token hvariable">DOM<span class="token punctuation">.</span>option</span> <span class="token punctuation">[</span> <span class="token hvariable">Props<span class="token punctuation">.</span>value</span> <span class="token string">""</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">DOM<span class="token punctuation">.</span>text</span> <span class="token string">"Select shape"</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
+          <span class="token hvariable">DOM<span class="token punctuation">.</span>option</span> <span class="token punctuation">[</span> <span class="token hvariable">Props<span class="token punctuation">.</span>value</span> <span class="token string">"circle"</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">DOM<span class="token punctuation">.</span>text</span> <span class="token string">"Circle"</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
+          <span class="token hvariable">DOM<span class="token punctuation">.</span>option</span> <span class="token punctuation">[</span> <span class="token hvariable">Props<span class="token punctuation">.</span>value</span> <span class="token string">"square"</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">DOM<span class="token punctuation">.</span>text</span> <span class="token string">"Square"</span> <span class="token punctuation">]</span>
+      <span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token hvariable">DOM<span class="token punctuation">.</span>input</span> <span class="token punctuation">[</span> <span class="token hvariable">Props<span class="token punctuation">.</span>value</span> <span class="token punctuation">(</span><span class="token builtin">show</span> <span class="token hvariable">value</span><span class="token punctuation">)</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token hvariable">DOM<span class="token punctuation">.</span>button</span> <span class="token punctuation">[</span> <span class="token hvariable">Props<span class="token punctuation">.</span>onClick</span> <span class="token punctuation">(</span><span class="token hvariable">onCalculateAreaClicked</span> <span class="token hvariable">ctx</span><span class="token punctuation">)</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">DOM<span class="token punctuation">.</span>text</span> <span class="token string">"Calculate area"</span> <span class="token punctuation">]</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token constant">DOM</span><span class="token punctuation">.</span><span class="token builtin">div</span> <span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token punctuation">[</span>
+      <span class="token hvariable">DOM<span class="token punctuation">.</span>text</span> <span class="token punctuation">(</span><span class="token string">"Area: "</span> <span class="token operator">++</span> <span class="token punctuation">(</span><span class="token builtin">show</span> <span class="token hvariable">area</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">]</span>
+    <span class="token punctuation">]</span>
+
+<span class="token hvariable">main</span> <span class="token operator">=</span> <span class="token hvariable">container</span> <span class="token operator">>>=</span> <span class="token hvariable">render</span> <span class="token hvariable">ui</span>
+  <span class="token keyword">where</span>
+  <span class="token hvariable">ui</span> <span class="token operator">::</span> <span class="token constant">ReactElement</span>
+  <span class="token hvariable">ui</span> <span class="token operator">=</span> <span class="token hvariable">createFactory</span> <span class="token hvariable">areaCalculator</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+  <span class="token hvariable">container</span> <span class="token operator">::</span> <span class="token hvariable">forall</span> <span class="token hvariable">eff</span><span class="token punctuation">.</span> <span class="token constant">Eff</span> <span class="token punctuation">(</span><span class="token hvariable">dom</span> <span class="token operator">::</span> <span class="token constant">DOM</span> <span class="token operator">|</span> <span class="token hvariable">eff</span><span class="token punctuation">)</span> <span class="token constant">Element</span>
+  <span class="token hvariable">container</span> <span class="token operator">=</span> <span class="token keyword">do</span>
+    <span class="token hvariable">win</span> <span class="token operator">&lt;-</span> <span class="token hvariable">window</span>
+    <span class="token hvariable">doc</span> <span class="token operator">&lt;-</span> <span class="token hvariable">document</span> <span class="token hvariable">win</span>
+    <span class="token hvariable">elt</span> <span class="token operator">&lt;-</span> <span class="token hvariable">fromJust</span> <span class="token operator">&lt;$></span> <span class="token hvariable">toMaybe</span> <span class="token operator">&lt;$></span> <span class="token hvariable">body</span> <span class="token hvariable">doc</span>
+    <span class="token builtin">return</span> <span class="token operator">$</span> <span class="token hvariable">htmlElementToElement</span> <span class="token hvariable">elt</span>
+</code></pre>
+</div>
+
+        <a href="/strongly-typed-front-end/experiment-2/2021-04-19-experiment-2-purescript.md" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/strongly-typed-front-end/experiment-2/2021-04-19-experiment-2-elm.md">Strongly-typed front-end: experiment 2, simple application, in Elm</a></h1>
+
+    <time>19 Apr 2021 at 00:23</time>
+
+    <div class="excerpt"><p>(Heavily over-opinionated statement) Elm forces you to handle error scenarios when writing the code.</p>
+<p><a href="https://codesandbox.io/s/inspiring-diffie-lq0u2">Sandbox</a></p>
+<p>This is pretty much a translation of a TypeScript code from above:</p>
+<pre><code class="language-haskell"><span class="token keyword">module</span> <span class="token constant">Main</span> <span class="token hvariable">exposing</span> <span class="token punctuation">(</span><span class="token operator">..</span><span class="token punctuation">)</span>
+
+<span class="token import-statement"><span class="token keyword">import</span> Browser</span>
+<span class="token import-statement"><span class="token keyword">import</span> Html</span> <span class="token hvariable">exposing</span> <span class="token punctuation">(</span><span class="token constant">Html</span><span class="token punctuation">,</span> <span class="token hvariable">button</span><span class="token punctuation">,</span> <span class="token builtin">div</span><span class="token punctuation">,</span> <span class="token hvariable">text</span><span class="token punctuation">,</span> <span class="token hvariable">input</span><span class="token punctuation">,</span> <span class="token hvariable">select</span><span class="token punctuation">,</span> <span class="token hvariable">option</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Html<span class="token punctuation">.</span>Attributes</span> <span class="token hvariable">exposing</span> <span class="token punctuation">(</span><span class="token hvariable">value</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Html<span class="token punctuation">.</span>Events</span> <span class="token hvariable">exposing</span> <span class="token punctuation">(</span><span class="token hvariable">onClick</span><span class="token punctuation">,</span> <span class="token hvariable">onInput</span><span class="token punctuation">)</span>
+
+<span class="token comment">-- util</span>
+
+<span class="token keyword">type</span> <span class="token constant">Shape</span> <span class="token operator">=</span> <span class="token constant">Circle</span> <span class="token operator">|</span> <span class="token constant">Square</span>
+
+<span class="token hvariable">calculateArea</span> <span class="token operator">:</span> <span class="token constant">Shape</span> <span class="token operator">-></span> <span class="token constant">Float</span> <span class="token operator">-></span> <span class="token constant">Float</span>
+<span class="token hvariable">calculateArea</span> <span class="token hvariable">shape</span> <span class="token hvariable">value</span> <span class="token operator">=</span>
+  <span class="token keyword">case</span> <span class="token hvariable">shape</span> <span class="token keyword">of</span>
+    <span class="token constant">Circle</span> <span class="token operator">-></span> <span class="token builtin">pi</span> <span class="token operator">*</span> <span class="token hvariable">value</span> <span class="token operator">*</span> <span class="token hvariable">value</span>
+    
+    <span class="token constant">Square</span> <span class="token operator">-></span> <span class="token hvariable">value</span> <span class="token operator">*</span> <span class="token hvariable">value</span>
+    
+<span class="token comment">-- MAIN</span>
+
+<span class="token hvariable">main</span> <span class="token operator">=</span>
+  <span class="token hvariable">Browser<span class="token punctuation">.</span>sandbox</span> <span class="token punctuation">{</span> <span class="token builtin">init</span> <span class="token operator">=</span> <span class="token builtin">init</span><span class="token punctuation">,</span> <span class="token hvariable">update</span> <span class="token operator">=</span> <span class="token hvariable">update</span><span class="token punctuation">,</span> <span class="token hvariable">view</span> <span class="token operator">=</span> <span class="token hvariable">view</span> <span class="token punctuation">}</span>
+
+<span class="token comment">-- MODEL</span>
+
+<span class="token keyword">type</span> <span class="token hvariable">alias</span> <span class="token constant">Model</span> <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token hvariable">shape</span><span class="token operator">:</span> <span class="token constant">Shape</span><span class="token punctuation">,</span> <span class="token hvariable">value</span><span class="token operator">:</span> <span class="token constant">Float</span><span class="token punctuation">,</span> <span class="token hvariable">area</span><span class="token operator">:</span> <span class="token constant">Float</span> <span class="token punctuation">}</span>
+
+<span class="token builtin">init</span> <span class="token operator">:</span> <span class="token constant">Model</span>
+<span class="token builtin">init</span> <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token hvariable">shape</span> <span class="token operator">=</span> <span class="token string">""</span><span class="token punctuation">,</span> <span class="token hvariable">value</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token hvariable">area</span> <span class="token operator">=</span> <span class="token number">0</span> <span class="token punctuation">}</span>
+
+<span class="token comment">-- UPDATE</span>
+
+<span class="token keyword">type</span> <span class="token constant">Msg</span>
+  <span class="token operator">=</span> <span class="token constant">ShapeChanged</span> <span class="token constant">Shape</span>
+  <span class="token operator">|</span> <span class="token constant">ValueChanged</span> <span class="token constant">Float</span>
+  <span class="token operator">|</span> <span class="token constant">CalculateArea</span>
+
+<span class="token hvariable">update</span> <span class="token operator">:</span> <span class="token constant">Msg</span> <span class="token operator">-></span> <span class="token constant">Model</span> <span class="token operator">-></span> <span class="token constant">Model</span>
+<span class="token hvariable">update</span> <span class="token hvariable">msg</span> <span class="token hvariable">model</span> <span class="token operator">=</span>
+  <span class="token keyword">case</span> <span class="token hvariable">msg</span> <span class="token keyword">of</span>
+    <span class="token constant">ShapeChanged</span> <span class="token hvariable">shape</span> <span class="token operator">-></span>
+      <span class="token punctuation">{</span> <span class="token hvariable">model</span> <span class="token operator">|</span> <span class="token hvariable">shape</span> <span class="token operator">=</span> <span class="token hvariable">shape</span> <span class="token punctuation">}</span>
+
+    <span class="token constant">ValueChanged</span> <span class="token hvariable">value</span> <span class="token operator">-></span>
+      <span class="token punctuation">{</span> <span class="token hvariable">model</span> <span class="token operator">|</span> <span class="token hvariable">value</span> <span class="token operator">=</span> <span class="token hvariable">value</span> <span class="token punctuation">}</span>
+      
+    <span class="token constant">CalculateArea</span> <span class="token operator">-></span>
+      <span class="token punctuation">{</span> <span class="token hvariable">model</span> <span class="token operator">|</span> <span class="token hvariable">area</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token hvariable">calculateArea</span> <span class="token hvariable">model</span><span class="token punctuation">.</span><span class="token hvariable">shape</span> <span class="token hvariable">model</span><span class="token punctuation">.</span><span class="token hvariable">value</span><span class="token punctuation">)</span> <span class="token punctuation">}</span>
+
+<span class="token comment">-- VIEW</span>
+
+<span class="token hvariable">onShapeChanged</span> <span class="token operator">:</span> <span class="token constant">String</span> <span class="token operator">-></span> <span class="token constant">Msg</span>
+<span class="token hvariable">onShapeChanged</span> <span class="token hvariable">shape</span> <span class="token operator">=</span> 
+  <span class="token keyword">case</span> <span class="token hvariable">shape</span> <span class="token keyword">of</span>
+    <span class="token string">"circle"</span> <span class="token operator">-></span> <span class="token constant">ShapeChanged</span> <span class="token constant">Circle</span>
+    <span class="token string">"square"</span> <span class="token operator">-></span> <span class="token constant">ShapeChanged</span> <span class="token constant">Square</span>
+
+<span class="token hvariable">onValueChanged</span> <span class="token operator">:</span> <span class="token constant">String</span> <span class="token operator">-></span> <span class="token constant">Msg</span>
+<span class="token hvariable">onValueChanged</span> <span class="token hvariable">value</span> <span class="token operator">=</span> <span class="token constant">ValueChanged</span> <span class="token punctuation">(</span><span class="token hvariable">Maybe<span class="token punctuation">.</span>withDefault</span> <span class="token number">0</span> <span class="token punctuation">(</span><span class="token hvariable">String<span class="token punctuation">.</span>toFloat</span> <span class="token hvariable">value</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token hvariable">view</span> <span class="token operator">:</span> <span class="token constant">Model</span> <span class="token operator">-></span> <span class="token constant">Html</span> <span class="token constant">Msg</span>
+<span class="token hvariable">view</span> <span class="token hvariable">model</span> <span class="token operator">=</span>
+  <span class="token builtin">div</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token punctuation">[</span> <span class="token hvariable">select</span> <span class="token punctuation">[</span> <span class="token hvariable">onInput</span> <span class="token hvariable">onShapeChanged</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> 
+      <span class="token hvariable">option</span> <span class="token punctuation">[</span> <span class="token hvariable">value</span> <span class="token string">""</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">text</span> <span class="token string">"Choose shape"</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> 
+      <span class="token hvariable">option</span> <span class="token punctuation">[</span> <span class="token hvariable">value</span> <span class="token string">"circle"</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">text</span> <span class="token string">"Circle"</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token hvariable">option</span> <span class="token punctuation">[</span> <span class="token hvariable">value</span> <span class="token string">"square"</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">text</span> <span class="token string">"Square"</span> <span class="token punctuation">]</span> <span class="token punctuation">]</span>
+    <span class="token punctuation">,</span> <span class="token hvariable">input</span> <span class="token punctuation">[</span> <span class="token hvariable">value</span> <span class="token punctuation">(</span><span class="token hvariable">String<span class="token punctuation">.</span>fromFloat</span> <span class="token hvariable">model</span><span class="token punctuation">.</span><span class="token hvariable">value</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token hvariable">onInput</span> <span class="token hvariable">onValueChanged</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token punctuation">,</span> <span class="token hvariable">button</span> <span class="token punctuation">[</span> <span class="token hvariable">onClick</span> <span class="token constant">CalculateArea</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">text</span> <span class="token string">"Calculate area"</span> <span class="token punctuation">]</span>
+    <span class="token punctuation">,</span> <span class="token builtin">div</span> <span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">text</span> <span class="token punctuation">(</span><span class="token string">"Area: "</span> <span class="token operator">++</span> <span class="token punctuation">(</span><span class="token hvariable">String<span class="token punctuation">.</span>fromFloat</span> <span class="token hvariable">model</span><span class="token punctuation">.</span><span class="token hvariable">area</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">]</span>
+    <span class="token punctuation">]</span>
+</code></pre>
+<p>Note that it won’t compile:</p>
+<pre><code>-- TYPE MISMATCH ----------------------------------------------- Jump To Problem
+
+Something is off with the body of the `init` definition:
+
+29| init = { shape = &quot;&quot;, value = 0, area = 0 }
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The body is a record of type:
+
+    { area : Float, shape : String, value : Float }
+
+But the type annotation on `init` says it should be:
+
+    Model
+</code></pre>
+</div>
+
+        <a href="/strongly-typed-front-end/experiment-2/2021-04-19-experiment-2-elm.md" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/strongly-typed-front-end/experiment-2/2021-04-19-experiment-2-fsharp.md">Strongly-typed front-end: experiment 2, simple application, in F#</a></h1>
+
+    <time>19 Apr 2021 at 00:23</time>
+
+    <div class="excerpt"><p>In F# world, there is a framework called <a href="https://fable.io/">Fable</a>. It allows one to compile their F# code to JavaScript. There is a built-in package for React, but Fable developers themselves <a href="https://fable.io/docs/your-fable-project/use-a-fable-library.html">suggest</a> using <a href="https://elmish.github.io/">Elmish</a>, which is a framework similar to Elm, just suited for F#.</p>
+<p>A sample Elmish application in the <a href="https://fable.io/repl/">online editor</a> looks like this:</p>
+<pre><code class="language-fsharp"><span class="token keyword">module</span> Elmish<span class="token punctuation">.</span>SimpleInput
+
+<span class="token comment">(**
+Minimal application showing how to use Elmish
+You can find more info about Emish architecture and samples at https://elmish.github.io/
+*)</span>
+
+<span class="token keyword">open</span> Fable<span class="token punctuation">.</span>Core<span class="token punctuation">.</span>JsInterop
+<span class="token keyword">open</span> Fable<span class="token punctuation">.</span>React
+<span class="token keyword">open</span> Fable<span class="token punctuation">.</span>React<span class="token punctuation">.</span>Props
+<span class="token keyword">open</span> Elmish
+<span class="token keyword">open</span> Elmish<span class="token punctuation">.</span>React
+
+<span class="token comment">// MODEL</span>
+
+<span class="token keyword">type</span> <span class="token class-name">Model</span> <span class="token operator">=</span>
+    <span class="token punctuation">{</span> Value <span class="token punctuation">:</span> <span class="token class-name">string</span> <span class="token punctuation">}</span>
+
+<span class="token keyword">type</span> <span class="token class-name">Msg</span> <span class="token operator">=</span>
+    <span class="token operator">|</span> ChangeValue <span class="token keyword">of</span> <span class="token class-name">string</span>
+
+<span class="token keyword">let</span> init <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token punctuation">{</span> Value <span class="token operator">=</span> <span class="token string">""</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> Cmd<span class="token punctuation">.</span>none
+
+<span class="token comment">// UPDATE</span>
+
+<span class="token keyword">let</span> update <span class="token punctuation">(</span>msg<span class="token punctuation">:</span><span class="token class-name">Msg</span><span class="token punctuation">)</span> <span class="token punctuation">(</span>model<span class="token punctuation">:</span><span class="token class-name">Model</span><span class="token punctuation">)</span> <span class="token operator">=</span>
+    <span class="token keyword">match</span> msg <span class="token keyword">with</span>
+    <span class="token operator">|</span> ChangeValue newValue <span class="token operator">-></span>
+        <span class="token punctuation">{</span> model <span class="token keyword">with</span> Value <span class="token operator">=</span> newValue <span class="token punctuation">}</span><span class="token punctuation">,</span> Cmd<span class="token punctuation">.</span>none
+
+<span class="token comment">// VIEW (rendered with React)</span>
+
+<span class="token keyword">let</span> view model dispatch <span class="token operator">=</span>
+    div <span class="token punctuation">[</span> Class <span class="token string">"main-container"</span> <span class="token punctuation">]</span>
+        <span class="token punctuation">[</span> input <span class="token punctuation">[</span> Class <span class="token string">"input"</span>
+                  Value model<span class="token punctuation">.</span>Value
+                  OnChange <span class="token punctuation">(</span><span class="token keyword">fun</span> ev <span class="token operator">-></span> ev<span class="token punctuation">.</span>target<span class="token operator">?</span>value <span class="token operator">|></span> string <span class="token operator">|></span> ChangeValue <span class="token operator">|></span> dispatch<span class="token punctuation">)</span> <span class="token punctuation">]</span>
+          span <span class="token punctuation">[</span> <span class="token punctuation">]</span>
+            <span class="token punctuation">[</span> str <span class="token string">"Hello, "</span>
+              str model<span class="token punctuation">.</span>Value
+              str <span class="token string">"!"</span> <span class="token punctuation">]</span> <span class="token punctuation">]</span>
+
+<span class="token comment">// App</span>
+Program<span class="token punctuation">.</span>mkProgram init update view
+<span class="token operator">|></span> Program<span class="token punctuation">.</span>withConsoleTrace
+<span class="token operator">|></span> Program<span class="token punctuation">.</span>withReactSynchronous <span class="token string">"elmish-app"</span>
+<span class="token operator">|></span> Program<span class="token punctuation">.</span>run
+</code></pre>
+<p>One can easily see the similarities to Elm (or so I think).</p>
+</div>
+
+        <a href="/strongly-typed-front-end/experiment-2/2021-04-19-experiment-2-fsharp.md" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/strongly-typed-front-end/experiment-2/2021-04-19-experiment-2-reasonml.md">Strongly-typed front-end: experiment 2, simple application, in ReasonML</a></h1>
+
+    <time>19 Apr 2021 at 00:23</time>
+
+    <div class="excerpt"><p>For the sake of experiment, I have decided to implement the very same application in ReasonML → ReScript by Facebook.</p>
+<p>Starting the React Hooks example on <a href="https://reasonml.github.io/en/try">Try ReasonML</a> website, you get this code, which resembles some of the React features, just in a slightly weird syntax:</p>
+<pre><code class="language-ocaml"><span class="token punctuation">[</span><span class="token operator">@</span>bs<span class="token punctuation">.</span>config <span class="token punctuation">{</span>jsx<span class="token punctuation">:</span> <span class="token number">3</span><span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token keyword">module</span> Counter <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">[</span><span class="token operator">@</span>react<span class="token punctuation">.</span>component<span class="token punctuation">]</span>
+  <span class="token keyword">let</span> make <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token label property">~name</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> <span class="token punctuation">(</span>count<span class="token punctuation">,</span> setCount<span class="token punctuation">)</span> <span class="token operator">=</span> React<span class="token punctuation">.</span>useState<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token operator">&lt;</span>div<span class="token operator">></span>
+      <span class="token operator">&lt;</span>p<span class="token operator">></span> <span class="token punctuation">{</span>React<span class="token punctuation">.</span>string<span class="token punctuation">(</span>name <span class="token operator">++</span> <span class="token string">" clicked "</span> <span class="token operator">++</span> string_of_int<span class="token punctuation">(</span>count<span class="token punctuation">)</span> <span class="token operator">++</span> <span class="token string">" times"</span><span class="token punctuation">)</span><span class="token punctuation">}</span> <span class="token operator">&lt;/</span>p<span class="token operator">></span>
+      <span class="token operator">&lt;</span>button onClick<span class="token operator">=</span><span class="token punctuation">{</span><span class="token punctuation">_</span> <span class="token operator">=></span> setCount<span class="token punctuation">(</span><span class="token punctuation">_</span> <span class="token operator">=></span> count <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token operator">></span>
+        <span class="token punctuation">{</span>React<span class="token punctuation">.</span>string<span class="token punctuation">(</span><span class="token string">"Click me"</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+      <span class="token operator">&lt;/</span>button<span class="token operator">></span>
+    <span class="token operator">&lt;/</span>div<span class="token operator">></span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+ReactDOMRe<span class="token punctuation">.</span>renderToElementWithId<span class="token punctuation">(</span><span class="token operator">&lt;</span>Counter name<span class="token operator">=</span><span class="token string">"Counter"</span> <span class="token operator">/></span><span class="token punctuation">,</span> <span class="token string">"preview"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Starting off by defining the enum type for shape:</p>
+<pre><code class="language-ocaml"><span class="token keyword">type</span> Shape <span class="token operator">=</span> Circle <span class="token operator">|</span> Square<span class="token punctuation">;</span>
+</code></pre>
+<p>And immediately getting an error:</p>
+<pre><code>Line 4:8-12 A type name must start with a lower-case letter or an underscore
+</code></pre>
+<p>That one is easy to fix:</p>
+<pre><code class="language-ocaml"><span class="token keyword">type</span> shape <span class="token operator">=</span> Circle <span class="token operator">|</span> Square<span class="token punctuation">;</span>
+</code></pre>
+<p>Now, add some markup:</p>
+<pre><code class="language-ocaml"><span class="token punctuation">[</span><span class="token operator">@</span>react<span class="token punctuation">.</span>component<span class="token punctuation">]</span>
+<span class="token keyword">let</span> make <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token label property">~name</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">let</span> <span class="token punctuation">(</span>_shape<span class="token punctuation">,</span> setShape<span class="token punctuation">)</span> <span class="token operator">=</span> React<span class="token punctuation">.</span>useState<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> None<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">let</span> <span class="token punctuation">(</span><span class="token keyword">value</span><span class="token punctuation">,</span> setValue<span class="token punctuation">)</span> <span class="token operator">=</span> React<span class="token punctuation">.</span>useState<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token number">0.0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">let</span> <span class="token punctuation">(</span>area<span class="token punctuation">,</span> setArea<span class="token punctuation">)</span> <span class="token operator">=</span> React<span class="token punctuation">.</span>useState<span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token number">0.0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token operator">&lt;</span>div<span class="token operator">></span>
+    <span class="token operator">&lt;</span>select<span class="token operator">></span>
+      <span class="token operator">&lt;</span>option <span class="token keyword">value</span><span class="token operator">=</span><span class="token string">""</span><span class="token operator">></span> Choose shape <span class="token operator">&lt;/</span>option<span class="token operator">></span>
+      <span class="token operator">&lt;</span>option <span class="token keyword">value</span><span class="token operator">=</span><span class="token string">"circle"</span><span class="token operator">></span> Circle <span class="token operator">&lt;/</span>option<span class="token operator">></span>
+      <span class="token operator">&lt;</span>option <span class="token keyword">value</span><span class="token operator">=</span><span class="token string">"square"</span><span class="token operator">></span> Square <span class="token operator">&lt;/</span>option<span class="token operator">></span>
+    <span class="token operator">&lt;/</span>select<span class="token operator">></span>
+    <span class="token operator">&lt;</span>input <span class="token keyword">value</span><span class="token operator">=</span><span class="token punctuation">{</span><span class="token keyword">value</span><span class="token punctuation">}</span> <span class="token operator">/></span>
+    <span class="token operator">&lt;</span>p<span class="token operator">></span> <span class="token punctuation">{</span>React<span class="token punctuation">.</span>string<span class="token punctuation">(</span>string_of_float<span class="token punctuation">(</span>area<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">}</span> <span class="token operator">&lt;/</span>p<span class="token operator">></span>
+    <span class="token operator">&lt;</span>button<span class="token operator">></span>
+      <span class="token punctuation">{</span>React<span class="token punctuation">.</span>string<span class="token punctuation">(</span><span class="token string">"Calculate"</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+    <span class="token operator">&lt;/</span>button<span class="token operator">></span>
+  <span class="token operator">&lt;/</span>div<span class="token operator">></span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+</div>
+
+        <a href="/strongly-typed-front-end/experiment-2/2021-04-19-experiment-2-reasonml.md" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/strongly-typed-front-end/experiment-1/2021-04-19-experiment-1.md">Experiment #1: mismatching type handling &amp; error helpfulness</a></h1>
+
+    <time>18 Apr 2021 at 23:56</time>
+
+    <div class="excerpt"><p>For a sake 🍶of <del>science</del> experiment, I have <a href="https://github.com/shybovycha/darken_color.js/tree/experiment/strong-typing">converted</a> <strong>one function</strong> of a <a href="https://github.com/shybovycha/darken_color.js">library</a> I created long time ago to multiple languages that compile to JS and called it with various values.</p>
+<p>The function is simple - it takes a color represented as a HEX string and converts it to <code>{ r, g, b }</code> object.</p>
+<p>The test is relatively big - it passes various numbers (integer and floating point, negative and positive), booleans, objects, arrays, obvious candidates - <code>null</code> and <code>undefined</code> and incorrect string.</p>
+<p>The implementations are made with:</p>
+<ul>
+<li>Scala.js</li>
+<li>ReasonML &amp; BuckleScript → ReScript</li>
+<li>F#</li>
+<li>PureScript</li>
+<li>TypeScript</li>
+<li>Elm</li>
+</ul>
+<h2 id="implementations">Implementations</h2>
+<h3 id="scalajs">Scala.JS</h3>
+<pre><code class="language-scala"><span class="token keyword">package</span> <span class="token namespace">darken_color</span>
+
+<span class="token keyword">import</span> <span class="token namespace">scala<span class="token punctuation">.</span>scalajs<span class="token punctuation">.</span>js</span>
+<span class="token keyword">import</span> <span class="token namespace">scala<span class="token punctuation">.</span>scalajs<span class="token punctuation">.</span>js<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span></span>_
+
+<span class="token keyword">class</span> RGB<span class="token punctuation">(</span><span class="token keyword">val</span> r<span class="token operator">:</span> <span class="token builtin">Int</span><span class="token punctuation">,</span> <span class="token keyword">val</span> g<span class="token operator">:</span> <span class="token builtin">Int</span><span class="token punctuation">,</span> <span class="token keyword">val</span> b<span class="token operator">:</span> <span class="token builtin">Int</span><span class="token punctuation">)</span> <span class="token keyword">extends</span> js<span class="token punctuation">.</span>Object
+
+<span class="token annotation punctuation">@JSExportTopLevel</span><span class="token punctuation">(</span><span class="token string">"DarkenColor"</span><span class="token punctuation">)</span>
+<span class="token keyword">object</span> DarkenColor <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@JSExport</span>
+  <span class="token keyword">def</span> hex2rgb<span class="token punctuation">(</span>s<span class="token operator">:</span> <span class="token builtin">String</span><span class="token punctuation">)</span><span class="token operator">:</span> RGB <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token keyword">val</span> re <span class="token operator">=</span> <span class="token triple-quoted-string string">"""^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$"""</span><span class="token punctuation">.</span>r
+
+    <span class="token keyword">val</span> rgbStr <span class="token operator">=</span> s <span class="token keyword">match</span> <span class="token punctuation">{</span>
+      <span class="token keyword">case</span> re<span class="token punctuation">(</span>rStr<span class="token punctuation">,</span> gStr<span class="token punctuation">,</span> bStr<span class="token punctuation">)</span> <span class="token keyword">=></span> Some<span class="token punctuation">(</span><span class="token punctuation">(</span>rStr<span class="token punctuation">,</span> gStr<span class="token punctuation">,</span> bStr<span class="token punctuation">)</span><span class="token punctuation">)</span>
+      <span class="token keyword">case</span> _ <span class="token keyword">=></span> None
+    <span class="token punctuation">}</span>
+
+    rgbStr<span class="token punctuation">.</span>map <span class="token punctuation">(</span>x <span class="token keyword">=></span> <span class="token keyword">new</span> RGB<span class="token punctuation">(</span>Integer<span class="token punctuation">.</span>parseInt<span class="token punctuation">(</span>x<span class="token punctuation">.</span>_1<span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">,</span> Integer<span class="token punctuation">.</span>parseInt<span class="token punctuation">(</span>x<span class="token punctuation">.</span>_2<span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">,</span> Integer<span class="token punctuation">.</span>parseInt<span class="token punctuation">(</span>x<span class="token punctuation">.</span>_3<span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>getOrElse<span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="rescript">ReScript</h3>
+<pre><code class="language-ocaml"><span class="token keyword">type</span> rgb <span class="token operator">=</span> <span class="token punctuation">{</span>
+  r<span class="token punctuation">:</span> int<span class="token punctuation">,</span>
+  g<span class="token punctuation">:</span> int<span class="token punctuation">,</span>
+  b<span class="token punctuation">:</span> int<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">let</span> parse_hex <span class="token operator">=</span> s <span class="token operator">=></span> int_of_string<span class="token punctuation">(</span><span class="token string">"0x"</span> <span class="token operator">++</span> s<span class="token punctuation">)</span>
+
+<span class="token keyword">let</span> hex2rgb <span class="token operator">=</span> hex <span class="token operator">=></span>
+  Js<span class="token punctuation">.</span>Re<span class="token punctuation">.</span>fromString<span class="token punctuation">(</span><span class="token string">"^#?([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$"</span><span class="token punctuation">)</span>
+    <span class="token operator">-></span> Js<span class="token punctuation">.</span>Re<span class="token punctuation">.</span>exec_<span class="token punctuation">(</span>hex<span class="token punctuation">)</span>
+    <span class="token operator">-></span> Belt<span class="token punctuation">.</span>Option<span class="token punctuation">.</span>map <span class="token punctuation">(</span>Js<span class="token punctuation">.</span>Re<span class="token punctuation">.</span>captures<span class="token punctuation">)</span>
+    <span class="token operator">-></span> Belt<span class="token punctuation">.</span>Option<span class="token punctuation">.</span>map <span class="token punctuation">(</span>Js<span class="token punctuation">.</span>Array<span class="token punctuation">.</span>map <span class="token punctuation">(</span>Js<span class="token punctuation">.</span>Nullable<span class="token punctuation">.</span>toOption<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token operator">-></span> Belt<span class="token punctuation">.</span>Option<span class="token punctuation">.</span>map <span class="token punctuation">(</span>x <span class="token operator">=></span> Js<span class="token punctuation">.</span>Array<span class="token punctuation">.</span>sliceFrom<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token operator">-></span> Belt<span class="token punctuation">.</span>Option<span class="token punctuation">.</span>map <span class="token punctuation">(</span>Js<span class="token punctuation">.</span>Array<span class="token punctuation">.</span>map <span class="token punctuation">(</span>x <span class="token operator">=></span> Belt<span class="token punctuation">.</span>Option<span class="token punctuation">.</span>map<span class="token punctuation">(</span>x<span class="token punctuation">,</span> parse_hex<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token operator">-></span> <span class="token punctuation">(</span>matches <span class="token operator">=></span> switch matches <span class="token punctuation">{</span>
+      <span class="token operator">|</span> Some<span class="token punctuation">(</span><span class="token punctuation">[</span> Some<span class="token punctuation">(</span>r<span class="token punctuation">)</span><span class="token punctuation">,</span> Some<span class="token punctuation">(</span>g<span class="token punctuation">)</span><span class="token punctuation">,</span> Some<span class="token punctuation">(</span>b<span class="token punctuation">)</span> <span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">=></span> Some<span class="token punctuation">(</span><span class="token punctuation">{</span> r<span class="token punctuation">:</span> r<span class="token punctuation">,</span> g<span class="token punctuation">:</span> g<span class="token punctuation">,</span> b<span class="token punctuation">:</span> b <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token operator">|</span> <span class="token punctuation">_</span> <span class="token operator">=></span> None
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<h3 id="purescript">PureScript</h3>
+<pre><code class="language-haskell"><span class="token keyword">module</span> <span class="token constant">DarkenColor</span> <span class="token keyword">where</span>
+
+<span class="token import-statement"><span class="token keyword">import</span> Prelude</span> <span class="token punctuation">(</span><span class="token hvariable">join</span><span class="token punctuation">,</span> <span class="token builtin">map</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token operator">$</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token operator">&lt;#></span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token operator">>>=</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token operator">>>></span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token import-statement"><span class="token keyword">import</span> Data<span class="token punctuation">.</span>Array</span> <span class="token punctuation">(</span><span class="token hvariable">catMaybes</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Data<span class="token punctuation">.</span>Array<span class="token punctuation">.</span>NonEmpty</span> <span class="token punctuation">(</span><span class="token builtin">drop</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Data<span class="token punctuation">.</span>Int</span> <span class="token punctuation">(</span><span class="token hvariable">fromStringAs</span><span class="token punctuation">,</span> <span class="token hvariable">hexadecimal</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Data<span class="token punctuation">.</span>Maybe</span> <span class="token punctuation">(</span><span class="token constant">Maybe</span><span class="token punctuation">(</span><span class="token operator">..</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Data<span class="token punctuation">.</span>Nullable</span> <span class="token punctuation">(</span><span class="token constant">Nullable</span><span class="token punctuation">,</span> <span class="token hvariable">toNullable</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Data<span class="token punctuation">.</span>Either</span> <span class="token punctuation">(</span><span class="token hvariable">hush</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Data<span class="token punctuation">.</span>String<span class="token punctuation">.</span>Regex</span> <span class="token punctuation">(</span><span class="token hvariable">regex</span><span class="token punctuation">,</span> <span class="token hvariable">match</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Data<span class="token punctuation">.</span>String<span class="token punctuation">.</span>Regex<span class="token punctuation">.</span>Flags</span> <span class="token punctuation">(</span><span class="token hvariable">ignoreCase</span><span class="token punctuation">)</span>
+
+<span class="token keyword">type</span> <span class="token constant">RGB</span> <span class="token operator">=</span>
+  <span class="token punctuation">{</span>
+    <span class="token hvariable">r</span> <span class="token operator">::</span> <span class="token constant">Int</span><span class="token punctuation">,</span>
+    <span class="token hvariable">g</span> <span class="token operator">::</span> <span class="token constant">Int</span><span class="token punctuation">,</span>
+    <span class="token hvariable">b</span> <span class="token operator">::</span> <span class="token constant">Int</span>
+  <span class="token punctuation">}</span>
+
+<span class="token hvariable">constructRGB</span> <span class="token operator">::</span> <span class="token constant">Array</span> <span class="token constant">Int</span> <span class="token operator">-></span> <span class="token constant">Maybe</span> <span class="token constant">RGB</span>
+<span class="token hvariable">constructRGB</span> <span class="token punctuation">[</span> <span class="token hvariable">r</span><span class="token punctuation">,</span> <span class="token hvariable">g</span><span class="token punctuation">,</span> <span class="token hvariable">b</span> <span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token constant">Just</span> <span class="token punctuation">{</span> <span class="token hvariable">r</span><span class="token operator">:</span> <span class="token hvariable">r</span><span class="token punctuation">,</span> <span class="token hvariable">g</span><span class="token operator">:</span> <span class="token hvariable">g</span><span class="token punctuation">,</span> <span class="token hvariable">b</span><span class="token operator">:</span> <span class="token hvariable">b</span> <span class="token punctuation">}</span>
+<span class="token hvariable">constructRGB</span> <span class="token hvariable">_</span> <span class="token operator">=</span> <span class="token constant">Nothing</span>
+
+<span class="token hvariable">hex2rgb</span> <span class="token operator">::</span> <span class="token constant">String</span> <span class="token operator">-></span> <span class="token constant">Nullable</span> <span class="token constant">RGB</span>
+<span class="token hvariable">hex2rgb</span> <span class="token hvariable">hexString</span> <span class="token operator">=</span>
+  <span class="token hvariable">toNullable</span> <span class="token operator">$</span>
+  <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token hvariable">hush</span> <span class="token operator">>>></span> <span class="token hvariable">join</span><span class="token punctuation">)</span> <span class="token operator">$</span> <span class="token punctuation">(</span><span class="token hvariable">regex</span> <span class="token string">"^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$"</span> <span class="token hvariable">ignoreCase</span><span class="token punctuation">)</span> <span class="token operator">&lt;#></span> <span class="token punctuation">(</span><span class="token operator">\</span><span class="token hvariable">re</span> <span class="token operator">-></span> <span class="token punctuation">(</span><span class="token hvariable">match</span> <span class="token hvariable">re</span> <span class="token hvariable">hexString</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+  <span class="token operator">&lt;#></span> <span class="token punctuation">(</span><span class="token builtin">drop</span> <span class="token number">1</span><span class="token punctuation">)</span>
+  <span class="token operator">&lt;#></span> <span class="token hvariable">catMaybes</span>
+  <span class="token operator">&lt;#></span> <span class="token punctuation">(</span><span class="token builtin">map</span> <span class="token punctuation">(</span><span class="token hvariable">fromStringAs</span> <span class="token hvariable">hexadecimal</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+  <span class="token operator">&lt;#></span> <span class="token hvariable">catMaybes</span>
+  <span class="token operator">>>=</span> <span class="token hvariable">constructRGB</span>
+</code></pre>
+<h3 id="f">F#</h3>
+<pre><code class="language-fsharp"><span class="token keyword">module</span> DarkenColor
+
+<span class="token keyword">open</span> System<span class="token punctuation">.</span>Text<span class="token punctuation">.</span>RegularExpressions
+
+<span class="token keyword">type</span> <span class="token class-name">RGBType</span> <span class="token operator">=</span> <span class="token punctuation">{</span> r<span class="token punctuation">:</span> <span class="token class-name">int16</span><span class="token punctuation">;</span> g<span class="token punctuation">:</span> <span class="token class-name">int16</span><span class="token punctuation">;</span> b<span class="token punctuation">:</span> <span class="token class-name">int16</span> <span class="token punctuation">}</span>
+
+<span class="token keyword">let</span> hex2rgb <span class="token punctuation">(</span>hex<span class="token punctuation">:</span> <span class="token class-name">string</span><span class="token punctuation">)</span> <span class="token operator">=</span>
+    <span class="token keyword">let</span> m <span class="token operator">=</span> Regex<span class="token punctuation">.</span><span class="token function">Match</span><span class="token punctuation">(</span>hex<span class="token punctuation">,</span> <span class="token string">"^#?([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$"</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> m<span class="token punctuation">.</span>Success <span class="token keyword">then</span>
+        m<span class="token punctuation">.</span>Groups
+        <span class="token operator">|></span> Seq<span class="token punctuation">.</span>cast<span class="token operator">&lt;</span>Group<span class="token operator">></span>
+        <span class="token operator">|></span> Seq<span class="token punctuation">.</span>skip <span class="token number">1</span> <span class="token comment">// zero capture group is always the full string, when it matches</span>
+        <span class="token operator">|></span> Seq<span class="token punctuation">.</span>map <span class="token punctuation">(</span><span class="token keyword">fun</span> m <span class="token operator">-></span> m<span class="token punctuation">.</span>Value<span class="token punctuation">)</span>
+        <span class="token operator">|></span> Seq<span class="token punctuation">.</span>map <span class="token punctuation">(</span><span class="token keyword">fun</span> x <span class="token operator">-></span> System<span class="token punctuation">.</span>Convert<span class="token punctuation">.</span><span class="token function">ToInt16</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token operator">|></span> Seq<span class="token punctuation">.</span>toList
+        <span class="token operator">|></span> <span class="token punctuation">(</span><span class="token keyword">function</span>
+            <span class="token operator">|</span> r <span class="token operator">::</span> g <span class="token operator">::</span> b <span class="token operator">::</span> <span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">-></span> <span class="token computation-expression keyword">Some</span> <span class="token punctuation">{</span> r <span class="token operator">=</span> r<span class="token punctuation">;</span> g <span class="token operator">=</span> g<span class="token punctuation">;</span> b <span class="token operator">=</span> b <span class="token punctuation">}</span>
+            <span class="token operator">|</span> _ <span class="token operator">-></span> None<span class="token punctuation">)</span>
+    <span class="token keyword">else</span> None
+</code></pre>
+<h3 id="typescript">TypeScript</h3>
+<pre><code class="language-ts"><span class="token keyword">interface</span> <span class="token class-name">RGBType</span> <span class="token punctuation">{</span>
+  r<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">;</span>
+  g<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">;</span>
+  b<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">/**
+  * Converts a HEX color value to RGB by extracting R, G and B values from string using regex.
+  * Returns r, g, and b values in range [0, 255]. Does not support RGBA colors just yet.
+  *
+  * @param hex The color value
+  * @returns The RGB representation or {@code null} if the string value is invalid
+  */</span>
+<span class="token keyword">const</span> hex2rgb <span class="token operator">=</span> <span class="token punctuation">(</span>hex<span class="token operator">:</span> <span class="token builtin">string</span><span class="token punctuation">)</span><span class="token operator">:</span> RGBType <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token comment">// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")</span>
+  <span class="token keyword">const</span> shorthandRegex <span class="token operator">=</span> <span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">^#?([a-f\d])([a-f\d])([a-f\d])$</span><span class="token regex-delimiter">/</span><span class="token regex-flags">i</span></span><span class="token punctuation">;</span>
+
+  hex <span class="token operator">=</span> hex<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span>shorthandRegex<span class="token punctuation">,</span> <span class="token punctuation">(</span>_match<span class="token punctuation">,</span> r<span class="token punctuation">,</span> g<span class="token punctuation">,</span> b<span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> r <span class="token operator">+</span> r <span class="token operator">+</span> g <span class="token operator">+</span> g <span class="token operator">+</span> b <span class="token operator">+</span> b<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">const</span> result <span class="token operator">=</span> <span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$</span><span class="token regex-delimiter">/</span><span class="token regex-flags">i</span></span><span class="token punctuation">.</span><span class="token function">exec</span><span class="token punctuation">(</span>hex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>result<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">undefined</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">{</span>
+    r<span class="token operator">:</span> <span class="token function">parseInt</span><span class="token punctuation">(</span>result<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    g<span class="token operator">:</span> <span class="token function">parseInt</span><span class="token punctuation">(</span>result<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    b<span class="token operator">:</span> <span class="token function">parseInt</span><span class="token punctuation">(</span>result<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token punctuation">{</span> hex2rgb <span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="elm">Elm</h3>
+<pre><code class="language-haskell"><span class="token keyword">module</span> <span class="token constant">DarkenColor</span> <span class="token hvariable">exposing</span> <span class="token punctuation">(</span><span class="token operator">..</span><span class="token punctuation">)</span>
+
+<span class="token import-statement"><span class="token keyword">import</span> List</span>
+<span class="token import-statement"><span class="token keyword">import</span> Maybe</span>
+<span class="token import-statement"><span class="token keyword">import</span> Maybe<span class="token punctuation">.</span>Extra</span>
+<span class="token import-statement"><span class="token keyword">import</span> Regex</span>
+
+<span class="token keyword">type</span> <span class="token hvariable">alias</span> <span class="token constant">RGBType</span> <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token hvariable">r</span><span class="token operator">:</span> <span class="token constant">Int</span><span class="token punctuation">,</span> <span class="token hvariable">g</span><span class="token operator">:</span> <span class="token constant">Int</span><span class="token punctuation">,</span> <span class="token hvariable">b</span><span class="token operator">:</span> <span class="token constant">Int</span> <span class="token punctuation">}</span>
+
+<span class="token hvariable">hex2rgb</span> <span class="token operator">:</span> <span class="token constant">String</span> <span class="token operator">-></span> <span class="token constant">Maybe</span> <span class="token constant">RGBType</span>
+<span class="token hvariable">hex2rgb</span> <span class="token hvariable">hex</span> <span class="token operator">=</span>
+    <span class="token hvariable">Regex<span class="token punctuation">.</span>fromString</span> <span class="token string">"^#?([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$"</span>
+        <span class="token operator">|></span> <span class="token constant">Maybe</span><span class="token punctuation">.</span><span class="token builtin">map</span> <span class="token punctuation">(</span><span class="token operator">\</span><span class="token hvariable">regex</span> <span class="token operator">-></span> <span class="token hvariable">Regex<span class="token punctuation">.</span>find</span> <span class="token hvariable">regex</span> <span class="token hvariable">hex</span><span class="token punctuation">)</span>
+        <span class="token operator">|></span> <span class="token constant">Maybe</span><span class="token punctuation">.</span><span class="token builtin">map</span> <span class="token punctuation">(</span><span class="token constant">List</span><span class="token punctuation">.</span><span class="token builtin">map</span> <span class="token punctuation">.</span><span class="token hvariable">match</span><span class="token punctuation">)</span>
+        <span class="token operator">|></span> <span class="token constant">Maybe</span><span class="token punctuation">.</span><span class="token builtin">map</span> <span class="token punctuation">(</span><span class="token constant">List</span><span class="token punctuation">.</span><span class="token builtin">map</span> <span class="token constant">String</span><span class="token punctuation">.</span><span class="token builtin">toInt</span><span class="token punctuation">)</span>
+        <span class="token operator">|></span> <span class="token hvariable">Maybe<span class="token punctuation">.</span>andThen</span> <span class="token punctuation">(</span><span class="token hvariable">Maybe<span class="token punctuation">.</span>Extra<span class="token punctuation">.</span>combine</span><span class="token punctuation">)</span>
+        <span class="token operator">|></span> <span class="token hvariable">Maybe<span class="token punctuation">.</span>andThen</span> <span class="token hvariable">constructRGB</span>
+
+<span class="token hvariable">constructRGB</span> <span class="token hvariable">list</span> <span class="token operator">=</span>
+    <span class="token keyword">case</span> <span class="token hvariable">list</span> <span class="token keyword">of</span>
+        <span class="token punctuation">[</span> <span class="token hvariable">r</span><span class="token punctuation">,</span> <span class="token hvariable">g</span><span class="token punctuation">,</span> <span class="token hvariable">b</span> <span class="token punctuation">]</span> <span class="token operator">-></span> <span class="token constant">Maybe<span class="token punctuation">.</span>Just</span> <span class="token punctuation">{</span> <span class="token hvariable">r</span> <span class="token operator">=</span> <span class="token hvariable">r</span><span class="token punctuation">,</span> <span class="token hvariable">g</span> <span class="token operator">=</span> <span class="token hvariable">g</span><span class="token punctuation">,</span> <span class="token hvariable">b</span> <span class="token operator">=</span> <span class="token hvariable">b</span> <span class="token punctuation">}</span>
+        <span class="token hvariable">_</span> <span class="token operator">-></span> <span class="token constant">Maybe<span class="token punctuation">.</span>Nothing</span>
+</code></pre>
+<p>For fair comparison, the implementation is kept same (no platform-specific code, except <code>Option</code> in functional languages) and every single bundle is processed with Webpack 4.</p>
+<p>The test checks both the result and the assumes no exception is thrown, even when the input is incorrect.
+For the interest sake, the exceptions thrown as well as bundle sizes will be listed below.</p>
+</div>
+
+        <a href="/strongly-typed-front-end/experiment-1/2021-04-19-experiment-1.md" class="btn svelte-7idbpu">Read more</a>
+</article></main>
+
+    <footer class="svelte-1gr3n62"><nav class="bottom svelte-14ldwbd">
+
+    <div class="current svelte-14ldwbd">Page #1 of 9</div>
+
+    <div class="next svelte-14ldwbd"><a href="/page2.html" class="next svelte-14ldwbd">Next page →</a></div>
+</nav></footer>
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

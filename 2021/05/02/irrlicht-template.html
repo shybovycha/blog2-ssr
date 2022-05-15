@@ -1,0 +1,1046 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Irrlicht application template</h1>
+
+    <time>02 May 2021 at 04:00</time>
+
+    <div class="content"><p>Often when I start revising my old applicaitons with Irrlicht engine, I do few things very similarly.
+Especially when the application contains GUI and uses Irrlicht tools for it.</p>
+<p>This is mostly due to the <strong>extremely</strong> outdated nature of Irrlicht itself.
+There are all sorts of things in it like the lack of 4K monitors support, the use of a very obscure font,
+sample applications being a simple yet messy single CPP files, etc.</p>
+<p>The common things I do include:</p>
+<ul>
+<li>using new C++ standard features such as:<ul>
+<li>shared pointers</li>
+<li>automatic type inference</li>
+<li>standard containers</li>
+<li>C++-style string operations</li>
+</ul>
+</li>
+<li>setting the new font for GUI, adopted to higher screen resolutions</li>
+<li>using CMake to build the project and vcpkg to manage dependencies</li>
+<li>utilizing object-oriented approach</li>
+<li>moving the classes to separate header and CPP files</li>
+</ul>
+<p>In this blog I describe in bloody detail what I do and why.</p>
+<!--more-->
+
+<h2 id="application-structure">Application structure</h2>
+<p>First of all, applicaiton structure is:</p>
+<ol>
+<li><code>main.cpp</code> - only instantiates the <code>Application</code> class and calls its <code>run()</code> method (the only public API of the <code>Application</code> class)</li>
+<li><code>Application</code> class - has two purposes:</li>
+<li>initialize Irrlicht sub-systems (device, GUI, renderer, scene manager, etc.)</li>
+<li>runs the main application loop, but delegate all the business logic to the <code>ApplicationDelegate</code> class</li>
+<li><code>ApplicaitonDelegate</code> - does a bit more than <code>Application</code>:</li>
+</ol>
+<ul>
+<li>loads resources</li>
+<li>resets default GUI settings</li>
+<li>creates the camera</li>
+<li>defines (user) events callbacks (handling business logic of the application)</li>
+<li>handles every frame update (rendering, third-party systems’ updates such as physics, AI, math, etc.)</li>
+</ul>
+<ol start="4">
+<li><code>IrrlichtEventReceiver</code> - intercepts Irrlicht-specific events and delegates the execution to a corresponding event handler from <code>ApplicationDelegate</code></li>
+</ol>
+<p>For my <a href="https://github.com/shybovycha/shoot-them/">ShootThem! game</a> I have also defined game state in a somewhat interesting manner, uncommon for game development - utilizing the principles
+of Redux from front-end, since it made sense to me back in the day - user and application trigger events, event receiver delegates them to the application delegate,
+which returns a new state and passes the state back to the store, application uses the state to render things on the screen.</p>
+<p>For a more complicated application it might be easier to use the state machine approach instead, which is a common approach in gamedev.</p>
+<h2 id="build-system">Build system</h2>
+<p>Back to the topic of the application template, it is, again, a common practice in a modern (C++) world to use some sort of a build system and dependency manager.
+The reason being the simplicity of setup and deploy, abstraction from dependencies’ build process, ease of distribution.
+Makefiles do not really play well with Windows-based systems, for example. Whilst vcproj / mssys build is hard to get right on Unix-based systems.
+And handling dependencies is a pain in the neck when dependencies themselves have different build processes and transient dependencies.</p>
+<p>Hence I stick with CMake for the overall application build process (although I honestly hate it, since it is so bloated and cumbersome)
+and vcpkg to get dependencies for my applications.</p>
+<h3 id="cmake-configuration">CMake configuration</h3>
+<p>The main entry point of an application build process is the <code>CMakeLists.txt</code> file, which defines how the application is built.</p>
+<p>Following the best practices collected all over the world (conference talks, <em>recent</em> blogs, etc. - the existing documentation for CMake is horrible in that regard it 
+shows off the <strong>bad practices</strong> and utilizes the outdated approaches), her is what I came up with:</p>
+<pre><code class="language-cmake"><span class="token keyword">cmake_minimum_required</span><span class="token punctuation">(</span><span class="token property">VERSION</span> <span class="token number">3.16</span> FATAL_ERROR<span class="token punctuation">)</span>
+
+<span class="token keyword">project</span><span class="token punctuation">(</span>myapplication <span class="token property">VERSION</span> <span class="token number">1.0.1</span> LANGUAGES CXX<span class="token punctuation">)</span>
+
+<span class="token keyword">set</span><span class="token punctuation">(</span>EXECUTABLE_NAME myapplication<span class="token punctuation">)</span>
+
+<span class="token keyword">set</span><span class="token punctuation">(</span><span class="token property">SOURCES</span>
+    <span class="token string">"src/main.cpp"</span>
+    <span class="token string">"src/ApplicationDelegate.h"</span>
+    <span class="token string">"src/ApplicationDelegate.cpp"</span>
+    <span class="token string">"src/IrrlichtEventReceiver.h"</span>
+    <span class="token string">"src/IrrlichtEventReceiver.cpp"</span>
+    <span class="token string">"src/Application.h"</span>
+    <span class="token string">"src/Application.cpp"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">add_executable</span><span class="token punctuation">(</span><span class="token punctuation">${</span>EXECUTABLE_NAME<span class="token punctuation">}</span> <span class="token punctuation">${</span><span class="token property">SOURCES</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<h2 id="vcpkg-configuration">VCPKG configuration</h2>
+<p>VCPKG <em>can</em> use the configuration file when invoked with params swithing it to the <em>manifest mode</em>. I am unsure why this is not the default mode until now, but it is what it is.</p>
+<p>Anyways, the <code>vcpkg.json</code> file looks like this:</p>
+<pre><code class="language-json"><span class="token punctuation">{</span>
+    <span class="token property">"$schema"</span><span class="token operator">:</span> <span class="token string">"https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json"</span><span class="token punctuation">,</span>
+    <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"myapplication"</span><span class="token punctuation">,</span>
+    <span class="token property">"version-string"</span><span class="token operator">:</span> <span class="token string">"0.1.0"</span><span class="token punctuation">,</span>
+    <span class="token property">"dependencies"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+        <span class="token string">"irrlicht"</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>When invoked from a command line, vcpkg will tell you what you should add to your <code>CMakeLists.txt</code> file to find the package you’ve just installed:</p>
+<pre><code class="language-bash">$ <span class="token function">vcpkg</span> <span class="token function">install</span> irrlicht
+Computing installation plan<span class="token punctuation">..</span>.
+The following packages are already installed:
+    irrlicht<span class="token punctuation">[</span>core<span class="token punctuation">]</span>:x86-windows -<span class="token operator">></span> <span class="token number">1.8</span>.4-10
+Package irrlicht:x86-windows is already installed
+
+Total elapsed time: <span class="token number">214.7</span> us
+
+The package irrlicht:x86-windows provides CMake targets:
+
+    find_package<span class="token punctuation">(</span>irrlicht CONFIG REQUIRED<span class="token punctuation">)</span>
+    target_link_libraries<span class="token punctuation">(</span>main PRIVATE Irrlicht<span class="token punctuation">)</span>
+</code></pre>
+<p>Just follow these instructions and add those lines to the <code>CMakeLists.txt</code> file:</p>
+<pre><code class="language-cmake"><span class="token keyword">cmake_minimum_required</span><span class="token punctuation">(</span><span class="token property">VERSION</span> <span class="token number">3.16</span> FATAL_ERROR<span class="token punctuation">)</span>
+
+<span class="token keyword">project</span><span class="token punctuation">(</span>myapplication <span class="token property">VERSION</span> <span class="token number">1.0.1</span> LANGUAGES CXX<span class="token punctuation">)</span>
+
+<span class="token keyword">set</span><span class="token punctuation">(</span>EXECUTABLE_NAME myapplication<span class="token punctuation">)</span>
+
+<span class="token keyword">set</span><span class="token punctuation">(</span><span class="token property">SOURCES</span>
+    <span class="token string">"src/main.cpp"</span>
+    <span class="token string">"src/ApplicationDelegate.h"</span>
+    <span class="token string">"src/ApplicationDelegate.cpp"</span>
+    <span class="token string">"src/IrrlichtEventReceiver.h"</span>
+    <span class="token string">"src/IrrlichtEventReceiver.cpp"</span>
+    <span class="token string">"src/Application.h"</span>
+    <span class="token string">"src/Application.cpp"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">add_executable</span><span class="token punctuation">(</span><span class="token punctuation">${</span>EXECUTABLE_NAME<span class="token punctuation">}</span> <span class="token punctuation">${</span><span class="token property">SOURCES</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+<span class="token keyword">find_package</span><span class="token punctuation">(</span>irrlicht CONFIG REQUIRED<span class="token punctuation">)</span>
+<span class="token keyword">target_link_libraries</span><span class="token punctuation">(</span><span class="token punctuation">${</span>EXECUTABLE_NAME<span class="token punctuation">}</span> <span class="token namespace">PRIVATE</span> Irrlicht<span class="token punctuation">)</span>
+</code></pre>
+<h3 id="building">Building</h3>
+<p>The only trick to building the project with vcpkg is the invocation of CMake:</p>
+<pre><code class="language-bash">cmake -B build -S <span class="token builtin class-name">.</span>  -DCMAKE_TOOLCHAIN_FILE<span class="token operator">=</span>C:<span class="token punctuation">\</span>Users<span class="token punctuation">\</span>myuser<span class="token punctuation">\</span>vcpkg<span class="token punctuation">\</span>vcpkg<span class="token punctuation">\</span>scripts<span class="token punctuation">\</span>buildsystems<span class="token punctuation">\</span>vcpkg.cmake
+</code></pre>
+<p>This will download all the dependencies specified in the <code>vcpkg.json</code> file and generate the project for the corresponding build system.</p>
+<p>The build process then is straightforward:</p>
+<pre><code class="language-bash">cmake --build build
+</code></pre>
+<h2 id="source">Source</h2>
+<p>The sources for the application units mentioned above are:</p>
+<h3 id="maincpp"><code>main.cpp</code></h3>
+<pre><code class="language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">"Application.h"</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;memory></span></span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    std<span class="token double-colon punctuation">::</span>unique_ptr<span class="token operator">&lt;</span>Application<span class="token operator">></span> app <span class="token operator">=</span> std<span class="token double-colon punctuation">::</span><span class="token generic-function"><span class="token function">make_unique</span><span class="token generic class-name"><span class="token operator">&lt;</span>Application<span class="token operator">></span></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    app<span class="token operator">-></span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="applicationh"><code>Application.h</code></h3>
+<pre><code class="language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">once</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">"ApplicationDelegate.h"</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">"IrrlichtEventReceiver.h"</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;irrlicht.h></span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;iostream></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;string></span></span>
+
+<span class="token keyword">class</span> <span class="token class-name">Application</span> <span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+    <span class="token function">Application</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">private</span><span class="token operator">:</span>
+    <span class="token keyword">void</span> <span class="token function">initialize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    irr<span class="token double-colon punctuation">::</span>IrrlichtDevice<span class="token operator">*</span> device<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>video<span class="token double-colon punctuation">::</span>IVideoDriver<span class="token operator">*</span> driver<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>scene<span class="token double-colon punctuation">::</span>ISceneManager<span class="token operator">*</span> smgr<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIEnvironment<span class="token operator">*</span> guienv<span class="token punctuation">;</span>
+
+    std<span class="token double-colon punctuation">::</span>shared_ptr<span class="token operator">&lt;</span>ApplicationDelegate<span class="token operator">></span> applicationDelegate<span class="token punctuation">;</span>
+    std<span class="token double-colon punctuation">::</span>unique_ptr<span class="token operator">&lt;</span>IrrlichtEventReceiver<span class="token operator">></span> eventReceiver<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="applicationcpp"><code>Application.cpp</code></h3>
+<pre><code class="language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">"Application.h"</span></span>
+
+<span class="token class-name">Application</span><span class="token double-colon punctuation">::</span><span class="token function">Application</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token class-name">Application</span><span class="token double-colon punctuation">::</span><span class="token function">initialize</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    device <span class="token operator">=</span> irr<span class="token double-colon punctuation">::</span><span class="token function">createDevice</span><span class="token punctuation">(</span>
+        irr<span class="token double-colon punctuation">::</span>video<span class="token double-colon punctuation">::</span>EDT_OPENGL<span class="token punctuation">,</span>
+        irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span><span class="token generic-function"><span class="token function">dimension2d</span><span class="token generic class-name"><span class="token operator">&lt;</span>irr<span class="token double-colon punctuation">::</span>u32<span class="token operator">></span></span></span><span class="token punctuation">(</span><span class="token number">1024</span><span class="token punctuation">,</span> <span class="token number">768</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token number">32</span><span class="token punctuation">,</span>
+        <span class="token boolean">false</span><span class="token punctuation">,</span>
+        <span class="token boolean">false</span><span class="token punctuation">,</span>
+        <span class="token boolean">true</span><span class="token punctuation">,</span>
+        <span class="token number">0</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>device<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        std<span class="token double-colon punctuation">::</span>cerr <span class="token operator">&lt;&lt;</span> <span class="token string">"Could not initialize video device\n"</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    device<span class="token operator">-></span><span class="token function">setWindowCaption</span><span class="token punctuation">(</span>L<span class="token string">"irrPaint3D"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    driver <span class="token operator">=</span> device<span class="token operator">-></span><span class="token function">getVideoDriver</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    smgr <span class="token operator">=</span> device<span class="token operator">-></span><span class="token function">getSceneManager</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    guienv <span class="token operator">=</span> device<span class="token operator">-></span><span class="token function">getGUIEnvironment</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    applicationDelegate <span class="token operator">=</span> std<span class="token double-colon punctuation">::</span><span class="token generic-function"><span class="token function">make_shared</span><span class="token generic class-name"><span class="token operator">&lt;</span>ApplicationDelegate<span class="token operator">></span></span></span><span class="token punctuation">(</span>device<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    applicationDelegate<span class="token operator">-></span><span class="token function">initialize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    eventReceiver <span class="token operator">=</span> std<span class="token double-colon punctuation">::</span><span class="token generic-function"><span class="token function">make_unique</span><span class="token generic class-name"><span class="token operator">&lt;</span>IrrlichtEventReceiver<span class="token operator">></span></span></span><span class="token punctuation">(</span>applicationDelegate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    device<span class="token operator">-></span><span class="token function">setEventReceiver</span><span class="token punctuation">(</span>eventReceiver<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token class-name">Application</span><span class="token double-colon punctuation">::</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">initialize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">while</span> <span class="token punctuation">(</span>device<span class="token operator">-></span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>device<span class="token operator">-></span><span class="token function">isWindowActive</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token operator">!</span>device<span class="token operator">-></span><span class="token function">isWindowFocused</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">||</span> device<span class="token operator">-></span><span class="token function">isWindowMinimized</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">continue</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        applicationDelegate<span class="token operator">-></span><span class="token function">update</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    device<span class="token operator">-></span><span class="token function">drop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="applicationdelegateh"><code>ApplicationDelegate.h</code></h3>
+<pre><code class="language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">once</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;fstream></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;iostream></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;memory></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;queue></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;sstream></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;string></span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;irrlicht.h></span></span>
+
+<span class="token keyword">class</span> <span class="token class-name">ApplicationDelegate</span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+    <span class="token function">ApplicationDelegate</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>IrrlichtDevice<span class="token operator">*</span> _device<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">void</span> <span class="token function">initialize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">void</span> <span class="token function">update</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// event callbacks</span>
+
+    <span class="token keyword">void</span> <span class="token function">quit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">private</span><span class="token operator">:</span>
+    <span class="token keyword">void</span> <span class="token function">initGUI</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">void</span> <span class="token function">loadGUI</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">void</span> <span class="token function">resetFont</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIElement<span class="token operator">*</span> <span class="token function">getElementByName</span><span class="token punctuation">(</span><span class="token keyword">const</span> std<span class="token double-colon punctuation">::</span>string<span class="token operator">&amp;</span> name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIElement<span class="token operator">*</span> <span class="token function">getElementByName</span><span class="token punctuation">(</span><span class="token keyword">const</span> std<span class="token double-colon punctuation">::</span>string<span class="token operator">&amp;</span> name<span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIElement<span class="token operator">*</span> parent<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    irr<span class="token double-colon punctuation">::</span>IrrlichtDevice<span class="token operator">*</span> device<span class="token punctuation">;</span>
+
+    irr<span class="token double-colon punctuation">::</span>video<span class="token double-colon punctuation">::</span>IVideoDriver<span class="token operator">*</span> driver<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>scene<span class="token double-colon punctuation">::</span>ISceneManager<span class="token operator">*</span> smgr<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIEnvironment<span class="token operator">*</span> guienv<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>scene<span class="token double-colon punctuation">::</span>ICameraSceneNode<span class="token operator">*</span> camera<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="applicationdelegatecpp"><code>ApplicationDelegate.cpp</code></h3>
+<pre><code class="language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">"ApplicationDelegate.h"</span></span>
+
+<span class="token class-name">ApplicationDelegate</span><span class="token double-colon punctuation">::</span><span class="token function">ApplicationDelegate</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>IrrlichtDevice<span class="token operator">*</span> _device<span class="token punctuation">)</span> <span class="token operator">:</span>
+    <span class="token function">device</span><span class="token punctuation">(</span>_device<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">smgr</span><span class="token punctuation">(</span>device<span class="token operator">-></span><span class="token function">getSceneManager</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">guienv</span><span class="token punctuation">(</span>device<span class="token operator">-></span><span class="token function">getGUIEnvironment</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">driver</span><span class="token punctuation">(</span>device<span class="token operator">-></span><span class="token function">getVideoDriver</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">camera</span><span class="token punctuation">(</span><span class="token keyword">nullptr</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token class-name">ApplicationDelegate</span><span class="token double-colon punctuation">::</span><span class="token function">initialize</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    camera <span class="token operator">=</span> smgr<span class="token operator">-></span><span class="token function">addCameraSceneNode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">initGUI</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token class-name">ApplicationDelegate</span><span class="token double-colon punctuation">::</span><span class="token function">initGUI</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token function">loadGUI</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">resetFont</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">createToolbar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token class-name">ApplicationDelegate</span><span class="token double-colon punctuation">::</span><span class="token function">loadGUI</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    guienv<span class="token operator">-></span><span class="token function">loadGUI</span><span class="token punctuation">(</span><span class="token string">"media/gui.xml"</span><span class="token punctuation">,</span> <span class="token keyword">nullptr</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIElement<span class="token operator">*</span> <span class="token class-name">ApplicationDelegate</span><span class="token double-colon punctuation">::</span><span class="token function">getElementByName</span><span class="token punctuation">(</span><span class="token keyword">const</span> std<span class="token double-colon punctuation">::</span>string<span class="token operator">&amp;</span> name<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">getElementByName</span><span class="token punctuation">(</span>name<span class="token punctuation">,</span> guienv<span class="token operator">-></span><span class="token function">getRootGUIElement</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIElement<span class="token operator">*</span> <span class="token class-name">ApplicationDelegate</span><span class="token double-colon punctuation">::</span><span class="token function">getElementByName</span><span class="token punctuation">(</span><span class="token keyword">const</span> std<span class="token double-colon punctuation">::</span>string<span class="token operator">&amp;</span> name<span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIElement<span class="token operator">*</span> parent<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    std<span class="token double-colon punctuation">::</span>queue<span class="token operator">&lt;</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIElement<span class="token operator">*</span><span class="token operator">></span> queue<span class="token punctuation">;</span>
+
+    queue<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>parent<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token operator">!</span>queue<span class="token punctuation">.</span><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">auto</span> currentElement <span class="token operator">=</span> queue<span class="token punctuation">.</span><span class="token function">front</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        queue<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">auto</span> currentElementName <span class="token operator">=</span> std<span class="token double-colon punctuation">::</span><span class="token function">string</span><span class="token punctuation">(</span>currentElement<span class="token operator">-></span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>name <span class="token operator">==</span> currentElementName<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> currentElement<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">auto</span> child <span class="token operator">:</span> currentElement<span class="token operator">-></span><span class="token function">getChildren</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            queue<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>child<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> <span class="token keyword">nullptr</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token class-name">ApplicationDelegate</span><span class="token double-colon punctuation">::</span><span class="token function">resetFont</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIFont<span class="token operator">*</span> font <span class="token operator">=</span> guienv<span class="token operator">-></span><span class="token function">getFont</span><span class="token punctuation">(</span><span class="token string">"media/calibri.xml"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    guienv<span class="token operator">-></span><span class="token function">getSkin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">setFont</span><span class="token punctuation">(</span>font<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token class-name">ApplicationDelegate</span><span class="token double-colon punctuation">::</span><span class="token function">quit</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    device<span class="token operator">-></span><span class="token function">closeDevice</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token class-name">ApplicationDelegate</span><span class="token double-colon punctuation">::</span><span class="token function">update</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    driver<span class="token operator">-></span><span class="token function">beginScene</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>video<span class="token double-colon punctuation">::</span><span class="token function">SColor</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">200</span><span class="token punctuation">,</span> <span class="token number">200</span><span class="token punctuation">,</span> <span class="token number">200</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    smgr<span class="token operator">-></span><span class="token function">drawAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    guienv<span class="token operator">-></span><span class="token function">drawAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    driver<span class="token operator">-></span><span class="token function">endScene</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Worth mentioning the two helpers I have added to this class:</p>
+<ul>
+<li><code>getElementByName(std::string name)</code></li>
+<li><code>getElementByName(std::string name, irr::gui::IGUIElement* parent)</code>,</li>
+</ul>
+<p>They are really a big help when working with GUI designed with out-of-the-box GUIEditor and has to do with Irrlicht specifics: any given
+GUI element in Irrlicht can have both ID (integer) or name (string). In the GUI editor you <em>can</em> specify both, but what you will end up with
+is trying to remember all those integers when both designing a GUI in the editor and later, when you write code for that GUI.</p>
+<p>One way to do it properly would be to automatically generate a mapping between GUI elements’ IDs and names and then use it in the application,
+but out-of-the-box GUI editor is not that sophisticated and you will have to do it by hand by analyzing the XML. That’s where the issue lies:
+if your GUI element does not have a name - good luch figuring out a name for it - was it a button X or a button Z?</p>
+<p>Hence I operate on elements’ names. They are nothing more than strings. This is a suboptimal solution, since recursively traversing the whole GUI
+and comparing each element’s string name to a given string is somewhat expensive, when done on every GUI event (think MouseMove event or something)
+or every frame (for whatever reason). But it gets the job done without the need to modify the GUIEditor itself.</p>
+<p>One other tricky thing with the out-of-the-box GUIEditor is the texture for GUI elements - the default value for <code>texture</code> attribute in the editor is <code>-1</code>,
+whatever that means so one must specify a relative path to a texture by hand and hope editor won’t crash
+(since it will try to load the file, if it is not present in the working directory of editor - it will throw an unhandled exception and die).
+Hence I manually edit the GUI XML file and specify the paths to the textures after I’m done designing the GUI.</p>
+<p>Also, since there is no out-of-the-box <code>SaveFileDialog</code> component (which is weird, since there is a <code>IGUIFileOpenDialog</code>,
+which could be easily extended to support opening files functionality), I often have to implement it by hand like
+<a href="http://irrlicht.sourceforge.net/forum/viewtopic.php?p=166255#p166255">described</a> by someone on the forums years ago (<code>2008</code> to be exact).
+See the details of its implementation <a href="#bonussavefiledialog">below</a>.</p>
+<p>The other detail is that the default font provided by Irrlicht is extremely old and looks ugly on modern high-resolution screens.
+Irrlicht does not work with TTF or other font types out-of-the-box, but uses a bitmap with all the supported characters instead.
+I converted one of the fonts available in my Windows system, <a href="https://docs.microsoft.com/en-us/typography/font-list/calibri">Calibri</a>,
+to a font map (PNG + XML file combo, consumable by Irrlicht) with the out-of-the-box <code>FontTool</code> provided by Irrlicht, by selecting
+the maximum available file dimensions, reasonable font size (<code>18px</code> in my case) and <strong>enabling the alpha</strong> for the font map (otherwise
+all the GUI elements will have ugly black background):</p>
+<LazyImg src="/images/irrlicht-template/fonttool.png" alt="FontTool configuration" />
+
+<p>Then the <code>resetFont</code> method of the <code>ApplicationDelegate</code> uses the new font for the whole application:</p>
+<pre><code class="language-cpp">irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIFont<span class="token operator">*</span> font <span class="token operator">=</span> guienv<span class="token operator">-></span><span class="token function">getFont</span><span class="token punctuation">(</span><span class="token string">"media/calibri.xml"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+guienv<span class="token operator">-></span><span class="token function">getSkin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">setFont</span><span class="token punctuation">(</span>font<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Note that you must store <strong>both</strong> PNG and XML files under the same directory (or specify the relative path to the font map (PNG) in the XML file by hand).</p>
+<p>It makes a significant difference in the looks of an application:</p>
+<p>Before:</p>
+<LazyImg src="/images/irrlicht-template/old-font-look.png" alt="FontTool configuration" />
+
+<p>After:</p>
+<LazyImg src="/images/irrlicht-template/new-font-look.png" alt="FontTool configuration" />
+
+<h3 id="irrlichteventreceiverh"><code>IrrlichtEventReceiver.h</code></h3>
+<pre><code class="language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">once</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">"ApplicationDelegate.h"</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;memory></span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;irrlicht.h></span></span>
+
+<span class="token keyword">class</span> <span class="token class-name">IrrlichtEventReceiver</span> <span class="token operator">:</span> <span class="token base-clause"><span class="token keyword">public</span> irr<span class="token double-colon punctuation">::</span><span class="token class-name">IEventReceiver</span></span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+    <span class="token function">IrrlichtEventReceiver</span><span class="token punctuation">(</span>std<span class="token double-colon punctuation">::</span>shared_ptr<span class="token operator">&lt;</span>ApplicationDelegate<span class="token operator">></span> applicationDelegate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">bool</span> <span class="token function">OnEvent</span><span class="token punctuation">(</span><span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>SEvent<span class="token operator">&amp;</span> event<span class="token punctuation">)</span> <span class="token keyword">override</span><span class="token punctuation">;</span>
+
+<span class="token keyword">private</span><span class="token operator">:</span>
+    std<span class="token double-colon punctuation">::</span>shared_ptr<span class="token operator">&lt;</span>ApplicationDelegate<span class="token operator">></span> applicationDelegate<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="irrlichteventreceivercpp"><code>IrrlichtEventReceiver.cpp</code></h3>
+<pre><code class="language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">"IrrlichtEventReceiver.h"</span></span>
+
+<span class="token class-name">IrrlichtEventReceiver</span><span class="token double-colon punctuation">::</span><span class="token function">IrrlichtEventReceiver</span><span class="token punctuation">(</span>std<span class="token double-colon punctuation">::</span>shared_ptr<span class="token operator">&lt;</span>ApplicationDelegate<span class="token operator">></span> _applicationDelegate<span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token function">applicationDelegate</span><span class="token punctuation">(</span>std<span class="token double-colon punctuation">::</span><span class="token function">move</span><span class="token punctuation">(</span>_applicationDelegate<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">bool</span> <span class="token class-name">IrrlichtEventReceiver</span><span class="token double-colon punctuation">::</span><span class="token function">OnEvent</span><span class="token punctuation">(</span><span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>SEvent<span class="token operator">&amp;</span> event<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>EventType <span class="token operator">==</span> irr<span class="token double-colon punctuation">::</span>EET_KEY_INPUT_EVENT<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// handling CTRL+S</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>KeyInput<span class="token punctuation">.</span>Key <span class="token operator">==</span> irr<span class="token double-colon punctuation">::</span>KEY_KEY_S <span class="token operator">&amp;&amp;</span> event<span class="token punctuation">.</span>KeyInput<span class="token punctuation">.</span>Control<span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token comment">// applicationDelegate->saveSomething();</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>EventType <span class="token operator">==</span> irr<span class="token double-colon punctuation">::</span>EET_MOUSE_INPUT_EVENT<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// handling mouse movement</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span>Event <span class="token operator">==</span> irr<span class="token double-colon punctuation">::</span>EMIE_MOUSE_MOVED<span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token comment">// applicationDelegate->onMouseMoveSomething();</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="copying-resources">Copying resources</h2>
+<p>One more tricky thing with these applications is how to copy the resources (fonts, 3D assets, etc.) to the executable directory.
+In CMake this could be done by using this trick (so that it copies files at <strong>build time</strong> as opposed to <strong>generation time</strong>):</p>
+<pre><code class="language-cmake"><span class="token keyword">add_custom_command</span><span class="token punctuation">(</span>TARGET <span class="token punctuation">${</span>EXECUTABLE_NAME<span class="token punctuation">}</span> POST_BUILD COMMAND <span class="token punctuation">${</span><span class="token variable">CMAKE_COMMAND</span><span class="token punctuation">}</span> -E copy_directory  <span class="token punctuation">${</span><span class="token variable">CMAKE_CURRENT_LIST_DIR</span><span class="token punctuation">}</span>/media <span class="token punctuation">$&lt;</span>TARGET_FILE_DIR:<span class="token punctuation">${</span>EXECUTABLE_NAME<span class="token punctuation">}</span><span class="token punctuation">></span>/media<span class="token punctuation">)</span>
+</code></pre>
+<h2 id="bonus-savefiledialog">Bonus: <code>SaveFileDialog</code></h2>
+<p>This is something I implement in my own editors (like the <a href="https://github.com/shybovycha/shoot-them/tree/master/Editor">level editor for ShootThem!</a>).
+As mentioned above, this implementation takes its roots at <a href="http://irrlicht.sourceforge.net/forum/viewtopic.php?p=166255#p166255">this forum post by @pera</a> from 2008, which,
+is a fork itself of a <a href="http://irrlicht.sourceforge.net/forum/viewtopic.php?p=126280#p126280">code by @MolokoTheMole from 2007</a>, apparently.</p>
+<h3 id="savefiledialogh"><code>SaveFileDialog.h</code></h3>
+<pre><code class="language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">pragma</span> <span class="token expression">once</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;codecvt></span> <span class="token comment">// for converting wstring to string</span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;xlocbuf></span> <span class="token comment">// for converting wstring to string</span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;memory></span></span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;string></span></span>
+
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">&lt;irrlicht.h></span></span>
+
+<span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>s32 SAVE_FILE_DIALOG_WIDTH <span class="token operator">=</span> <span class="token number">350</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>s32 SAVE_FILE_DIALOG_HEIGHT <span class="token operator">=</span> <span class="token number">250</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">SaveFileDialog</span> <span class="token operator">:</span> <span class="token base-clause"><span class="token keyword">public</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span><span class="token class-name">IGUIFileOpenDialog</span></span>
+<span class="token punctuation">{</span>
+<span class="token keyword">public</span><span class="token operator">:</span>
+    <span class="token comment">//! constructor</span>
+    <span class="token function">SaveFileDialog</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">wchar_t</span><span class="token operator">*</span> title<span class="token punctuation">,</span>
+            irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIEnvironment<span class="token operator">*</span> environment<span class="token punctuation">,</span>
+            irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIElement<span class="token operator">*</span> parent<span class="token punctuation">,</span>
+            irr<span class="token double-colon punctuation">::</span>s32 id<span class="token punctuation">,</span>
+            <span class="token keyword">bool</span> restoreCWD <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+            irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path<span class="token double-colon punctuation">::</span>char_type<span class="token operator">*</span> startDir <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//! destructor</span>
+    <span class="token keyword">virtual</span> <span class="token operator">~</span><span class="token function">SaveFileDialog</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//! returns the filename of the selected file. Returns NULL, if no file was selected.</span>
+    <span class="token keyword">virtual</span> <span class="token keyword">const</span> <span class="token keyword">wchar_t</span><span class="token operator">*</span> <span class="token function">getFileName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">const</span> <span class="token keyword">override</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//! Returns the filename of the selected file. Is empty if no file was selected.</span>
+    <span class="token keyword">virtual</span> <span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path<span class="token operator">&amp;</span> <span class="token function">getFileNameP</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//! Returns the directory of the selected file. Returns NULL, if no directory was selected.</span>
+    <span class="token keyword">virtual</span> <span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path<span class="token operator">&amp;</span> <span class="token function">getDirectoryName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//! Returns the directory of the selected file converted to wide characters. Returns NULL if no directory was selected.</span>
+    <span class="token keyword">virtual</span> <span class="token keyword">const</span> <span class="token keyword">wchar_t</span><span class="token operator">*</span> <span class="token function">getDirectoryNameW</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">const</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//! called if an event happened.</span>
+    <span class="token keyword">virtual</span> <span class="token keyword">bool</span> <span class="token function">OnEvent</span><span class="token punctuation">(</span><span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>SEvent<span class="token operator">&amp;</span> event<span class="token punctuation">)</span> <span class="token keyword">override</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//! draws the element and its children</span>
+    <span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">draw</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">override</span><span class="token punctuation">;</span>
+
+<span class="token keyword">protected</span><span class="token operator">:</span>
+
+    <span class="token keyword">void</span> <span class="token function">setFileName</span><span class="token punctuation">(</span><span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path<span class="token operator">&amp;</span> name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">void</span> <span class="token function">setDirectoryName</span><span class="token punctuation">(</span><span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path<span class="token operator">&amp;</span> name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//! Ensure filenames are converted correct depending on wide-char settings</span>
+    <span class="token keyword">void</span> <span class="token function">pathToStringW</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>stringw<span class="token operator">&amp;</span> result<span class="token punctuation">,</span> <span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path<span class="token operator">&amp;</span> p<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//! fills the listbox with files.</span>
+    <span class="token keyword">void</span> <span class="token function">fillListBox</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//! sends the event that the file has been selected.</span>
+    <span class="token keyword">void</span> <span class="token function">sendSelectedEvent</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUI_EVENT_TYPE type<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">//! sends the event that the file choose process has been canceled</span>
+    <span class="token keyword">void</span> <span class="token function">sendCancelEvent</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>position2d<span class="token operator">&lt;</span>irr<span class="token double-colon punctuation">::</span>s32<span class="token operator">></span> DragStart<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path FileName<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>stringw FileNameW<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path FileDirectory<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path FileDirectoryFlat<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>stringw FileDirectoryFlatW<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path RestoreDirectory<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path StartDirectory<span class="token punctuation">;</span>
+
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIButton<span class="token operator">*</span> CloseButton<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIButton<span class="token operator">*</span> OKButton<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIButton<span class="token operator">*</span> CancelButton<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIListBox<span class="token operator">*</span> FileBox<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIEditBox<span class="token operator">*</span> FileNameText<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIElement<span class="token operator">*</span> EventParent<span class="token punctuation">;</span>
+
+    irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>IFileSystem<span class="token operator">*</span> FileSystem<span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>IFileList<span class="token operator">*</span> FileList<span class="token punctuation">;</span>
+
+    <span class="token keyword">bool</span> Dragging<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="savefiledialogcpp"><code>SaveFileDialog.cpp</code></h3>
+<pre><code class="language-cpp"><span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">include</span> <span class="token string">"SaveFileDialog.h"</span></span>
+
+<span class="token comment">//! constructor</span>
+<span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">SaveFileDialog</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">wchar_t</span><span class="token operator">*</span> title<span class="token punctuation">,</span>
+        irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIEnvironment<span class="token operator">*</span> environment<span class="token punctuation">,</span>
+        irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIElement<span class="token operator">*</span> parent<span class="token punctuation">,</span>
+        irr<span class="token double-colon punctuation">::</span>s32 id<span class="token punctuation">,</span>
+        <span class="token keyword">bool</span> restoreCWD<span class="token punctuation">,</span>
+        irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path<span class="token double-colon punctuation">::</span>char_type<span class="token operator">*</span> startDir<span class="token punctuation">)</span>
+        <span class="token operator">:</span> <span class="token function">IGUIFileOpenDialog</span><span class="token punctuation">(</span>
+        environment<span class="token punctuation">,</span>
+        parent<span class="token punctuation">,</span>
+        id<span class="token punctuation">,</span>
+        irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span><span class="token generic-function"><span class="token function">rect</span><span class="token generic class-name"><span class="token operator">&lt;</span>irr<span class="token double-colon punctuation">::</span>s32<span class="token operator">></span></span></span><span class="token punctuation">(</span>
+                <span class="token punctuation">(</span><span class="token punctuation">(</span>parent <span class="token operator">?</span> parent <span class="token operator">:</span> environment<span class="token operator">-></span><span class="token function">getRootGUIElement</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">getAbsolutePosition</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getWidth</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span>
+                 SAVE_FILE_DIALOG_WIDTH<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">,</span>
+                <span class="token punctuation">(</span><span class="token punctuation">(</span>parent <span class="token operator">?</span> parent <span class="token operator">:</span> environment<span class="token operator">-></span><span class="token function">getRootGUIElement</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">getAbsolutePosition</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getHeight</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span>
+                 SAVE_FILE_DIALOG_HEIGHT<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">,</span>
+                <span class="token punctuation">(</span><span class="token punctuation">(</span>parent <span class="token operator">?</span> parent <span class="token operator">:</span> environment<span class="token operator">-></span><span class="token function">getRootGUIElement</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">getAbsolutePosition</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getWidth</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span>
+                 SAVE_FILE_DIALOG_WIDTH<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">+</span> SAVE_FILE_DIALOG_WIDTH<span class="token punctuation">,</span>
+                <span class="token punctuation">(</span><span class="token punctuation">(</span>parent <span class="token operator">?</span> parent <span class="token operator">:</span> environment<span class="token operator">-></span><span class="token function">getRootGUIElement</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">-></span><span class="token function">getAbsolutePosition</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getHeight</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span>
+                 SAVE_FILE_DIALOG_HEIGHT<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">+</span> SAVE_FILE_DIALOG_HEIGHT<span class="token punctuation">)</span>
+<span class="token punctuation">)</span><span class="token punctuation">,</span>
+          <span class="token function">FileNameText</span><span class="token punctuation">(</span><span class="token keyword">nullptr</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+          <span class="token function">FileList</span><span class="token punctuation">(</span><span class="token keyword">nullptr</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+          <span class="token function">Dragging</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifdef</span> <span class="token expression">_DEBUG</span></span>
+    <span class="token class-name">IGUIElement</span><span class="token double-colon punctuation">::</span><span class="token function">setDebugName</span><span class="token punctuation">(</span><span class="token string">"SaveFileDialog"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+
+    Text <span class="token operator">=</span> title<span class="token punctuation">;</span>
+
+    FileSystem <span class="token operator">=</span> Environment <span class="token operator">?</span> Environment<span class="token operator">-></span><span class="token function">getFileSystem</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token keyword">nullptr</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>FileSystem<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        FileSystem<span class="token operator">-></span><span class="token function">grab</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>restoreCWD<span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            RestoreDirectory <span class="token operator">=</span> FileSystem<span class="token operator">-></span><span class="token function">getWorkingDirectory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>startDir<span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            StartDirectory <span class="token operator">=</span> startDir<span class="token punctuation">;</span>
+            FileSystem<span class="token operator">-></span><span class="token function">changeWorkingDirectoryTo</span><span class="token punctuation">(</span>startDir<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">else</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUISpriteBank<span class="token operator">*</span> sprites <span class="token operator">=</span> <span class="token keyword">nullptr</span><span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>video<span class="token double-colon punctuation">::</span>SColor <span class="token function">color</span><span class="token punctuation">(</span><span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">,</span> <span class="token number">255</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUISkin<span class="token operator">*</span> skin <span class="token operator">=</span> Environment<span class="token operator">-></span><span class="token function">getSkin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>skin<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        sprites <span class="token operator">=</span> skin<span class="token operator">-></span><span class="token function">getSpriteBank</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        color <span class="token operator">=</span> skin<span class="token operator">-></span><span class="token function">getColor</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDC_WINDOW_SYMBOL<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>s32 buttonw <span class="token operator">=</span> skin <span class="token operator">?</span> skin<span class="token operator">-></span><span class="token function">getSize</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDS_WINDOW_BUTTON_WIDTH<span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>s32 posx <span class="token operator">=</span> RelativeRect<span class="token punctuation">.</span><span class="token function">getWidth</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> buttonw <span class="token operator">-</span> <span class="token number">4</span><span class="token punctuation">;</span>
+
+    CloseButton <span class="token operator">=</span> Environment<span class="token operator">-></span><span class="token function">addButton</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span><span class="token generic-function"><span class="token function">rect</span><span class="token generic class-name"><span class="token operator">&lt;</span>irr<span class="token double-colon punctuation">::</span>s32<span class="token operator">></span></span></span><span class="token punctuation">(</span>posx<span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> posx <span class="token operator">+</span> buttonw<span class="token punctuation">,</span> <span class="token number">3</span> <span class="token operator">+</span> buttonw<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token keyword">this</span><span class="token punctuation">,</span>
+            <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span>
+            L<span class="token string">""</span><span class="token punctuation">,</span>
+            skin <span class="token operator">?</span> skin<span class="token operator">-></span><span class="token function">getDefaultText</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDT_WINDOW_CLOSE<span class="token punctuation">)</span> <span class="token operator">:</span> L<span class="token string">"Close"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    CloseButton<span class="token operator">-></span><span class="token function">setSubElement</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    CloseButton<span class="token operator">-></span><span class="token function">setTabStop</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>sprites<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        CloseButton<span class="token operator">-></span><span class="token function">setSpriteBank</span><span class="token punctuation">(</span>sprites<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        CloseButton<span class="token operator">-></span><span class="token function">setSprite</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGBS_BUTTON_UP<span class="token punctuation">,</span> skin<span class="token operator">-></span><span class="token function">getIcon</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDI_WINDOW_CLOSE<span class="token punctuation">)</span><span class="token punctuation">,</span> color<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        CloseButton<span class="token operator">-></span><span class="token function">setSprite</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGBS_BUTTON_DOWN<span class="token punctuation">,</span> skin<span class="token operator">-></span><span class="token function">getIcon</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDI_WINDOW_CLOSE<span class="token punctuation">)</span><span class="token punctuation">,</span> color<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    CloseButton<span class="token operator">-></span><span class="token function">setAlignment</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_LOWERRIGHT<span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_LOWERRIGHT<span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_UPPERLEFT<span class="token punctuation">,</span>
+            irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_UPPERLEFT<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    CloseButton<span class="token operator">-></span><span class="token function">grab</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    OKButton <span class="token operator">=</span> Environment<span class="token operator">-></span><span class="token function">addButton</span><span class="token punctuation">(</span>
+            irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span><span class="token generic-function"><span class="token function">rect</span><span class="token generic class-name"><span class="token operator">&lt;</span>irr<span class="token double-colon punctuation">::</span>s32<span class="token operator">></span></span></span><span class="token punctuation">(</span>RelativeRect<span class="token punctuation">.</span><span class="token function">getWidth</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">80</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">,</span> RelativeRect<span class="token punctuation">.</span><span class="token function">getWidth</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token keyword">this</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> skin <span class="token operator">?</span> skin<span class="token operator">-></span><span class="token function">getDefaultText</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDT_MSG_BOX_OK<span class="token punctuation">)</span> <span class="token operator">:</span> L<span class="token string">"OK"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    OKButton<span class="token operator">-></span><span class="token function">setSubElement</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    OKButton<span class="token operator">-></span><span class="token function">setAlignment</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_LOWERRIGHT<span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_LOWERRIGHT<span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_UPPERLEFT<span class="token punctuation">,</span>
+            irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_UPPERLEFT<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    OKButton<span class="token operator">-></span><span class="token function">grab</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    CancelButton <span class="token operator">=</span> Environment<span class="token operator">-></span><span class="token function">addButton</span><span class="token punctuation">(</span>
+            irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span><span class="token generic-function"><span class="token function">rect</span><span class="token generic class-name"><span class="token operator">&lt;</span>irr<span class="token double-colon punctuation">::</span>s32<span class="token operator">></span></span></span><span class="token punctuation">(</span>RelativeRect<span class="token punctuation">.</span><span class="token function">getWidth</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">80</span><span class="token punctuation">,</span> <span class="token number">55</span><span class="token punctuation">,</span> RelativeRect<span class="token punctuation">.</span><span class="token function">getWidth</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">75</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token keyword">this</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> skin <span class="token operator">?</span> skin<span class="token operator">-></span><span class="token function">getDefaultText</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDT_MSG_BOX_CANCEL<span class="token punctuation">)</span> <span class="token operator">:</span> L<span class="token string">"Cancel"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    CancelButton<span class="token operator">-></span><span class="token function">setSubElement</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    CancelButton<span class="token operator">-></span><span class="token function">setAlignment</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_LOWERRIGHT<span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_LOWERRIGHT<span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_UPPERLEFT<span class="token punctuation">,</span>
+            irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_UPPERLEFT<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    CancelButton<span class="token operator">-></span><span class="token function">grab</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    FileBox <span class="token operator">=</span> Environment<span class="token operator">-></span><span class="token function">addListBox</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span><span class="token generic-function"><span class="token function">rect</span><span class="token generic class-name"><span class="token operator">&lt;</span>irr<span class="token double-colon punctuation">::</span>s32<span class="token operator">></span></span></span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">55</span><span class="token punctuation">,</span> RelativeRect<span class="token punctuation">.</span><span class="token function">getWidth</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">90</span><span class="token punctuation">,</span> <span class="token number">230</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span>
+            <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    FileBox<span class="token operator">-></span><span class="token function">setSubElement</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    FileBox<span class="token operator">-></span><span class="token function">setAlignment</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_UPPERLEFT<span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_LOWERRIGHT<span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_UPPERLEFT<span class="token punctuation">,</span>
+            irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_LOWERRIGHT<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    FileBox<span class="token operator">-></span><span class="token function">grab</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    FileNameText <span class="token operator">=</span> Environment<span class="token operator">-></span><span class="token function">addEditBox</span><span class="token punctuation">(</span><span class="token keyword">nullptr</span><span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span><span class="token generic-function"><span class="token function">rect</span><span class="token generic class-name"><span class="token operator">&lt;</span>irr<span class="token double-colon punctuation">::</span>s32<span class="token operator">></span></span></span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">,</span> RelativeRect<span class="token punctuation">.</span><span class="token function">getWidth</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">90</span><span class="token punctuation">,</span> <span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    FileNameText<span class="token operator">-></span><span class="token function">setSubElement</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    FileNameText<span class="token operator">-></span><span class="token function">setAlignment</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_UPPERLEFT<span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_LOWERRIGHT<span class="token punctuation">,</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_UPPERLEFT<span class="token punctuation">,</span>
+            irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUIA_UPPERLEFT<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    FileNameText<span class="token operator">-></span><span class="token function">grab</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">setTabGroup</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">fillListBox</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+
+<span class="token comment">//! destructor</span>
+<span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token operator">~</span><span class="token function">SaveFileDialog</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>CloseButton<span class="token punctuation">)</span>
+        CloseButton<span class="token operator">-></span><span class="token function">drop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>OKButton<span class="token punctuation">)</span>
+        OKButton<span class="token operator">-></span><span class="token function">drop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>CancelButton<span class="token punctuation">)</span>
+        CancelButton<span class="token operator">-></span><span class="token function">drop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>FileBox<span class="token punctuation">)</span>
+        FileBox<span class="token operator">-></span><span class="token function">drop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>FileNameText<span class="token punctuation">)</span>
+        FileNameText<span class="token operator">-></span><span class="token function">drop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>FileSystem<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">// revert to original CWD if path was set in constructor</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>RestoreDirectory<span class="token punctuation">.</span><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            FileSystem<span class="token operator">-></span><span class="token function">changeWorkingDirectoryTo</span><span class="token punctuation">(</span>RestoreDirectory<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        FileSystem<span class="token operator">-></span><span class="token function">drop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>FileList<span class="token punctuation">)</span>
+        FileList<span class="token operator">-></span><span class="token function">drop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">//! returns the filename of the selected file. Returns NULL, if no file was selected.</span>
+<span class="token keyword">const</span> <span class="token keyword">wchar_t</span><span class="token operator">*</span> <span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">getFileName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">const</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">return</span> FileNameW<span class="token punctuation">.</span><span class="token function">c_str</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path<span class="token operator">&amp;</span> <span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">getFileNameP</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">const</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">return</span> FileName<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">//! Returns the directory of the selected file. Returns NULL, if no directory was selected.</span>
+<span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path<span class="token operator">&amp;</span> <span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">getDirectoryName</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">return</span> FileDirectoryFlat<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token keyword">wchar_t</span><span class="token operator">*</span> <span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">getDirectoryNameW</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">const</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">return</span> FileDirectoryFlatW<span class="token punctuation">.</span><span class="token function">c_str</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">setFileName</span><span class="token punctuation">(</span><span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path<span class="token operator">&amp;</span> name<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    FileName <span class="token operator">=</span> name<span class="token punctuation">;</span>
+    <span class="token function">pathToStringW</span><span class="token punctuation">(</span>FileNameW<span class="token punctuation">,</span> FileName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">setDirectoryName</span><span class="token punctuation">(</span><span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path<span class="token operator">&amp;</span> name<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    FileDirectory <span class="token operator">=</span> name<span class="token punctuation">;</span>
+    FileDirectoryFlat <span class="token operator">=</span> name<span class="token punctuation">;</span>
+    FileSystem<span class="token operator">-></span><span class="token function">flattenFilename</span><span class="token punctuation">(</span>FileDirectoryFlat<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">pathToStringW</span><span class="token punctuation">(</span>FileDirectoryFlatW<span class="token punctuation">,</span> FileDirectoryFlat<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">//! called if an event happened.</span>
+<span class="token keyword">bool</span> <span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">OnEvent</span><span class="token punctuation">(</span><span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>SEvent<span class="token operator">&amp;</span> event<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isEnabled</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">switch</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>EventType<span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+        <span class="token keyword">case</span> irr<span class="token double-colon punctuation">::</span>EET_GUI_EVENT<span class="token operator">:</span>
+            <span class="token keyword">switch</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>GUIEvent<span class="token punctuation">.</span>EventType<span class="token punctuation">)</span>
+            <span class="token punctuation">{</span>
+            <span class="token keyword">case</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGET_ELEMENT_FOCUS_LOST<span class="token operator">:</span>
+                Dragging <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">case</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGET_BUTTON_CLICKED<span class="token operator">:</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>GUIEvent<span class="token punctuation">.</span>Caller <span class="token operator">==</span> CloseButton <span class="token operator">||</span> event<span class="token punctuation">.</span>GUIEvent<span class="token punctuation">.</span>Caller <span class="token operator">==</span> CancelButton<span class="token punctuation">)</span>
+                <span class="token punctuation">{</span>
+                    <span class="token function">sendCancelEvent</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token function">remove</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                    <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>GUIEvent<span class="token punctuation">.</span>Caller <span class="token operator">==</span> OKButton<span class="token punctuation">)</span>
+                <span class="token punctuation">{</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>FileName<span class="token punctuation">.</span><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                    <span class="token punctuation">{</span>
+                        <span class="token function">sendSelectedEvent</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGET_FILE_SELECTED<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        <span class="token function">remove</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                        <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>FileDirectory<span class="token punctuation">.</span><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                    <span class="token punctuation">{</span>
+                        <span class="token function">sendSelectedEvent</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGET_DIRECTORY_SELECTED<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">case</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGET_LISTBOX_CHANGED<span class="token operator">:</span>
+            <span class="token punctuation">{</span>
+                irr<span class="token double-colon punctuation">::</span>s32 selected <span class="token operator">=</span> FileBox<span class="token operator">-></span><span class="token function">getSelected</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>FileList <span class="token operator">&amp;&amp;</span> FileSystem<span class="token punctuation">)</span>
+                <span class="token punctuation">{</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>FileList<span class="token operator">-></span><span class="token function">isDirectory</span><span class="token punctuation">(</span>selected<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                    <span class="token punctuation">{</span>
+                        <span class="token function">setFileName</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        <span class="token function">setDirectoryName</span><span class="token punctuation">(</span>FileList<span class="token operator">-></span><span class="token function">getFullFileName</span><span class="token punctuation">(</span>selected<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                    <span class="token keyword">else</span>
+                    <span class="token punctuation">{</span>
+                        <span class="token function">setDirectoryName</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        <span class="token function">setFileName</span><span class="token punctuation">(</span>FileList<span class="token operator">-></span><span class="token function">getFullFileName</span><span class="token punctuation">(</span>selected<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+
+                    <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">case</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGET_LISTBOX_SELECTED_AGAIN<span class="token operator">:</span>
+            <span class="token punctuation">{</span>
+                <span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>s32 selected <span class="token operator">=</span> FileBox<span class="token operator">-></span><span class="token function">getSelected</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>FileList <span class="token operator">&amp;&amp;</span> FileSystem<span class="token punctuation">)</span>
+                <span class="token punctuation">{</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>FileList<span class="token operator">-></span><span class="token function">isDirectory</span><span class="token punctuation">(</span>selected<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                    <span class="token punctuation">{</span>
+                        <span class="token function">setDirectoryName</span><span class="token punctuation">(</span>FileList<span class="token operator">-></span><span class="token function">getFullFileName</span><span class="token punctuation">(</span>selected<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        FileSystem<span class="token operator">-></span><span class="token function">changeWorkingDirectoryTo</span><span class="token punctuation">(</span>FileDirectory<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        <span class="token function">fillListBox</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        <span class="token function">setFileName</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                    <span class="token keyword">else</span>
+                    <span class="token punctuation">{</span>
+                        <span class="token function">setFileName</span><span class="token punctuation">(</span>FileList<span class="token operator">-></span><span class="token function">getFullFileName</span><span class="token punctuation">(</span>selected<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+
+                    <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">case</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGET_EDITBOX_CHANGED<span class="token operator">:</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>GUIEvent<span class="token punctuation">.</span>Caller <span class="token operator">==</span> FileNameText<span class="token punctuation">)</span>
+                <span class="token punctuation">{</span>
+                    <span class="token function">setFileName</span><span class="token punctuation">(</span>FileNameText<span class="token operator">-></span><span class="token function">getText</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                    <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">case</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGET_EDITBOX_ENTER<span class="token operator">:</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>GUIEvent<span class="token punctuation">.</span>Caller <span class="token operator">==</span> FileNameText<span class="token punctuation">)</span>
+                <span class="token punctuation">{</span>
+                    irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path <span class="token function">dir</span><span class="token punctuation">(</span>FileNameText<span class="token operator">-></span><span class="token function">getText</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>FileSystem<span class="token operator">-></span><span class="token function">changeWorkingDirectoryTo</span><span class="token punctuation">(</span>dir<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                    <span class="token punctuation">{</span>
+                        <span class="token function">fillListBox</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        <span class="token function">setFileName</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                    <span class="token keyword">else</span>
+                    <span class="token punctuation">{</span>
+                        <span class="token function">setFileName</span><span class="token punctuation">(</span>FileNameText<span class="token operator">-></span><span class="token function">getText</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+
+                    <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">default</span><span class="token operator">:</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">break</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">case</span> irr<span class="token double-colon punctuation">::</span>EET_MOUSE_INPUT_EVENT<span class="token operator">:</span>
+            <span class="token keyword">switch</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span>Event<span class="token punctuation">)</span>
+            <span class="token punctuation">{</span>
+            <span class="token keyword">case</span> irr<span class="token double-colon punctuation">::</span>EMIE_MOUSE_WHEEL<span class="token operator">:</span>
+                <span class="token keyword">return</span> FileBox<span class="token operator">-></span><span class="token function">OnEvent</span><span class="token punctuation">(</span>event<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">case</span> irr<span class="token double-colon punctuation">::</span>EMIE_LMOUSE_PRESSED_DOWN<span class="token operator">:</span>
+                DragStart<span class="token punctuation">.</span>X <span class="token operator">=</span> event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span>X<span class="token punctuation">;</span>
+                DragStart<span class="token punctuation">.</span>Y <span class="token operator">=</span> event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span>Y<span class="token punctuation">;</span>
+                Dragging <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+                <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">case</span> irr<span class="token double-colon punctuation">::</span>EMIE_LMOUSE_LEFT_UP<span class="token operator">:</span>
+                Dragging <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+                <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">case</span> irr<span class="token double-colon punctuation">::</span>EMIE_MOUSE_MOVED<span class="token operator">:</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span><span class="token function">isLeftPressed</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                    Dragging <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>Dragging<span class="token punctuation">)</span>
+                <span class="token punctuation">{</span>
+                    <span class="token comment">// gui window should not be dragged outside its parent</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>Parent<span class="token punctuation">)</span>
+                        <span class="token keyword">if</span> <span class="token punctuation">(</span>event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span>X <span class="token operator">&lt;</span> Parent<span class="token operator">-></span><span class="token function">getAbsolutePosition</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>UpperLeftCorner<span class="token punctuation">.</span>X <span class="token operator">+</span> <span class="token number">1</span> <span class="token operator">||</span>
+                            event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span>Y <span class="token operator">&lt;</span> Parent<span class="token operator">-></span><span class="token function">getAbsolutePosition</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>UpperLeftCorner<span class="token punctuation">.</span>Y <span class="token operator">+</span> <span class="token number">1</span> <span class="token operator">||</span>
+                            event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span>X <span class="token operator">></span> Parent<span class="token operator">-></span><span class="token function">getAbsolutePosition</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>LowerRightCorner<span class="token punctuation">.</span>X <span class="token operator">-</span> <span class="token number">1</span> <span class="token operator">||</span>
+                            event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span>Y <span class="token operator">></span> Parent<span class="token operator">-></span><span class="token function">getAbsolutePosition</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>LowerRightCorner<span class="token punctuation">.</span>Y <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span>
+
+                            <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+
+                    <span class="token function">move</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span><span class="token generic-function"><span class="token function">position2d</span><span class="token generic class-name"><span class="token operator">&lt;</span>irr<span class="token double-colon punctuation">::</span>s32<span class="token operator">></span></span></span><span class="token punctuation">(</span>event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span>X <span class="token operator">-</span> DragStart<span class="token punctuation">.</span>X<span class="token punctuation">,</span>
+                            event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span>Y <span class="token operator">-</span> DragStart<span class="token punctuation">.</span>Y<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    DragStart<span class="token punctuation">.</span>X <span class="token operator">=</span> event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span>X<span class="token punctuation">;</span>
+                    DragStart<span class="token punctuation">.</span>Y <span class="token operator">=</span> event<span class="token punctuation">.</span>MouseInput<span class="token punctuation">.</span>Y<span class="token punctuation">;</span>
+                    <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">default</span><span class="token operator">:</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> <span class="token class-name">IGUIElement</span><span class="token double-colon punctuation">::</span><span class="token function">OnEvent</span><span class="token punctuation">(</span>event<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+
+<span class="token comment">//! draws the element and its children</span>
+<span class="token keyword">void</span> <span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">draw</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>IsVisible<span class="token punctuation">)</span>
+        <span class="token keyword">return</span><span class="token punctuation">;</span>
+
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUISkin<span class="token operator">*</span> skin <span class="token operator">=</span> Environment<span class="token operator">-></span><span class="token function">getSkin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>rect<span class="token operator">&lt;</span>irr<span class="token double-colon punctuation">::</span>s32<span class="token operator">></span> rect <span class="token operator">=</span> AbsoluteRect<span class="token punctuation">;</span>
+
+    rect <span class="token operator">=</span> skin<span class="token operator">-></span><span class="token function">draw3DWindowBackground</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> skin<span class="token operator">-></span><span class="token function">getColor</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDC_ACTIVE_BORDER<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            rect<span class="token punctuation">,</span> <span class="token operator">&amp;</span>AbsoluteClippingRect<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>Text<span class="token punctuation">.</span><span class="token function">empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        rect<span class="token punctuation">.</span>UpperLeftCorner<span class="token punctuation">.</span>X <span class="token operator">+=</span> <span class="token number">2</span><span class="token punctuation">;</span>
+        rect<span class="token punctuation">.</span>LowerRightCorner<span class="token punctuation">.</span>X <span class="token operator">-=</span> skin<span class="token operator">-></span><span class="token function">getSize</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDS_WINDOW_BUTTON_WIDTH<span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">5</span><span class="token punctuation">;</span>
+
+        irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUIFont<span class="token operator">*</span> font <span class="token operator">=</span> skin<span class="token operator">-></span><span class="token function">getFont</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDF_WINDOW<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>font<span class="token punctuation">)</span>
+            font<span class="token operator">-></span><span class="token function">draw</span><span class="token punctuation">(</span>Text<span class="token punctuation">.</span><span class="token function">c_str</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> rect<span class="token punctuation">,</span>
+                    skin<span class="token operator">-></span><span class="token function">getColor</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDC_ACTIVE_CAPTION<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>AbsoluteClippingRect<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token class-name">IGUIElement</span><span class="token double-colon punctuation">::</span><span class="token function">draw</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">pathToStringW</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>stringw<span class="token operator">&amp;</span> result<span class="token punctuation">,</span> <span class="token keyword">const</span> irr<span class="token double-colon punctuation">::</span>io<span class="token double-colon punctuation">::</span>path<span class="token operator">&amp;</span> p<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">ifndef</span> <span class="token expression">_IRR_WCHAR_FILESYSTEM</span></span>
+    std<span class="token double-colon punctuation">::</span>wstring_convert<span class="token operator">&lt;</span>std<span class="token double-colon punctuation">::</span>codecvt_utf8_utf16<span class="token operator">&lt;</span><span class="token keyword">wchar_t</span><span class="token operator">>></span> wstringConverter<span class="token punctuation">;</span>
+    result <span class="token operator">=</span> wstringConverter<span class="token punctuation">.</span><span class="token function">from_bytes</span><span class="token punctuation">(</span>p<span class="token punctuation">.</span><span class="token function">c_str</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">c_str</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">else</span></span>
+    result <span class="token operator">=</span> p<span class="token punctuation">.</span><span class="token function">c_str</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token macro property"><span class="token directive-hash">#</span><span class="token directive keyword">endif</span></span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">//! fills the listbox with files.</span>
+<span class="token keyword">void</span> <span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">fillListBox</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>IGUISkin<span class="token operator">*</span> skin <span class="token operator">=</span> Environment<span class="token operator">-></span><span class="token function">getSkin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>FileSystem <span class="token operator">||</span> <span class="token operator">!</span>FileBox <span class="token operator">||</span> <span class="token operator">!</span>skin<span class="token punctuation">)</span>
+        <span class="token keyword">return</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>FileList<span class="token punctuation">)</span>
+        FileList<span class="token operator">-></span><span class="token function">drop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    FileBox<span class="token operator">-></span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    FileList <span class="token operator">=</span> FileSystem<span class="token operator">-></span><span class="token function">createFileList</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    irr<span class="token double-colon punctuation">::</span>core<span class="token double-colon punctuation">::</span>stringw s<span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>FileList<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>u32 i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> FileList<span class="token operator">-></span><span class="token function">getFileCount</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token function">pathToStringW</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> FileList<span class="token operator">-></span><span class="token function">getFileName</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            FileBox<span class="token operator">-></span><span class="token function">addItem</span><span class="token punctuation">(</span>s<span class="token punctuation">.</span><span class="token function">c_str</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    skin<span class="token operator">-></span><span class="token function">getIcon</span><span class="token punctuation">(</span>FileList<span class="token operator">-></span><span class="token function">isDirectory</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span> <span class="token operator">?</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDI_DIRECTORY <span class="token operator">:</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGDI_FILE<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>FileNameText<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">setDirectoryName</span><span class="token punctuation">(</span>FileSystem<span class="token operator">-></span><span class="token function">getWorkingDirectory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">pathToStringW</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> FileDirectory<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        FileNameText<span class="token operator">-></span><span class="token function">setText</span><span class="token punctuation">(</span>s<span class="token punctuation">.</span><span class="token function">c_str</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">//! sends the event that the file has been selected.</span>
+<span class="token keyword">void</span> <span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">sendSelectedEvent</span><span class="token punctuation">(</span>irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGUI_EVENT_TYPE type<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    irr<span class="token double-colon punctuation">::</span>SEvent event<span class="token punctuation">;</span>
+    event<span class="token punctuation">.</span>EventType <span class="token operator">=</span> irr<span class="token double-colon punctuation">::</span>EET_GUI_EVENT<span class="token punctuation">;</span>
+    event<span class="token punctuation">.</span>GUIEvent<span class="token punctuation">.</span>Caller <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">;</span>
+    event<span class="token punctuation">.</span>GUIEvent<span class="token punctuation">.</span>Element <span class="token operator">=</span> <span class="token keyword">nullptr</span><span class="token punctuation">;</span>
+    event<span class="token punctuation">.</span>GUIEvent<span class="token punctuation">.</span>EventType <span class="token operator">=</span> type<span class="token punctuation">;</span>
+    Parent<span class="token operator">-></span><span class="token function">OnEvent</span><span class="token punctuation">(</span>event<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+
+<span class="token comment">//! sends the event that the file choose process has been cancelled</span>
+<span class="token keyword">void</span> <span class="token class-name">SaveFileDialog</span><span class="token double-colon punctuation">::</span><span class="token function">sendCancelEvent</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    irr<span class="token double-colon punctuation">::</span>SEvent event<span class="token punctuation">;</span>
+    event<span class="token punctuation">.</span>EventType <span class="token operator">=</span> irr<span class="token double-colon punctuation">::</span>EET_GUI_EVENT<span class="token punctuation">;</span>
+    event<span class="token punctuation">.</span>GUIEvent<span class="token punctuation">.</span>Caller <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">;</span>
+    event<span class="token punctuation">.</span>GUIEvent<span class="token punctuation">.</span>Element <span class="token operator">=</span> <span class="token keyword">nullptr</span><span class="token punctuation">;</span>
+    event<span class="token punctuation">.</span>GUIEvent<span class="token punctuation">.</span>EventType <span class="token operator">=</span> irr<span class="token double-colon punctuation">::</span>gui<span class="token double-colon punctuation">::</span>EGET_FILE_CHOOSE_DIALOG_CANCELLED<span class="token punctuation">;</span>
+    Parent<span class="token operator">-></span><span class="token function">OnEvent</span><span class="token punctuation">(</span>event<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="outro">Outro</h2>
+<p>This is about everything I wanted to share. This template should set you up in few-ish minutes so that you can start implementing the actual application logic
+instead of wondering why there are some missing references for linker or some nuisance like those.</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

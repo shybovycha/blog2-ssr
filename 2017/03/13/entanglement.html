@@ -1,0 +1,534 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Entanglement</h1>
+
+    <time>13 Mar 2017 at 09:42</time>
+
+    <div class="content"><LazyImg src="/images/entanglement/ios-screen1_optimized.webp" alt="" />
+
+<h1 id="entanglement">Entanglement?</h1>
+<p>Some time ago there was a game popular over there, called Entanglement:</p>
+<LazyImg src="/images/entanglement/web-screen1.webp" alt="" />
+
+<p>There are a few implementations of this game under Android:</p>
+<style>
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .row .col {
+    max-width: 48%;
+    margin: 0 1%;
+  }
+</style>
+
+<div class="row">
+    <div class="col">
+        <LazyImg src="/images/entanglement/android-screen1.webp" alt="" />
+    </div>
+    <div class="col">
+        <LazyImg src="/images/entanglement/android-screen2.webp" alt="" />
+    </div>
+</div>
+
+<p>But there was no such game for iOS. And as I pursued my second M. Sc. degree, I have had a course
+“iOS development”, where we were learning to use Swift and iOS platform.</p>
+<p>I decided to implement this game as my course project. In Swift. Originally the game was implemented
+in Swift 2 <em>(there was no Swift 3 back those days)</em>.</p>
+<p>And recently I decided to refactor the game a bit and update it to the most recent Swift version
+<em>(which is Swift 3 at the moment of writing this post)</em>.</p>
+<p>In this post I’ll describe some interesting decisions I made while creating this game.</p>
+<!--more-->
+
+<h1 id="the-game">The game</h1>
+<p>The idea of the game is to prolong the line as much as possible by using the tiles with pieces
+of a path for a line. At the beginning of the game, a single tile is placed at the center of a
+hexagonal field and the line starts from that tile. You are also given a tile in the “pocket”,
+which you can swap with the currently active one. At each turn, a game will place a new tile
+at the end of the line and you have three actions available:</p>
+<ol>
+<li>rotate the current tile clockwise or counter-clockwise, as many times as you want</li>
+<li>swap the current tile with one in the pocket; you can repeat this action as many times as you want to</li>
+<li>place the tile; this action is performed once and can not be undone</li>
+</ol>
+<p>But the trick here is: each tile contains six line pieces. And by using one of them, be aware
+that other pieces might be used later as well.</p>
+<p>When you place a tile, you get one point for the first piece of the line, which prolongs it.
+You also get one point more for the next piece, if it prolongs the line too. For the third
+line piece, you’ll get 3 points and so on. The point here is: the more pieces you connect in
+a single move - the more points you get.</p>
+<h1 id="implementation">Implementation</h1>
+<p>My implementation contains several core elements:</p>
+<ol>
+<li>tiles</li>
+<li>field</li>
+<li>tile renderer</li>
+<li>game itself</li>
+</ol>
+<p>Tiles contain information on the line pieces they contain and provide methods to rotate themselves
+and find connections with neighbor tiles.</p>
+<p>The field contains information on all the tiles on the field - where they are placed and how they are
+rotated.</p>
+<p>Tile renderer simply draws tiles into an image. Doing so allows having an animation for tile rotation.</p>
+<p>The game holds all the data on the game state - tile in the pocket, currently selected tile, line path
+done so far and a score.</p>
+<h1 id="field">Field</h1>
+<p>The core of the game is tiles. The tiles are hexagons. And the whole field is hexagonal.
+The problem was to handle the positions of all the tiles in a handy manner. Thus I decided
+to go from a standard Cartesian coordinate system, which has 90&deg; angle between axes
+and go for a one with 120&deg;:</p>
+<LazyImg src="/images/entanglement/120-deg-coordinate-system.webp" alt="" />
+
+<p>Here, <code>u</code> and <code>v</code> vectors represent coordinate axes and <code>w</code> vector is a diagonal. So the tiles
+could now be allocated so their centers are at the points of the coordinate system with integer
+coordinates:</p>
+<LazyImg src="/images/entanglement/tiles-1.webp" alt="" />
+
+<p>Now, there’s a tricky thing regarding this coordinate system: how should we know, where to render
+the actual tile image on a screen? E. g. how can we convert coordinates in this system back to Cartesian?</p>
+<p>After doing some math on a piece of paper, I came up with this function:</p>
+<pre><code class="language-swift"><span class="token keyword">func</span> <span class="token function-definition function">uv2xy</span><span class="token punctuation">(</span><span class="token omit keyword">_</span> uv<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token class-name">Int</span><span class="token punctuation">,</span> <span class="token class-name">Int</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">-></span> <span class="token punctuation">(</span><span class="token class-name">Int</span><span class="token punctuation">,</span> <span class="token class-name">Int</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> u <span class="token operator">=</span> uv<span class="token punctuation">.</span><span class="token number">0</span><span class="token punctuation">,</span> v <span class="token operator">=</span> uv<span class="token punctuation">.</span><span class="token number">1</span>
+    <span class="token keyword">let</span> kx <span class="token operator">=</span> <span class="token class-name">Float</span><span class="token punctuation">(</span>u <span class="token operator">-</span> v<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">3.0</span> <span class="token operator">/</span> <span class="token number">2.0</span><span class="token punctuation">)</span>
+    <span class="token keyword">let</span> ky <span class="token operator">=</span> <span class="token class-name">Float</span><span class="token punctuation">(</span>u <span class="token operator">+</span> v<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token function">sqrt</span><span class="token punctuation">(</span><span class="token number">3.0</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2.0</span><span class="token punctuation">)</span>
+    <span class="token keyword">let</span> x <span class="token operator">=</span> <span class="token class-name">Int</span><span class="token punctuation">(</span><span class="token function">ceil</span><span class="token punctuation">(</span>kx <span class="token operator">*</span> <span class="token class-name">Float</span><span class="token punctuation">(</span>tileSideLength<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">let</span> y <span class="token operator">=</span> <span class="token class-name">Int</span><span class="token punctuation">(</span><span class="token function">ceil</span><span class="token punctuation">(</span>ky <span class="token operator">*</span> <span class="token class-name">Float</span><span class="token punctuation">(</span>tileSideLength<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">let</span> cx <span class="token operator">=</span> <span class="token number">9</span> <span class="token operator">*</span> <span class="token punctuation">(</span>tileSideLength<span class="token punctuation">)</span>
+    <span class="token keyword">let</span> cy <span class="token operator">=</span> <span class="token class-name">Int</span><span class="token punctuation">(</span><span class="token function">ceil</span><span class="token punctuation">(</span><span class="token number">8.0</span> <span class="token operator">*</span> <span class="token function">sqrt</span><span class="token punctuation">(</span><span class="token number">3.0</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token class-name">Float</span><span class="token punctuation">(</span>tileSideLength<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>cx <span class="token operator">+</span> x<span class="token punctuation">,</span> cy <span class="token operator">-</span> y<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>What happens here is: since every tile is a regular hexagon, we can simply calculate the distance between the sides
+of neighbour tiles and, based on how the tiles are layed out relative to each other, multiply that by either taking
+one and a half of every coordinate system unit or <code>sqrt(3) / 2</code> of one unit. The <code>sqrt(3) / 2</code> comes from the length
+of a unit regular hexagon’s height <em>(a line, perpendicular to any side of a hexagon, starting at its center)</em>. Every
+unit scales with the tile’ size.</p>
+<p>As you can see, it depends on tile side length. This is the major tile parameter. Since I render tiles
+based on that parameter.</p>
+<h1 id="tiles">Tiles</h1>
+<p>Each tile should have six lines. To do that, I created 12 <em>“connection slots”</em>, two on each
+side of a tile, as shown below:</p>
+<LazyImg src="/images/entanglement/tile-connections-1.webp" alt="" />
+
+<p>Then, by generating six random pairs of integer numbers from the range <code>[1, 12]</code>, we can obtain actual
+connections inside a single tile. Note that none of the numbers should be used more than once and
+that none of the pairs should have a duplicate. Then a tile might look like this:</p>
+<LazyImg src="/images/entanglement/tile-sample.webp" alt="" />
+
+<p>To display a tile, I’ve developed a prototype tile in SVG:</p>
+<pre><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>svg</span> <span class="token attr-name">height</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>232<span class="token punctuation">"</span></span> <span class="token attr-name">width</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>232<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>polygon</span> <span class="token attr-name">points</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>55.0,5.0 155.0,5.0 205.0,92.0 155.0,178.0 55.0,178.0 5.0,92.0<span class="token punctuation">"</span></span> <span class="token attr-name">style</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>fill:none;stroke:#000;stroke-width:2<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>svg</span><span class="token punctuation">></span></span>
+</code></pre>
+<p>And to make this template re-usable, I’ve dropped in a <em>“side length”</em> parameter. Pre-calculating
+pins’ slots positions and hexagon’s vertex positions and making it parametric <em>(with a side length
+parameter)</em>, I’ve got this function, which generates a tile:</p>
+<pre><code class="language-swift"><span class="token keyword">class</span> <span class="token class-name">TileImageGenerator</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> vertices<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token class-name">Int</span><span class="token punctuation">,</span> <span class="token class-name">Int</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">150</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">200</span><span class="token punctuation">,</span> <span class="token number">87</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">150</span><span class="token punctuation">,</span> <span class="token number">173</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">,</span> <span class="token number">173</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">87</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">var</span> width<span class="token punctuation">:</span> <span class="token class-name">Int</span>
+    <span class="token keyword">var</span> height<span class="token punctuation">:</span> <span class="token class-name">Int</span>
+    <span class="token keyword">var</span> scaleCoefficient<span class="token punctuation">:</span> <span class="token class-name">Float</span>
+    <span class="token keyword">var</span> centerX<span class="token punctuation">:</span> <span class="token class-name">Int</span>
+    <span class="token keyword">var</span> centerY<span class="token punctuation">:</span> <span class="token class-name">Int</span>
+
+    <span class="token keyword">init</span><span class="token punctuation">(</span>sideLength<span class="token punctuation">:</span> <span class="token class-name">Int</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient <span class="token operator">=</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>sideLength<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">100.0</span>
+
+        <span class="token keyword">self</span><span class="token punctuation">.</span>width <span class="token operator">=</span> <span class="token class-name">Int</span><span class="token punctuation">(</span><span class="token function">ceil</span><span class="token punctuation">(</span><span class="token number">2.0</span> <span class="token operator">*</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>sideLength<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">self</span><span class="token punctuation">.</span>height <span class="token operator">=</span> <span class="token class-name">Int</span><span class="token punctuation">(</span><span class="token function">ceil</span><span class="token punctuation">(</span><span class="token number">1.73</span> <span class="token operator">*</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>sideLength<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+        <span class="token keyword">self</span><span class="token punctuation">.</span>centerX <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>width <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span>
+        <span class="token keyword">self</span><span class="token punctuation">.</span>centerY <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>height <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">func</span> <span class="token function-definition function">borderTile</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-></span> <span class="token class-name">UIImage</span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> size <span class="token operator">=</span> <span class="token class-name">CGSize</span><span class="token punctuation">(</span>width<span class="token punctuation">:</span> <span class="token keyword">self</span><span class="token punctuation">.</span>width<span class="token punctuation">,</span> height<span class="token punctuation">:</span> <span class="token keyword">self</span><span class="token punctuation">.</span>height<span class="token punctuation">)</span>
+        <span class="token keyword">let</span> opaque <span class="token operator">=</span> <span class="token boolean">false</span>
+        <span class="token keyword">let</span> scale<span class="token punctuation">:</span> <span class="token class-name">CGFloat</span> <span class="token operator">=</span> <span class="token number">0</span>
+
+        <span class="token class-name">UIGraphicsBeginImageContextWithOptions</span><span class="token punctuation">(</span>size<span class="token punctuation">,</span> opaque<span class="token punctuation">,</span> scale<span class="token punctuation">)</span>
+        <span class="token keyword">let</span> context <span class="token operator">=</span> <span class="token class-name">UIGraphicsGetCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        <span class="token comment">// draw outer shape</span>
+        <span class="token keyword">let</span> shapePathRef<span class="token punctuation">:</span> <span class="token class-name">CGMutablePath</span> <span class="token operator">=</span> <span class="token class-name">CGMutablePath</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">setFillColor</span><span class="token punctuation">(</span><span class="token class-name">UIColor</span><span class="token punctuation">.</span>black<span class="token punctuation">.</span>cgColor<span class="token punctuation">)</span>
+        context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">setLineJoin</span><span class="token punctuation">(</span><span class="token class-name">CGLineJoin</span><span class="token punctuation">.</span>round<span class="token punctuation">)</span>
+
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token number">1</span><span class="token operator">...</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>vertices<span class="token punctuation">.</span>count <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">let</span> x1 <span class="token operator">=</span> <span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>vertices<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient<span class="token punctuation">)</span>
+            <span class="token keyword">let</span> y1 <span class="token operator">=</span> <span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>vertices<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient<span class="token punctuation">)</span>
+
+            <span class="token keyword">if</span> i <span class="token operator">==</span> <span class="token number">1</span> <span class="token punctuation">{</span>
+                <span class="token keyword">let</span> x0 <span class="token operator">=</span> <span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>vertices<span class="token punctuation">[</span>i <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient<span class="token punctuation">)</span>
+                <span class="token keyword">let</span> y0 <span class="token operator">=</span> <span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>vertices<span class="token punctuation">[</span>i <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient<span class="token punctuation">)</span>
+
+                shapePathRef<span class="token punctuation">.</span><span class="token function">move</span><span class="token punctuation">(</span>to<span class="token punctuation">:</span> <span class="token class-name">CGPoint</span><span class="token punctuation">(</span>x<span class="token punctuation">:</span> x0<span class="token punctuation">,</span> y<span class="token punctuation">:</span> y0<span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token punctuation">}</span>
+
+            shapePathRef<span class="token punctuation">.</span><span class="token function">addLine</span><span class="token punctuation">(</span>to<span class="token punctuation">:</span> <span class="token class-name">CGPoint</span><span class="token punctuation">(</span>x<span class="token punctuation">:</span> x1<span class="token punctuation">,</span> y<span class="token punctuation">:</span> y1<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+
+        shapePathRef<span class="token punctuation">.</span><span class="token function">closeSubpath</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">addPath</span><span class="token punctuation">(</span>shapePathRef<span class="token punctuation">)</span>
+        context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">fillPath</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        <span class="token comment">// finish drawing</span>
+        <span class="token keyword">let</span> image <span class="token operator">=</span> <span class="token class-name">UIGraphicsGetImageFromCurrentImageContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token class-name">UIGraphicsEndImageContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        <span class="token keyword">return</span> image<span class="token operator">!</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Now, if I want to draw connection lines, I can just spicy that code with pre-calculated pin slots
+connections coordinates and, using some neat line stroke technique, draw tile exactly as shown above:</p>
+<pre><code class="language-swift"><span class="token keyword">class</span> <span class="token class-name">RenderingParams</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> sideLength<span class="token punctuation">:</span> <span class="token class-name">Int</span>
+    <span class="token keyword">var</span> stroke<span class="token punctuation">:</span> <span class="token class-name">Int</span> <span class="token operator">=</span> <span class="token number">1</span>
+    <span class="token keyword">var</span> pathStroke<span class="token punctuation">:</span> <span class="token class-name">Int</span> <span class="token operator">=</span> <span class="token number">4</span>
+    <span class="token keyword">var</span> strokeColor<span class="token punctuation">:</span> <span class="token class-name">UIColor</span>
+    <span class="token keyword">var</span> pathColor<span class="token punctuation">:</span> <span class="token class-name">UIColor</span>
+    <span class="token keyword">var</span> highlightPathColor<span class="token punctuation">:</span> <span class="token class-name">UIColor</span>
+    <span class="token keyword">var</span> markPathColor<span class="token punctuation">:</span> <span class="token class-name">UIColor</span>
+
+    <span class="token keyword">init</span><span class="token punctuation">(</span>sideLength<span class="token punctuation">:</span> <span class="token class-name">Int</span><span class="token punctuation">,</span>
+        stroke<span class="token punctuation">:</span> <span class="token class-name">Int</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">,</span>
+        pathStroke<span class="token punctuation">:</span> <span class="token class-name">Int</span> <span class="token operator">=</span> <span class="token number">4</span><span class="token punctuation">,</span>
+        strokeColor<span class="token punctuation">:</span> <span class="token class-name">UIColor</span> <span class="token operator">=</span> <span class="token class-name">UIColor</span><span class="token punctuation">(</span>red<span class="token punctuation">:</span> <span class="token number">0.2</span><span class="token punctuation">,</span> green<span class="token punctuation">:</span> <span class="token number">0.2</span><span class="token punctuation">,</span> blue<span class="token punctuation">:</span> <span class="token number">0.2</span><span class="token punctuation">,</span> alpha<span class="token punctuation">:</span> <span class="token number">1.0</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        pathColor<span class="token punctuation">:</span> <span class="token class-name">UIColor</span> <span class="token operator">=</span> <span class="token class-name">UIColor</span><span class="token punctuation">.</span>white<span class="token punctuation">,</span>
+        highlightPathColor<span class="token punctuation">:</span> <span class="token class-name">UIColor</span> <span class="token operator">=</span> <span class="token class-name">UIColor</span><span class="token punctuation">(</span>red<span class="token punctuation">:</span> <span class="token number">0.9</span><span class="token punctuation">,</span> green<span class="token punctuation">:</span> <span class="token number">0.5</span><span class="token punctuation">,</span> blue<span class="token punctuation">:</span> <span class="token number">0.5</span><span class="token punctuation">,</span> alpha<span class="token punctuation">:</span> <span class="token number">1.0</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        markPathColor<span class="token punctuation">:</span> <span class="token class-name">UIColor</span> <span class="token operator">=</span> <span class="token class-name">UIColor</span><span class="token punctuation">(</span>red<span class="token punctuation">:</span> <span class="token number">0.9</span><span class="token punctuation">,</span> green<span class="token punctuation">:</span> <span class="token number">0.15</span><span class="token punctuation">,</span> blue<span class="token punctuation">:</span> <span class="token number">0.15</span><span class="token punctuation">,</span> alpha<span class="token punctuation">:</span> <span class="token number">1.0</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">self</span><span class="token punctuation">.</span>sideLength <span class="token operator">=</span> sideLength
+            <span class="token keyword">self</span><span class="token punctuation">.</span>stroke <span class="token operator">=</span> stroke
+            <span class="token keyword">self</span><span class="token punctuation">.</span>pathStroke <span class="token operator">=</span> pathStroke
+            <span class="token keyword">self</span><span class="token punctuation">.</span>strokeColor <span class="token operator">=</span> strokeColor
+            <span class="token keyword">self</span><span class="token punctuation">.</span>pathColor <span class="token operator">=</span> pathColor
+            <span class="token keyword">self</span><span class="token punctuation">.</span>highlightPathColor <span class="token operator">=</span> highlightPathColor
+            <span class="token keyword">self</span><span class="token punctuation">.</span>markPathColor <span class="token operator">=</span> markPathColor
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">TileImageGenerator</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> vertices<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token class-name">Int</span><span class="token punctuation">,</span> <span class="token class-name">Int</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">150</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">200</span><span class="token punctuation">,</span> <span class="token number">87</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">150</span><span class="token punctuation">,</span> <span class="token number">173</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">,</span> <span class="token number">173</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">87</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+    <span class="token keyword">let</span> pins<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token class-name">Int</span><span class="token punctuation">,</span> <span class="token class-name">Int</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token number">83</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">116</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">166</span><span class="token punctuation">,</span> <span class="token number">29</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">182</span><span class="token punctuation">,</span> <span class="token number">58</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">182</span><span class="token punctuation">,</span> <span class="token number">116</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">166</span><span class="token punctuation">,</span> <span class="token number">145</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">116</span><span class="token punctuation">,</span> <span class="token number">173</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">83</span><span class="token punctuation">,</span> <span class="token number">173</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">34</span><span class="token punctuation">,</span> <span class="token number">145</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">18</span><span class="token punctuation">,</span> <span class="token number">116</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">18</span><span class="token punctuation">,</span> <span class="token number">58</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">34</span><span class="token punctuation">,</span> <span class="token number">29</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">var</span> width<span class="token punctuation">:</span> <span class="token class-name">Int</span>
+    <span class="token keyword">var</span> height<span class="token punctuation">:</span> <span class="token class-name">Int</span>
+    <span class="token keyword">var</span> scaleCoefficient<span class="token punctuation">:</span> <span class="token class-name">Float</span>
+    <span class="token keyword">var</span> centerX<span class="token punctuation">:</span> <span class="token class-name">Int</span>
+    <span class="token keyword">var</span> centerY<span class="token punctuation">:</span> <span class="token class-name">Int</span>
+
+    <span class="token keyword">var</span> renderingParams<span class="token punctuation">:</span> <span class="token class-name">RenderingParams</span>
+
+    <span class="token keyword">init</span><span class="token punctuation">(</span>renderingParams<span class="token punctuation">:</span> <span class="token class-name">RenderingParams</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams <span class="token operator">=</span> renderingParams
+
+        <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient <span class="token operator">=</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>sideLength<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">100.0</span>
+
+        <span class="token keyword">self</span><span class="token punctuation">.</span>width <span class="token operator">=</span> <span class="token class-name">Int</span><span class="token punctuation">(</span><span class="token function">ceil</span><span class="token punctuation">(</span><span class="token number">2.0</span> <span class="token operator">*</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>sideLength <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>stroke <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token keyword">self</span><span class="token punctuation">.</span>height <span class="token operator">=</span> <span class="token class-name">Int</span><span class="token punctuation">(</span><span class="token function">ceil</span><span class="token punctuation">(</span><span class="token number">1.73</span> <span class="token operator">*</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>sideLength <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>stroke <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+        <span class="token keyword">self</span><span class="token punctuation">.</span>centerX <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>width <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span>
+        <span class="token keyword">self</span><span class="token punctuation">.</span>centerY <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>height <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">func</span> <span class="token function-definition function">nonEmptyTile</span><span class="token punctuation">(</span><span class="token omit keyword">_</span> tileParams<span class="token punctuation">:</span> <span class="token class-name">TileParams</span><span class="token punctuation">)</span> <span class="token operator">-></span> <span class="token class-name">UIImage</span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> size <span class="token operator">=</span> <span class="token class-name">CGSize</span><span class="token punctuation">(</span>width<span class="token punctuation">:</span> <span class="token keyword">self</span><span class="token punctuation">.</span>width<span class="token punctuation">,</span> height<span class="token punctuation">:</span> <span class="token keyword">self</span><span class="token punctuation">.</span>height<span class="token punctuation">)</span>
+        <span class="token keyword">let</span> opaque <span class="token operator">=</span> <span class="token boolean">false</span>
+        <span class="token keyword">let</span> scale<span class="token punctuation">:</span> <span class="token class-name">CGFloat</span> <span class="token operator">=</span> <span class="token number">0</span>
+
+        <span class="token class-name">UIGraphicsBeginImageContextWithOptions</span><span class="token punctuation">(</span>size<span class="token punctuation">,</span> opaque<span class="token punctuation">,</span> scale<span class="token punctuation">)</span>
+        <span class="token keyword">let</span> context <span class="token operator">=</span> <span class="token class-name">UIGraphicsGetCurrentContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        <span class="token comment">// draw outer shape</span>
+        <span class="token keyword">let</span> shapePathRef<span class="token punctuation">:</span> <span class="token class-name">CGMutablePath</span> <span class="token operator">=</span> <span class="token class-name">CGMutablePath</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">setFillColor</span><span class="token punctuation">(</span><span class="token class-name">UIColor</span><span class="token punctuation">(</span>red<span class="token punctuation">:</span> <span class="token number">0.88</span><span class="token punctuation">,</span> green<span class="token punctuation">:</span> <span class="token number">0.88</span><span class="token punctuation">,</span> blue<span class="token punctuation">:</span> <span class="token number">0.88</span><span class="token punctuation">,</span> alpha<span class="token punctuation">:</span> <span class="token number">1.0</span><span class="token punctuation">)</span><span class="token punctuation">.</span>cgColor<span class="token punctuation">)</span>
+        context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">setLineJoin</span><span class="token punctuation">(</span><span class="token class-name">CGLineJoin</span><span class="token punctuation">.</span>round<span class="token punctuation">)</span>
+
+        <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token number">1</span><span class="token operator">...</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>vertices<span class="token punctuation">.</span>count <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">let</span> x1 <span class="token operator">=</span> <span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>vertices<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient <span class="token operator">+</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>stroke <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token keyword">let</span> y1 <span class="token operator">=</span> <span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>vertices<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient <span class="token operator">+</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>stroke <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+            <span class="token keyword">if</span> i <span class="token operator">==</span> <span class="token number">1</span> <span class="token punctuation">{</span>
+                <span class="token keyword">let</span> x0 <span class="token operator">=</span> <span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>vertices<span class="token punctuation">[</span>i <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient <span class="token operator">+</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>stroke <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token keyword">let</span> y0 <span class="token operator">=</span> <span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>vertices<span class="token punctuation">[</span>i <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient <span class="token operator">+</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>stroke <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+                shapePathRef<span class="token punctuation">.</span><span class="token function">move</span><span class="token punctuation">(</span>to<span class="token punctuation">:</span> <span class="token class-name">CGPoint</span><span class="token punctuation">(</span>x<span class="token punctuation">:</span> x0<span class="token punctuation">,</span> y<span class="token punctuation">:</span> y0<span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token punctuation">}</span>
+
+            shapePathRef<span class="token punctuation">.</span><span class="token function">addLine</span><span class="token punctuation">(</span>to<span class="token punctuation">:</span> <span class="token class-name">CGPoint</span><span class="token punctuation">(</span>x<span class="token punctuation">:</span> x1<span class="token punctuation">,</span> y<span class="token punctuation">:</span> y1<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+
+        shapePathRef<span class="token punctuation">.</span><span class="token function">closeSubpath</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">addPath</span><span class="token punctuation">(</span>shapePathRef<span class="token punctuation">)</span>
+        context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">fillPath</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        <span class="token comment">// draw connections</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>c0<span class="token punctuation">,</span> c1<span class="token punctuation">)</span> <span class="token keyword">in</span> tileParams<span class="token punctuation">.</span>connections <span class="token punctuation">{</span>
+            context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">setLineWidth</span><span class="token punctuation">(</span><span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>pathStroke<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+            <span class="token keyword">let</span> connectionPathRef<span class="token punctuation">:</span> <span class="token class-name">CGMutablePath</span> <span class="token operator">=</span> <span class="token class-name">CGMutablePath</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token keyword">var</span> pathColor<span class="token punctuation">:</span> <span class="token class-name">CGColor</span>
+
+            <span class="token keyword">if</span> tileParams<span class="token punctuation">.</span>mark<span class="token punctuation">.</span><span class="token function">contains</span><span class="token punctuation">(</span><span class="token keyword">where</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">(</span><span class="token short-argument">$0</span><span class="token punctuation">.</span><span class="token number">0</span> <span class="token operator">==</span> c0 <span class="token operator">&amp;&amp;</span> <span class="token short-argument">$0</span><span class="token punctuation">.</span><span class="token number">1</span> <span class="token operator">==</span> c1<span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token punctuation">(</span><span class="token short-argument">$0</span><span class="token punctuation">.</span><span class="token number">0</span> <span class="token operator">==</span> c1 <span class="token operator">&amp;&amp;</span> <span class="token short-argument">$0</span><span class="token punctuation">.</span><span class="token number">1</span> <span class="token operator">==</span> c0<span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                pathColor <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>markPathColor<span class="token punctuation">.</span>cgColor
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> tileParams<span class="token punctuation">.</span>highlight<span class="token punctuation">.</span><span class="token function">contains</span><span class="token punctuation">(</span><span class="token keyword">where</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">(</span><span class="token short-argument">$0</span><span class="token punctuation">.</span><span class="token number">0</span> <span class="token operator">==</span> c0 <span class="token operator">&amp;&amp;</span> <span class="token short-argument">$0</span><span class="token punctuation">.</span><span class="token number">1</span> <span class="token operator">==</span> c1<span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token punctuation">(</span><span class="token short-argument">$0</span><span class="token punctuation">.</span><span class="token number">0</span> <span class="token operator">==</span> c1 <span class="token operator">&amp;&amp;</span> <span class="token short-argument">$0</span><span class="token punctuation">.</span><span class="token number">1</span> <span class="token operator">==</span> c0<span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                pathColor <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>highlightPathColor<span class="token punctuation">.</span>cgColor
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                pathColor <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>pathColor<span class="token punctuation">.</span>cgColor
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">let</span> p0x <span class="token operator">=</span> <span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>pins<span class="token punctuation">[</span>c0<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient <span class="token operator">+</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>stroke <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token keyword">let</span> p0y <span class="token operator">=</span> <span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>pins<span class="token punctuation">[</span>c0<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient <span class="token operator">+</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>stroke <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+            <span class="token keyword">let</span> p1x <span class="token operator">=</span> <span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>pins<span class="token punctuation">[</span>c1<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient <span class="token operator">+</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>stroke <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token keyword">let</span> p1y <span class="token operator">=</span> <span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>pins<span class="token punctuation">[</span>c1<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token keyword">self</span><span class="token punctuation">.</span>scaleCoefficient <span class="token operator">+</span> <span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>stroke <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+            connectionPathRef<span class="token punctuation">.</span><span class="token function">move</span><span class="token punctuation">(</span>to<span class="token punctuation">:</span> <span class="token class-name">CGPoint</span><span class="token punctuation">(</span>x<span class="token punctuation">:</span> p0x<span class="token punctuation">,</span> y<span class="token punctuation">:</span> p0y<span class="token punctuation">)</span><span class="token punctuation">)</span>
+            connectionPathRef<span class="token punctuation">.</span><span class="token function">addQuadCurve</span><span class="token punctuation">(</span>to<span class="token punctuation">:</span> <span class="token class-name">CGPoint</span><span class="token punctuation">(</span>x<span class="token punctuation">:</span> p1x<span class="token punctuation">,</span> y<span class="token punctuation">:</span> p1y<span class="token punctuation">)</span><span class="token punctuation">,</span> control<span class="token punctuation">:</span> <span class="token class-name">CGPoint</span><span class="token punctuation">(</span>x<span class="token punctuation">:</span> <span class="token keyword">self</span><span class="token punctuation">.</span>centerX<span class="token punctuation">,</span> y<span class="token punctuation">:</span> <span class="token keyword">self</span><span class="token punctuation">.</span>centerY<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+            context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">setLineWidth</span><span class="token punctuation">(</span><span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>pathStroke<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">1.25</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">setStrokeColor</span><span class="token punctuation">(</span><span class="token class-name">UIColor</span><span class="token punctuation">.</span>black<span class="token punctuation">.</span>cgColor<span class="token punctuation">)</span>
+            context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">addPath</span><span class="token punctuation">(</span>connectionPathRef<span class="token punctuation">)</span>
+            context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">strokePath</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+            context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">setLineWidth</span><span class="token punctuation">(</span><span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>pathStroke<span class="token punctuation">)</span><span class="token punctuation">)</span>
+            context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">setStrokeColor</span><span class="token punctuation">(</span>pathColor<span class="token punctuation">)</span>
+            context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">addPath</span><span class="token punctuation">(</span>connectionPathRef<span class="token punctuation">)</span>
+            context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">strokePath</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// stroke out the outer shape to cover the paths</span>
+        context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">setStrokeColor</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>strokeColor<span class="token punctuation">.</span>cgColor<span class="token punctuation">)</span>
+        context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">setLineWidth</span><span class="token punctuation">(</span><span class="token class-name">CGFloat</span><span class="token punctuation">(</span><span class="token class-name">Float</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>renderingParams<span class="token punctuation">.</span>stroke<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">addPath</span><span class="token punctuation">(</span>shapePathRef<span class="token punctuation">)</span>
+        context<span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">strokePath</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        <span class="token comment">// finish drawing</span>
+        <span class="token keyword">let</span> image <span class="token operator">=</span> <span class="token class-name">UIGraphicsGetImageFromCurrentImageContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token class-name">UIGraphicsEndImageContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+        <span class="token keyword">return</span> image<span class="token operator">!</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>As you can see, two major things happened here:</p>
+<ol>
+<li>I encapsulated all the parameters like line stroke width and line colors ina a separate class, <code>RenderingParams</code></li>
+<li>I added rendering lines using two-time rendering technique to emulate borders over connection lines; e. g. I first draw a thick line, filled with the stroke color, which should be applied, and then I render a thinner line with exactly the same coordinates, but different color; doing so, the bottom line becomes just a background for the top one</li>
+</ol>
+<p>Now, tiles should be rotated. To do that, two tricks have been applied:</p>
+<ol>
+<li>as we have our tiles drawn as <code>UIImage</code>, we can simply rotate that image around its center to create the visual effect of rotation</li>
+<li>as we have our connection pins as a plain array, we can just re-calculate the indices of connection’s <em>“input”</em> and <em>“output”</em></li>
+</ol>
+<p>There are a couple of points, which should be described prior to the algorithm of a tile rotation.</p>
+<p>The tiles are connected using those connection pins. And based on the coordinates of a tile and its
+neighbor, we can tell, which pins of those two will be connected. And since our game goal is to prolong
+a single line, by keeping track of which connections of which tiles form a line, we may define a couple
+rules:</p>
+<ul>
+<li>given connected pins inside one tile, we may describe that connection in two pins’ indices, namely <em>“input”</em> and <em>“output”</em></li>
+<li>connections of a tile, not involved in forming a line, can be treated in either way - input and output could be named in a reversed order <em>(again, <strong>unless they are forming a line</strong>, otherwise it’s essential to say where the line comes from and where it ends inside a given tile)</em></li>
+<li>the central tile will have only one output - the one, where the line starts its journey; let it be the connection pair <code>(0, 0)</code></li>
+<li>one can easily calculate the neighbor’s output, given the last tile of a line path and its successor</li>
+</ul>
+<p>Let’s define a class <code>Tile</code>:</p>
+<pre><code class="language-swift"><span class="token keyword">class</span> <span class="token class-name">Tile</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> connections<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token class-name">Int</span><span class="token punctuation">,</span> <span class="token class-name">Int</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Simple enough, right? Now let’s assume our program will fill out <code>connections</code> list automatically and
+all the tiles will be assigned the correct list of connections. Given that, we may define two helper
+methods on a <code>Tile</code> class:</p>
+<pre><code class="language-swift"><span class="token keyword">class</span> <span class="token class-name">Tile</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> connections<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token class-name">Int</span><span class="token punctuation">,</span> <span class="token class-name">Int</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">func</span> <span class="token function-definition function">output</span><span class="token punctuation">(</span>from input<span class="token punctuation">:</span> <span class="token class-name">Int</span><span class="token punctuation">)</span> <span class="token operator">-></span> <span class="token class-name">Int</span> <span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>inPin<span class="token punctuation">,</span> outPin<span class="token punctuation">)</span> <span class="token keyword">in</span> <span class="token keyword">self</span><span class="token punctuation">.</span>connections <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> inPin <span class="token operator">==</span> input <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> outPin
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">if</span> outPin <span class="token operator">==</span> input <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> inPin
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">func</span> <span class="token function-definition function">input</span><span class="token punctuation">(</span>from output<span class="token punctuation">:</span> <span class="token class-name">Int</span><span class="token punctuation">)</span> <span class="token operator">-></span> <span class="token class-name">Int</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>output <span class="token operator">%</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token punctuation">(</span>output <span class="token operator">+</span> <span class="token number">12</span> <span class="token operator">-</span> <span class="token number">5</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token number">12</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token punctuation">(</span>output <span class="token operator">+</span> <span class="token number">12</span> <span class="token operator">+</span> <span class="token number">5</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token number">12</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>The first one, <code>output(from input: Int)</code> will return us the output index inside a given tile, where the line
+will come out from, when entering our tile from input with index <code>from</code>.</p>
+<p>So, for example, given a tile with connections</p>
+<pre><code class="language-swift"><span class="token keyword">let</span> t<span class="token punctuation">:</span> <span class="token class-name">Tile</span> <span class="token operator">=</span> <span class="token class-name">Tile</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+t<span class="token punctuation">.</span>connections <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">11</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+</code></pre>
+<p>the call <code>t.output(from: 11)</code> will give us <code>8</code>, which could be easily found from the list of connections
+by hand.</p>
+<p>The second method will give us the input index inside the neighbor tile, which is connected to an output of
+the given tile.</p>
+<p>And for the example above, the call <code>t.input(from: 0)</code> will give us <code>7</code>. And here’s an image to show why:</p>
+<LazyImg src="/images/entanglement/entanglement-tile-neighbours.webp" alt="" />
+
+<p>Given we have a portion of a path layed out on a game plane already, there is only one way of correctly placing
+each next tile <em>(the path which is already present on a plane never changes and always comes to the same connection point)</em>.</p>
+<p>And now it’s finally the time to explain the rotation of the tiles!</p>
+<p>After a tile has been assigned a set of connected pins, the rotation should preserve those connections.
+The rotation operation uses modulo operation, as with calculating neighbor tile’s input pin index,
+but on a scale of each connection pair <em>(a pair of input and output)</em>:</p>
+<pre><code class="language-swift"><span class="token keyword">class</span> <span class="token class-name">Tile</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+
+    <span class="token keyword">func</span> <span class="token function-definition function">rotate</span><span class="token punctuation">(</span><span class="token omit keyword">_</span> direction<span class="token punctuation">:</span> <span class="token class-name">Int</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">self</span><span class="token punctuation">.</span>connections <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>connections<span class="token punctuation">.</span>map <span class="token punctuation">{</span> <span class="token punctuation">(</span>input<span class="token punctuation">:</span> <span class="token class-name">Int</span><span class="token punctuation">,</span> output<span class="token punctuation">:</span> <span class="token class-name">Int</span><span class="token punctuation">)</span> <span class="token keyword">in</span>
+            <span class="token punctuation">(</span><span class="token punctuation">(</span>input <span class="token operator">+</span> <span class="token punctuation">(</span>direction <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">12</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token number">12</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>output <span class="token operator">+</span> <span class="token punctuation">(</span>direction <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">12</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token number">12</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">//...</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Here, <code>direction</code> is either <code>1</code> for clockwise rotation or <code>-1</code> for counter-clockwise rotation.</p>
+<h1 id="path-prediction">Path prediction</h1>
+<p>Finding a place where to put the next tile is an iterative process, which hardly depends on a current tile
+(its connections and position) and the tiles which are already placed on the field.</p>
+<p>At the very beginning of the game, the next place could be set as a constant and is always above the
+central tile <em>(so if the central tile has the position <code>(4, 4)</code>, then the next place would be <code>(5, 5)</code> - along with the diagonal in our coordinate system)</em>.</p>
+<p>To track the boundaries of a field and the beginning of the line <em>(in other words - the places, where the line cannot go)</em>, I inherited a <code>Tile</code> class with a set of other classes just to track if the game can
+continue or not: <code>ZeroTile</code> and <code>BorderTile</code> represent restricted bounds of a game field.</p>
+<p>Now, given the output of a current tile, which the line will use to continue through the tile,
+we can predict where the next tile should be put on a field:</p>
+<pre><code class="language-swift"><span class="token keyword">func</span> <span class="token function-definition function">findNextPlace</span><span class="token punctuation">(</span><span class="token omit keyword">_</span> path<span class="token punctuation">:</span> <span class="token class-name">Path</span><span class="token punctuation">,</span> currentPosition<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token class-name">Int</span><span class="token punctuation">,</span> <span class="token class-name">Int</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">-></span> <span class="token punctuation">(</span><span class="token class-name">Int</span><span class="token punctuation">,</span> <span class="token class-name">Int</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> u<span class="token punctuation">:</span> <span class="token class-name">Int</span><span class="token punctuation">,</span> v<span class="token punctuation">:</span> <span class="token class-name">Int</span>
+    <span class="token punctuation">(</span>u<span class="token punctuation">,</span> v<span class="token punctuation">)</span> <span class="token operator">=</span> currentPosition
+
+    <span class="token keyword">let</span> output<span class="token punctuation">:</span> <span class="token class-name">Int</span> <span class="token operator">=</span> path<span class="token punctuation">.</span><span class="token function">lastOutput</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">switch</span> output <span class="token punctuation">{</span>
+    <span class="token keyword">case</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>u <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> v <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token keyword">case</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>u <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> v<span class="token punctuation">)</span>
+    <span class="token keyword">case</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>u<span class="token punctuation">,</span> v <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token keyword">case</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>u <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">,</span> v <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token keyword">case</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>u <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">,</span> v<span class="token punctuation">)</span>
+    <span class="token keyword">case</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">11</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>u<span class="token punctuation">,</span> v <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token keyword">default</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">(</span>u<span class="token punctuation">,</span> v<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>If, however, there is a tile at the next place on the field, we should use its connections to determine
+the next position.</p>
+<p>Otherwise, if the next position is either the border of a field or an empty space - we stop the search.</p>
+<p>Search itself is just as simple as that:</p>
+<pre><code class="language-swift"><span class="token keyword">func</span> <span class="token function-definition function">findFuturePath</span><span class="token punctuation">(</span><span class="token omit keyword">_</span> tile<span class="token punctuation">:</span> <span class="token class-name">NonEmptyTile</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token operator">-></span> <span class="token punctuation">(</span><span class="token class-name">Path</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token class-name">Int</span><span class="token punctuation">,</span> <span class="token class-name">Int</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token keyword">self</span><span class="token punctuation">.</span><span class="token function">isPathFinished</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">throw</span> <span class="token class-name">GameError</span><span class="token punctuation">.</span>gameOver
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">let</span> tmpPath<span class="token punctuation">:</span> <span class="token class-name">Path</span> <span class="token operator">=</span> <span class="token class-name">Path</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">var</span> tmpNextPlace<span class="token punctuation">:</span> <span class="token punctuation">(</span><span class="token class-name">Int</span><span class="token punctuation">,</span> <span class="token class-name">Int</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>nextPlace
+    <span class="token keyword">var</span> u<span class="token punctuation">:</span> <span class="token class-name">Int</span><span class="token punctuation">,</span> v<span class="token punctuation">:</span> <span class="token class-name">Int</span>
+
+    tmpPath<span class="token punctuation">.</span>items <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token keyword">self</span><span class="token punctuation">.</span>path<span class="token punctuation">.</span>items<span class="token punctuation">.</span>last<span class="token operator">!</span><span class="token punctuation">]</span>
+
+    <span class="token punctuation">(</span>u<span class="token punctuation">,</span> v<span class="token punctuation">)</span> <span class="token operator">=</span> tmpNextPlace
+
+    <span class="token keyword">while</span> <span class="token boolean">true</span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> lastOutput<span class="token punctuation">:</span> <span class="token class-name">Int</span> <span class="token operator">=</span> tmpPath<span class="token punctuation">.</span><span class="token function">lastOutput</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">var</span> nextTile<span class="token punctuation">:</span> <span class="token class-name">Tile</span>
+
+        <span class="token keyword">if</span> u <span class="token operator">==</span> <span class="token keyword">self</span><span class="token punctuation">.</span>nextPlace<span class="token punctuation">.</span><span class="token number">0</span> <span class="token operator">&amp;&amp;</span> v <span class="token operator">==</span> <span class="token keyword">self</span><span class="token punctuation">.</span>nextPlace<span class="token punctuation">.</span><span class="token number">1</span> <span class="token punctuation">{</span>
+            nextTile <span class="token operator">=</span> tile
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            nextTile <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>tiles<span class="token punctuation">[</span>u<span class="token punctuation">]</span><span class="token punctuation">[</span>v<span class="token punctuation">]</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">if</span> <span class="token operator">!</span><span class="token punctuation">(</span>nextTile <span class="token keyword">is</span> <span class="token class-name">NonEmptyTile</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">break</span>
+        <span class="token punctuation">}</span>
+
+        tmpPath<span class="token punctuation">.</span><span class="token function">expand</span><span class="token punctuation">(</span>u<span class="token punctuation">,</span> v<span class="token punctuation">:</span> v<span class="token punctuation">,</span> input<span class="token punctuation">:</span> nextTile<span class="token punctuation">.</span><span class="token function">input</span><span class="token punctuation">(</span>to<span class="token punctuation">:</span> lastOutput<span class="token punctuation">)</span><span class="token punctuation">,</span> output<span class="token punctuation">:</span> <span class="token keyword">try</span> nextTile<span class="token punctuation">.</span><span class="token function">outputFromNeighbourOutput</span><span class="token punctuation">(</span>from<span class="token punctuation">:</span> lastOutput<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+        tmpNextPlace <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span><span class="token function">findNextPlace</span><span class="token punctuation">(</span>tmpPath<span class="token punctuation">,</span> nextPlace<span class="token punctuation">:</span> tmpNextPlace<span class="token punctuation">)</span>
+
+        <span class="token keyword">if</span> u <span class="token operator">==</span> tmpNextPlace<span class="token punctuation">.</span><span class="token number">0</span> <span class="token operator">&amp;&amp;</span> v <span class="token operator">==</span> tmpNextPlace<span class="token punctuation">.</span><span class="token number">1</span> <span class="token punctuation">{</span>
+            <span class="token keyword">break</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token punctuation">(</span>u<span class="token punctuation">,</span> v<span class="token punctuation">)</span> <span class="token operator">=</span> tmpNextPlace
+    <span class="token punctuation">}</span>
+
+    tmpPath<span class="token punctuation">.</span>items<span class="token punctuation">.</span><span class="token function">removeFirst</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>tmpPath<span class="token punctuation">,</span> tmpNextPlace<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h1 id="counting-points">Counting points</h1>
+<p>This task is quite simple, compared to the others described above. When a user places a tile, we estimate
+the length of a predicted path and add numbers from <code>[1..L]</code> <em>(where <code>L</code> is the length of the predicted path)</em>
+to score. This could be expressed as a sum of a finite arithmetic sequence with a step of <code>1</code>:</p>
+<LazyImg src="/images/entanglement/score_equation.webp" alt="" />
+
+<h1 id="the-end-result">The end result</h1>
+<p>The end result of this coding exercise looks like exactly as the one at the very top of this post:</p>
+<LazyImg src="/images/entanglement/ios-screen1.webp" alt="" />
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

@@ -1,0 +1,674 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Linq is awesome, right?</h1>
+
+    <time>11 Dec 2019 at 02:49</time>
+
+    <div class="content"><p>Recently I’ve seen a curious blog on Dev.to, <a href="https://dev.to/sduduzog/c-and-net-core-appreciation-post-the-most-beautiful-piece-of-code-i-have-ever-seen-this-month-49gf">C# and .NET Core Appreciation Post. The most beautiful piece of code I have ever seen… this month!</a>.</p>
+<p>In short, author was amazed by how beautiful Linq is, supporting their feelings with this code snippet:</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> token<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token class-name"><span class="token keyword">var</span></span> user <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">from</span> u <span class="token keyword">in</span> Users
+              <span class="token keyword">join</span> t <span class="token keyword">in</span> Tokens <span class="token keyword">on</span> u<span class="token punctuation">.</span>Id equals t<span class="token punctuation">.</span>UserId
+              <span class="token keyword">where</span> <span class="token class-name">t</span><span class="token punctuation">.</span>Body <span class="token operator">==</span> token
+              <span class="token keyword">select</span> u<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> user<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Let’s tear this example apart and check how really <del>performant</del> beautiful Linq is!</p>
+<!--more-->
+
+<p>The boilerplate code to make the thing not fall apart:</p>
+<pre><code class="language-csharp"><span class="token keyword">using</span> <span class="token namespace">System</span><span class="token punctuation">;</span>
+<span class="token keyword">using</span> <span class="token namespace">System<span class="token punctuation">.</span>Collections<span class="token punctuation">.</span>Generic</span><span class="token punctuation">;</span>
+<span class="token keyword">using</span> <span class="token namespace">System<span class="token punctuation">.</span>Linq</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token return-type class-name"><span class="token keyword">string</span></span> Id <span class="token punctuation">{</span> <span class="token keyword">get</span><span class="token punctuation">;</span> <span class="token keyword">set</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token function">User</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> Id<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>Id <span class="token operator">=</span> Id<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Token</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token return-type class-name"><span class="token keyword">string</span></span> UserId <span class="token punctuation">{</span> <span class="token keyword">get</span><span class="token punctuation">;</span> <span class="token keyword">set</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token return-type class-name"><span class="token keyword">string</span></span> Body <span class="token punctuation">{</span> <span class="token keyword">get</span><span class="token punctuation">;</span> <span class="token keyword">set</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token function">Token</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> UserId<span class="token punctuation">,</span> <span class="token class-name"><span class="token keyword">string</span></span> Body<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>UserId <span class="token operator">=</span> UserId<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>Body <span class="token operator">=</span> Body<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Context</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token class-name">List<span class="token punctuation">&lt;</span>User<span class="token punctuation">></span></span> Users <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span>User<span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token class-name">List<span class="token punctuation">&lt;</span>Token<span class="token punctuation">></span></span> Tokens <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span>Token<span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> token<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token class-name"><span class="token keyword">var</span></span> user <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">from</span> u <span class="token keyword">in</span> Users
+                    <span class="token keyword">join</span> t <span class="token keyword">in</span> Tokens <span class="token keyword">on</span> u<span class="token punctuation">.</span>Id equals t<span class="token punctuation">.</span>UserId
+                    <span class="token keyword">where</span> <span class="token class-name">t</span><span class="token punctuation">.</span>Body <span class="token operator">==</span> token
+                    <span class="token keyword">select</span> u<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> user<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MainClass</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token return-type class-name"><span class="token keyword">void</span></span> <span class="token function">Main</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span><span class="token punctuation">[</span><span class="token punctuation">]</span></span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token class-name">Context</span> context <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Context</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        context<span class="token punctuation">.</span>Users<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">User</span><span class="token punctuation">(</span><span class="token string">"1001"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        context<span class="token punctuation">.</span>Users<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">User</span><span class="token punctuation">(</span><span class="token string">"1002"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        context<span class="token punctuation">.</span>Users<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">User</span><span class="token punctuation">(</span><span class="token string">"1006"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        context<span class="token punctuation">.</span>Tokens<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">Token</span><span class="token punctuation">(</span><span class="token string">"1002"</span><span class="token punctuation">,</span> <span class="token string">"Weirdo"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        context<span class="token punctuation">.</span>Tokens<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">Token</span><span class="token punctuation">(</span><span class="token string">"1001"</span><span class="token punctuation">,</span> <span class="token string">"Waldo"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// at this point we want to start counting accesses from scratch</span>
+        Console<span class="token punctuation">.</span><span class="token function">WriteLine</span><span class="token punctuation">(</span><span class="token string">"---"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        Console<span class="token punctuation">.</span><span class="token function">WriteLine</span><span class="token punctuation">(</span><span class="token string">"User by token {0} = {1}"</span><span class="token punctuation">,</span> <span class="token string">"Waldo"</span><span class="token punctuation">,</span> context<span class="token punctuation">.</span><span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token string">"Waldo"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>I am going to modify it slightly for the sake of metrics a bit later, but first let us see what
+code does C# generate in order for those magical SQL-like operators to do their thing. I am using <a href="https://sharplab.io/">https://sharplab.io/</a> for that purpose.</p>
+<p>The code generated for <code>Context#GetUserByToken</code>:</p>
+<pre><code class="language-csharp"><span class="token punctuation">[</span><span class="token attribute"><span class="token class-name">CompilerGenerated</span></span><span class="token punctuation">]</span>
+<span class="token keyword">private</span> <span class="token keyword">sealed</span> <span class="token keyword">class</span> <span class="token operator">&lt;</span><span class="token operator">></span>c__DisplayClass2_0
+<span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token class-name"><span class="token keyword">string</span></span> token<span class="token punctuation">;</span>
+
+    <span class="token keyword">internal</span> <span class="token keyword">bool</span> <span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span><span class="token function">b__3</span><span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>f__AnonymousType0<span class="token operator">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token operator">></span> <span class="token operator">&lt;</span><span class="token operator">></span>h__TransparentIdentifier0<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token operator">&lt;</span><span class="token operator">></span>h__TransparentIdentifier0<span class="token punctuation">.</span>t<span class="token punctuation">.</span>Body <span class="token operator">==</span> token<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token punctuation">[</span><span class="token attribute"><span class="token class-name">Serializable</span></span><span class="token punctuation">]</span>
+<span class="token punctuation">[</span><span class="token attribute"><span class="token class-name">CompilerGenerated</span></span><span class="token punctuation">]</span>
+<span class="token keyword">private</span> <span class="token keyword">sealed</span> <span class="token keyword">class</span> <span class="token operator">&lt;</span><span class="token operator">></span>c
+<span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">readonly</span> <span class="token operator">&lt;</span><span class="token operator">></span>c <span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token operator">&lt;</span><span class="token operator">></span><span class="token function">c</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> Func<span class="token operator">&lt;</span>User<span class="token punctuation">,</span> <span class="token keyword">string</span><span class="token operator">></span> <span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_0</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> Func<span class="token operator">&lt;</span>Token<span class="token punctuation">,</span> <span class="token keyword">string</span><span class="token operator">></span> <span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_1</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> Func<span class="token operator">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">,</span> <span class="token operator">&lt;</span><span class="token operator">></span>f__AnonymousType0<span class="token operator">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token operator">>></span> <span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_2</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> Func<span class="token operator">&lt;&lt;</span><span class="token operator">></span>f__AnonymousType0<span class="token operator">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token operator">></span><span class="token punctuation">,</span> User<span class="token operator">></span> <span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_4</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">internal</span> <span class="token keyword">string</span> <span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span><span class="token function">b__2_0</span><span class="token punctuation">(</span><span class="token class-name">User</span> u<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> u<span class="token punctuation">.</span>Id<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">internal</span> <span class="token keyword">string</span> <span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span><span class="token function">b__2_1</span><span class="token punctuation">(</span><span class="token class-name">Token</span> t<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> t<span class="token punctuation">.</span>UserId<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">internal</span> <span class="token operator">&lt;</span><span class="token operator">></span>f__AnonymousType0<span class="token operator">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token operator">></span> <span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span><span class="token function">b__2_2</span><span class="token punctuation">(</span><span class="token class-name">User</span> u<span class="token punctuation">,</span> <span class="token class-name">Token</span> t<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token operator">&lt;</span><span class="token operator">></span><span class="token generic-method"><span class="token function">f__AnonymousType0</span><span class="token generic class-name"><span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span></span><span class="token punctuation">(</span>u<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">internal</span> User <span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span><span class="token function">b__2_4</span><span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>f__AnonymousType0<span class="token operator">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token operator">></span> <span class="token operator">&lt;</span><span class="token operator">></span>h__TransparentIdentifier0<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token operator">&lt;</span><span class="token operator">></span>h__TransparentIdentifier0<span class="token punctuation">.</span>u<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> token<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token operator">&lt;</span><span class="token operator">></span>c__DisplayClass2_0 <span class="token operator">&lt;</span><span class="token operator">></span>c__DisplayClass2_ <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token operator">&lt;</span><span class="token operator">></span><span class="token function">c__DisplayClass2_0</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token operator">&lt;</span><span class="token operator">></span>c__DisplayClass2_<span class="token punctuation">.</span>token <span class="token operator">=</span> token<span class="token punctuation">;</span>
+    <span class="token keyword">return</span> Enumerable<span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span>Enumerable<span class="token punctuation">.</span><span class="token function">Select</span><span class="token punctuation">(</span>Enumerable<span class="token punctuation">.</span><span class="token function">Where</span><span class="token punctuation">(</span>Enumerable<span class="token punctuation">.</span><span class="token function">Join</span><span class="token punctuation">(</span>Users<span class="token punctuation">,</span> Tokens<span class="token punctuation">,</span> <span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_0</span> <span class="token operator">??</span> <span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_0</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> <span class="token keyword">string</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9</span><span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>b__2_0<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_1</span> <span class="token operator">??</span> <span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_1</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span>Token<span class="token punctuation">,</span> <span class="token keyword">string</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9</span><span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>b__2_1<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_2</span> <span class="token operator">??</span> <span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_2</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">,</span> <span class="token punctuation">&lt;</span><span class="token punctuation">></span>f__AnonymousType0<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9</span><span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>b__2_2<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span><span class="token punctuation">&lt;</span><span class="token punctuation">></span>f__AnonymousType0<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">,</span> <span class="token keyword">bool</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c__DisplayClass2_<span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>b__3<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_4</span> <span class="token operator">??</span> <span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_4</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span><span class="token punctuation">&lt;</span><span class="token punctuation">></span>f__AnonymousType0<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">,</span> User<span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9</span><span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>b__2_4<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>If you format it a bit, you might see few issues with it:</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> token<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token operator">&lt;</span><span class="token operator">></span>c__DisplayClass2_0 <span class="token operator">&lt;</span><span class="token operator">></span>c__DisplayClass2_ <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token operator">&lt;</span><span class="token operator">></span><span class="token function">c__DisplayClass2_0</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token operator">&lt;</span><span class="token operator">></span>c__DisplayClass2_<span class="token punctuation">.</span>token <span class="token operator">=</span> token<span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> Enumerable<span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span>
+        Enumerable<span class="token punctuation">.</span><span class="token function">Select</span><span class="token punctuation">(</span>
+            Enumerable<span class="token punctuation">.</span><span class="token function">Where</span><span class="token punctuation">(</span>
+                Enumerable<span class="token punctuation">.</span><span class="token function">Join</span><span class="token punctuation">(</span>
+                    Users<span class="token punctuation">,</span>
+                    Tokens<span class="token punctuation">,</span>
+                    <span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_0</span> <span class="token operator">??</span> <span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_0</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> <span class="token keyword">string</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9</span><span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>b__2_0<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    <span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_1</span> <span class="token operator">??</span> <span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_1</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span>Token<span class="token punctuation">,</span> <span class="token keyword">string</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9</span><span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>b__2_1<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    <span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_2</span> <span class="token operator">??</span> <span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_2</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">,</span> <span class="token punctuation">&lt;</span><span class="token punctuation">></span>f__AnonymousType0<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9</span><span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>b__2_2<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token punctuation">)</span><span class="token punctuation">,</span>
+                <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span><span class="token punctuation">&lt;</span><span class="token punctuation">></span>f__AnonymousType0<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">,</span> <span class="token keyword">bool</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c__DisplayClass2_<span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>b__3<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                <span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_4</span> <span class="token operator">??</span> <span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9__2_4</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span><span class="token punctuation">&lt;</span><span class="token punctuation">></span>f__AnonymousType0<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">,</span> User<span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token operator">&lt;</span><span class="token operator">></span>c<span class="token punctuation">.</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token number">9</span><span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>b__2_4<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Now remove those mangled names:</p>
+<pre><code class="language-csharp"><span class="token punctuation">[</span><span class="token attribute"><span class="token class-name">CompilerGenerated</span></span><span class="token punctuation">]</span>
+<span class="token keyword">private</span> <span class="token keyword">sealed</span> <span class="token keyword">class</span> <span class="token class-name">Result</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token class-name"><span class="token keyword">string</span></span> token<span class="token punctuation">;</span>
+
+    <span class="token keyword">internal</span> <span class="token return-type class-name"><span class="token keyword">bool</span></span> <span class="token function">IsMatching</span><span class="token punctuation">(</span><span class="token class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span> userTokenPair<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> userTokenPair<span class="token punctuation">.</span>Second<span class="token punctuation">.</span>Body <span class="token operator">==</span> token<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token punctuation">[</span><span class="token attribute"><span class="token class-name">Serializable</span></span><span class="token punctuation">]</span>
+<span class="token punctuation">[</span><span class="token attribute"><span class="token class-name">CompilerGenerated</span></span><span class="token punctuation">]</span>
+<span class="token keyword">private</span> <span class="token keyword">sealed</span> <span class="token keyword">class</span> <span class="token class-name">c</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">readonly</span> <span class="token class-name">c</span> cInstance <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">c</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">Func<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> <span class="token keyword">string</span><span class="token punctuation">></span></span> fn1<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">Func<span class="token punctuation">&lt;</span>Token<span class="token punctuation">,</span> <span class="token keyword">string</span><span class="token punctuation">></span></span> fn2<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">Func<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">,</span> Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span> fn3<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">Func<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">,</span> User<span class="token punctuation">></span></span> fn4<span class="token punctuation">;</span>
+
+    <span class="token keyword">internal</span> <span class="token keyword">string</span> <span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span><span class="token function">GetUserId</span><span class="token punctuation">(</span><span class="token class-name">User</span> u<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> u<span class="token punctuation">.</span>Id<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">internal</span> <span class="token keyword">string</span> <span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span><span class="token function">GetTokenUserId</span><span class="token punctuation">(</span><span class="token class-name">Token</span> t<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> t<span class="token punctuation">.</span>UserId<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">internal</span> Pair<span class="token operator">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token operator">></span> <span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span><span class="token function">MakeUserTokenPair</span><span class="token punctuation">(</span><span class="token class-name">User</span> u<span class="token punctuation">,</span> <span class="token class-name">Token</span> t<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span><span class="token punctuation">(</span>u<span class="token punctuation">,</span> t<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">internal</span> User <span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span><span class="token function">GetUserFromUserTokenPair</span><span class="token punctuation">(</span><span class="token class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span> pair<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> pair<span class="token punctuation">.</span>u<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> searchToken<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token class-name">Result</span> result <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Result</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    result<span class="token punctuation">.</span>token <span class="token operator">=</span> searchToken<span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> Enumerable<span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span>
+        Enumerable<span class="token punctuation">.</span><span class="token function">Select</span><span class="token punctuation">(</span>
+            Enumerable<span class="token punctuation">.</span><span class="token function">Where</span><span class="token punctuation">(</span>
+                Enumerable<span class="token punctuation">.</span><span class="token function">Join</span><span class="token punctuation">(</span>
+                    Users<span class="token punctuation">,</span>
+                    Tokens<span class="token punctuation">,</span>
+                    c<span class="token punctuation">.</span>fn1 <span class="token operator">??</span> <span class="token punctuation">(</span>c<span class="token punctuation">.</span>fn1 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> <span class="token keyword">string</span><span class="token punctuation">></span></span><span class="token punctuation">(</span>c<span class="token punctuation">.</span>cInstance<span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>GetUserId<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    c<span class="token punctuation">.</span>fn2 <span class="token operator">??</span> <span class="token punctuation">(</span>c<span class="token punctuation">.</span>fn2 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span>Token<span class="token punctuation">,</span> <span class="token keyword">string</span><span class="token punctuation">></span></span><span class="token punctuation">(</span>c<span class="token punctuation">.</span>cInstance<span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>GetTokenUserId<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                    c<span class="token punctuation">.</span>fn3 <span class="token operator">??</span> <span class="token punctuation">(</span>c<span class="token punctuation">.</span>fn3 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">,</span> Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span><span class="token punctuation">(</span>c<span class="token punctuation">.</span>cInstance<span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>MakeUserTokenPair<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token punctuation">)</span><span class="token punctuation">,</span>
+                <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">,</span> <span class="token keyword">bool</span><span class="token punctuation">></span></span><span class="token punctuation">(</span>result<span class="token punctuation">.</span>IsMatching<span class="token punctuation">)</span>
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+            c<span class="token punctuation">.</span>fn4 <span class="token operator">??</span> <span class="token punctuation">(</span>c<span class="token punctuation">.</span>fn4 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Func<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">,</span> User<span class="token punctuation">></span></span><span class="token punctuation">(</span>c<span class="token punctuation">.</span>cInstance<span class="token punctuation">.</span><span class="token operator">&lt;</span>GetUserByToken<span class="token operator">></span>GetUserFromUserTokenPair<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>And, simplifying everything with lambdas:</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> searchToken<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token class-name">User</span> result<span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> Enumerable<span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span>
+        Enumerable<span class="token punctuation">.</span><span class="token function">Select</span><span class="token punctuation">(</span>
+            Enumerable<span class="token punctuation">.</span><span class="token function">Where</span><span class="token punctuation">(</span>
+                Enumerable<span class="token punctuation">.</span><span class="token function">Join</span><span class="token punctuation">(</span>
+                    Users<span class="token punctuation">,</span>
+                    Tokens<span class="token punctuation">,</span>
+                    user <span class="token operator">=></span> user<span class="token punctuation">.</span>Id<span class="token punctuation">,</span>
+                    token <span class="token operator">=></span> token<span class="token punctuation">.</span>UserId<span class="token punctuation">,</span>
+                    <span class="token punctuation">(</span>user<span class="token punctuation">,</span> token<span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span><span class="token punctuation">(</span>user<span class="token punctuation">,</span> token<span class="token punctuation">)</span>
+                <span class="token punctuation">)</span><span class="token punctuation">,</span>
+                userTokenPair<span class="token punctuation">.</span>Second<span class="token punctuation">.</span>Body <span class="token operator">==</span> searchToken
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+            userTokenPair <span class="token operator">=></span> userTokenPair<span class="token punctuation">.</span>First
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>If you have not noticed the issue just yet, continue reading.</p>
+<p>Now I am adding a simple debug output to check the calls LINQ makes whenever we call <code>Context#GetUserByToken</code>.
+To do that, I am simply going to smash <code>Console.WriteLine</code> statement to each getter of both <code>User</code> and <code>Tag</code> classes:</p>
+<pre><code class="language-csharp"><span class="token keyword">class</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token class-name"><span class="token keyword">string</span></span> _Id<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token return-type class-name"><span class="token keyword">string</span></span> Id <span class="token punctuation">{</span>
+        <span class="token keyword">get</span> <span class="token punctuation">{</span> Console<span class="token punctuation">.</span><span class="token function">WriteLine</span><span class="token punctuation">(</span><span class="token string">"User&lt;{0}>.Id was accessed"</span><span class="token punctuation">,</span> _Id<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token keyword">return</span> _Id<span class="token punctuation">;</span> <span class="token punctuation">}</span>
+
+        <span class="token keyword">set</span> <span class="token punctuation">{</span> _Id <span class="token operator">=</span> <span class="token keyword">value</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token function">User</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> Id<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>Id <span class="token operator">=</span> Id<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Token</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token class-name"><span class="token keyword">string</span></span> _UserId<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token class-name"><span class="token keyword">string</span></span> _Body<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token return-type class-name"><span class="token keyword">string</span></span> UserId <span class="token punctuation">{</span>
+        <span class="token keyword">get</span> <span class="token punctuation">{</span> Console<span class="token punctuation">.</span><span class="token function">WriteLine</span><span class="token punctuation">(</span><span class="token string">"Token&lt;{0}>.UserId was accessed"</span><span class="token punctuation">,</span> _Body<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token keyword">return</span> _UserId<span class="token punctuation">;</span> <span class="token punctuation">}</span>
+
+        <span class="token keyword">set</span> <span class="token punctuation">{</span> _UserId <span class="token operator">=</span> <span class="token keyword">value</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token return-type class-name"><span class="token keyword">string</span></span> Body <span class="token punctuation">{</span>
+        <span class="token keyword">get</span> <span class="token punctuation">{</span> Console<span class="token punctuation">.</span><span class="token function">WriteLine</span><span class="token punctuation">(</span><span class="token string">"Token&lt;{0}>.Body was accessed"</span><span class="token punctuation">,</span> _Body<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token keyword">return</span> _Body<span class="token punctuation">;</span> <span class="token punctuation">}</span>
+
+        <span class="token keyword">set</span> <span class="token punctuation">{</span> _Body <span class="token operator">=</span> <span class="token keyword">value</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token function">Token</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> UserId<span class="token punctuation">,</span> <span class="token class-name"><span class="token keyword">string</span></span> Body<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>UserId <span class="token operator">=</span> UserId<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>Body <span class="token operator">=</span> Body<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Seems like LINQ goes through all users and all their tokens:</p>
+<pre><code>---
+Token&lt;Weirdo&gt;.UserId was accessed
+Token&lt;Waldo&gt;.UserId was accessed
+User&lt;1001&gt;.Id was accessed
+Token&lt;Waldo&gt;.Body was accessed
+User&lt;1002&gt;.Id was accessed
+Token&lt;Weirdo&gt;.Body was accessed
+User&lt;1006&gt;.Id was accessed
+</code></pre>
+<p>If I was to add one more user like this</p>
+<pre><code class="language-csharp">context<span class="token punctuation">.</span>Users<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">User</span><span class="token punctuation">(</span><span class="token string">"1008"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>then the lookup iterates over those ones too:</p>
+<pre><code>---
+Token&lt;Weirdo&gt;.UserId was accessed
+Token&lt;Waldo&gt;.UserId was accessed
+User&lt;1001&gt;.Id was accessed
+Token&lt;Waldo&gt;.Body was accessed
+User&lt;1002&gt;.Id was accessed
+Token&lt;Weirdo&gt;.Body was accessed
+User&lt;1006&gt;.Id was accessed
+User&lt;1008&gt;.Id was accessed
+</code></pre>
+<p>If I assign a token to that user, it also will be visited:</p>
+<pre><code class="language-csharp">context<span class="token punctuation">.</span>Tokens<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">Token</span><span class="token punctuation">(</span><span class="token string">"1008"</span><span class="token punctuation">,</span> <span class="token string">"Quattro"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<pre><code>---
+Token&lt;Weirdo&gt;.UserId was accessed
+Token&lt;Waldo&gt;.UserId was accessed
+Token&lt;Quattro&gt;.UserId was accessed
+User&lt;1001&gt;.Id was accessed
+Token&lt;Waldo&gt;.Body was accessed
+User&lt;1002&gt;.Id was accessed
+Token&lt;Weirdo&gt;.Body was accessed
+User&lt;1006&gt;.Id was accessed
+User&lt;1008&gt;.Id was accessed
+Token&lt;Quattro&gt;.Body was accessed
+</code></pre>
+<p>And it is quite well reflected in the generated code - LINQ essentially generates a list of pairs for every user and token matching a <code>join</code> condition:</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> searchToken<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token class-name">User</span> result<span class="token punctuation">;</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span> tempCollection <span class="token operator">=</span> Enumerable<span class="token punctuation">.</span><span class="token function">Join</span><span class="token punctuation">(</span>
+        Users<span class="token punctuation">,</span>
+        Tokens<span class="token punctuation">,</span>
+        user <span class="token operator">=></span> user<span class="token punctuation">.</span>Id<span class="token punctuation">,</span>
+        token <span class="token operator">=></span> token<span class="token punctuation">.</span>UserId<span class="token punctuation">,</span>
+        <span class="token punctuation">(</span>user<span class="token punctuation">,</span> token<span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span><span class="token punctuation">(</span>user<span class="token punctuation">,</span> token<span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> Enumerable<span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span>
+        Enumerable<span class="token punctuation">.</span><span class="token function">Select</span><span class="token punctuation">(</span>
+            Enumerable<span class="token punctuation">.</span><span class="token function">Where</span><span class="token punctuation">(</span>
+                tempCollection<span class="token punctuation">,</span>
+                userTokenPair<span class="token punctuation">.</span>Second<span class="token punctuation">.</span>Body <span class="token operator">==</span> searchToken
+            <span class="token punctuation">)</span><span class="token punctuation">,</span>
+            userTokenPair <span class="token operator">=></span> userTokenPair<span class="token punctuation">.</span>First
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>If we continue extracting the calls to <code>Enumerable</code>, we will end up with something like this:</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> searchToken<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token class-name">User</span> result<span class="token punctuation">;</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span> tempCollection <span class="token operator">=</span> Enumerable<span class="token punctuation">.</span><span class="token function">Join</span><span class="token punctuation">(</span>
+        Users<span class="token punctuation">,</span>
+        Tokens<span class="token punctuation">,</span>
+        user <span class="token operator">=></span> user<span class="token punctuation">.</span>Id<span class="token punctuation">,</span>
+        token <span class="token operator">=></span> token<span class="token punctuation">.</span>UserId<span class="token punctuation">,</span>
+        <span class="token punctuation">(</span>user<span class="token punctuation">,</span> token<span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span><span class="token punctuation">(</span>user<span class="token punctuation">,</span> token<span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span> matchingPairs <span class="token operator">=</span> Enumerable<span class="token punctuation">.</span><span class="token function">Where</span><span class="token punctuation">(</span>
+        tempCollection<span class="token punctuation">,</span>
+        userTokenPair<span class="token punctuation">.</span>Second<span class="token punctuation">.</span>Body <span class="token operator">==</span> searchToken
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>User<span class="token punctuation">></span></span> transformedMatchingPairs <span class="token operator">=</span> Enumerable<span class="token punctuation">.</span><span class="token function">Select</span><span class="token punctuation">(</span>
+        matchingPairs<span class="token punctuation">,</span>
+        userTokenPair <span class="token operator">=></span> userTokenPair<span class="token punctuation">.</span>First
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> Enumerable<span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span>
+        transformedMatchingPairs
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Now, <code>Enumerable.Join</code> is the only tricky instruction here. It makes that big temporary join table (talking SQL and relational databases).
+It can be written as follows:</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> searchToken<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token class-name">User</span> result<span class="token punctuation">;</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span> tempCollection <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">User</span> user <span class="token keyword">in</span> Users<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">Token</span> token <span class="token keyword">in</span> Tokens<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>user<span class="token punctuation">.</span>Id <span class="token operator">==</span> token<span class="token punctuation">.</span>UserId<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                tempCollection<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span><span class="token punctuation">(</span>user<span class="token punctuation">,</span> token<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span> matchingPairs <span class="token operator">=</span> Enumerable<span class="token punctuation">.</span><span class="token function">Where</span><span class="token punctuation">(</span>
+        tempCollection<span class="token punctuation">,</span>
+        userTokenPair<span class="token punctuation">.</span>Second<span class="token punctuation">.</span>Body <span class="token operator">==</span> searchToken
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>User<span class="token punctuation">></span></span> transformedMatchingPairs <span class="token operator">=</span> Enumerable<span class="token punctuation">.</span><span class="token function">Select</span><span class="token punctuation">(</span>
+        matchingPairs<span class="token punctuation">,</span>
+        userTokenPair <span class="token operator">=></span> userTokenPair<span class="token punctuation">.</span>First
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> Enumerable<span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span>
+        transformedMatchingPairs
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>The <code>Enumerable.Where</code> call simply filters the collection:</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> searchToken<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token class-name">User</span> result<span class="token punctuation">;</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span> tempCollection <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">User</span> user <span class="token keyword">in</span> Users<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">Token</span> token <span class="token keyword">in</span> Tokens<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>user<span class="token punctuation">.</span>Id <span class="token operator">==</span> token<span class="token punctuation">.</span>UserId<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                tempCollection<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span><span class="token punctuation">(</span>user<span class="token punctuation">,</span> token<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span> matchingPairs <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span> userTokenPair <span class="token keyword">in</span> tempCollection<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>userTokenPair<span class="token punctuation">.</span>Second<span class="token punctuation">.</span>Body <span class="token operator">==</span> searchToken<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            matchingPairs<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span>userTokenPair<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>User<span class="token punctuation">></span></span> transformedMatchingPairs <span class="token operator">=</span> Enumerable<span class="token punctuation">.</span><span class="token function">Select</span><span class="token punctuation">(</span>
+        matchingPairs<span class="token punctuation">,</span>
+        userTokenPair <span class="token operator">=></span> userTokenPair<span class="token punctuation">.</span>First
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> Enumerable<span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span>
+        transformedMatchingPairs
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>The <code>Enumerable.Select</code> call maps the collection onto some other collection:</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> searchToken<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token class-name">User</span> result<span class="token punctuation">;</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span> tempCollection <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">User</span> user <span class="token keyword">in</span> Users<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">Token</span> token <span class="token keyword">in</span> Tokens<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>user<span class="token punctuation">.</span>Id <span class="token operator">==</span> token<span class="token punctuation">.</span>UserId<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                tempCollection<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span><span class="token punctuation">(</span>user<span class="token punctuation">,</span> token<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span> matchingPairs <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span> userTokenPair <span class="token keyword">in</span> tempCollection<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>userTokenPair<span class="token punctuation">.</span>Second<span class="token punctuation">.</span>Body <span class="token operator">==</span> searchToken<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            matchingPairs<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span>userTokenPair<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>User<span class="token punctuation">></span></span> transformedMatchingPairs <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span> userTokenPair <span class="token keyword">in</span> matchingPairs<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        transformedMatchingPairs<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span>userTokenPair<span class="token punctuation">.</span>First<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> Enumerable<span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span>
+        transformedMatchingPairs
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>And finally, <code>Enumerable.SingleOrDefault</code> returns the first element of the collection or the default value (<code>null</code> in this case):</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> searchToken<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token class-name">User</span> result<span class="token punctuation">;</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span> tempCollection <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">User</span> user <span class="token keyword">in</span> Users<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">Token</span> token <span class="token keyword">in</span> Tokens<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>user<span class="token punctuation">.</span>Id <span class="token operator">==</span> token<span class="token punctuation">.</span>UserId<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                tempCollection<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span><span class="token punctuation">(</span>user<span class="token punctuation">,</span> token<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span><span class="token punctuation">></span></span> matchingPairs <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span> userTokenPair <span class="token keyword">in</span> tempCollection<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>userTokenPair<span class="token punctuation">.</span>Second<span class="token punctuation">.</span>Body <span class="token operator">==</span> searchToken<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            matchingPairs<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span>userTokenPair<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>User<span class="token punctuation">></span></span> transformedMatchingPairs <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">Pair<span class="token punctuation">&lt;</span>User<span class="token punctuation">,</span> Token<span class="token punctuation">></span></span> userTokenPair <span class="token keyword">in</span> matchingPairs<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        transformedMatchingPairs<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span>userTokenPair<span class="token punctuation">.</span>First<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>transformedMatchingPairs<span class="token punctuation">.</span>Size <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">?</span> transformedMatchingPairs<span class="token punctuation">.</span><span class="token function">Get</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>If we remove the unnecessary (for us as the developers) transformations and intermediate collections, we will end up
+with the code, <em>similar</em> to the naive implementation of the same logic with two nested loops:</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> searchedToken<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">User</span> user <span class="token keyword">in</span> Users<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">foreach</span> <span class="token punctuation">(</span><span class="token class-name">Token</span> token <span class="token keyword">in</span> Tokens<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>token<span class="token punctuation">.</span>UserId <span class="token operator">==</span> user<span class="token punctuation">.</span>Id <span class="token operator">&amp;&amp;</span> token<span class="token punctuation">.</span>Body <span class="token operator">==</span> searchedToken<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> user<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Except the naive implementation not generating a whole lot of code:</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> searchedToken<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token class-name">List<span class="token punctuation">&lt;</span>User<span class="token punctuation">></span><span class="token punctuation">.</span>Enumerator</span> enumerator <span class="token operator">=</span> Users<span class="token punctuation">.</span><span class="token function">GetEnumerator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">try</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">while</span> <span class="token punctuation">(</span>enumerator<span class="token punctuation">.</span><span class="token function">MoveNext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token class-name">User</span> current <span class="token operator">=</span> enumerator<span class="token punctuation">.</span>Current<span class="token punctuation">;</span>
+            <span class="token class-name">List<span class="token punctuation">&lt;</span>Token<span class="token punctuation">></span><span class="token punctuation">.</span>Enumerator</span> enumerator2 <span class="token operator">=</span> Tokens<span class="token punctuation">.</span><span class="token function">GetEnumerator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">try</span>
+            <span class="token punctuation">{</span>
+                <span class="token keyword">while</span> <span class="token punctuation">(</span>enumerator2<span class="token punctuation">.</span><span class="token function">MoveNext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token punctuation">{</span>
+                    <span class="token class-name">Token</span> current2 <span class="token operator">=</span> enumerator2<span class="token punctuation">.</span>Current<span class="token punctuation">;</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>current2<span class="token punctuation">.</span>UserId <span class="token operator">==</span> current<span class="token punctuation">.</span>Id <span class="token operator">&amp;&amp;</span> current2<span class="token punctuation">.</span>Body <span class="token operator">==</span> searchedToken<span class="token punctuation">)</span>
+                    <span class="token punctuation">{</span>
+                        <span class="token keyword">return</span> current<span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">finally</span>
+            <span class="token punctuation">{</span>
+                <span class="token punctuation">(</span><span class="token punctuation">(</span>IDisposable<span class="token punctuation">)</span>enumerator2<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">Dispose</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">finally</span>
+    <span class="token punctuation">{</span>
+        <span class="token punctuation">(</span><span class="token punctuation">(</span>IDisposable<span class="token punctuation">)</span>enumerator<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">Dispose</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>The real difference, however, is in the exact environment the code is running in:</p>
+<pre><code>---
+Token&lt;Weirdo&gt;.UserId was accessed
+User&lt;1001&gt;.Id was accessed
+Token&lt;Waldo&gt;.UserId was accessed
+User&lt;1001&gt;.Id was accessed
+Token&lt;Waldo&gt;.Body was accessed
+</code></pre>
+<p>So in the good-case-scenario, naive implementation <del>beats</del> does fewer operations than the LINQ code.</p>
+<p>The issue with both approaches is in the worst-case-scenario, which, as I have learned by heart, is the only possible scenario.
+They both are going to run in <code>O(n^2)</code> time at worst.</p>
+<p>Let’s consider a small optimization, using <em>indexes</em>:</p>
+<pre><code class="language-csharp"><span class="token keyword">class</span> <span class="token class-name">Context</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token class-name">Dictionary<span class="token punctuation">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> User<span class="token punctuation">></span></span> UserByToken <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Dictionary<span class="token punctuation">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> User<span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">private</span> <span class="token class-name">Dictionary<span class="token punctuation">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> User<span class="token punctuation">></span></span> UserById <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Dictionary<span class="token punctuation">&lt;</span><span class="token keyword">string</span><span class="token punctuation">,</span> User<span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token return-type class-name"><span class="token keyword">void</span></span> <span class="token function">AddUser</span><span class="token punctuation">(</span><span class="token class-name">User</span> u<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      Users<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span>u<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      UserById<span class="token punctuation">[</span>u<span class="token punctuation">.</span>Id<span class="token punctuation">]</span> <span class="token operator">=</span> u<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token return-type class-name"><span class="token keyword">void</span></span> <span class="token function">AddToken</span><span class="token punctuation">(</span><span class="token class-name">Token</span> t<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      Tokens<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      UserByToken<span class="token punctuation">[</span>t<span class="token punctuation">.</span>Body<span class="token punctuation">]</span> <span class="token operator">=</span> UserById<span class="token punctuation">[</span>t<span class="token punctuation">.</span>UserId<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken2</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> token<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> UserByToken<span class="token punctuation">[</span>token<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// then the main method needs to be adjusted correspondingly:</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MainClass</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token return-type class-name"><span class="token keyword">void</span></span> <span class="token function">Main</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span><span class="token punctuation">[</span><span class="token punctuation">]</span></span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token class-name">Context</span> context <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">Context</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        context<span class="token punctuation">.</span><span class="token function">AddUser</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">User</span><span class="token punctuation">(</span><span class="token string">"1001"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        context<span class="token punctuation">.</span><span class="token function">AddUser</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">User</span><span class="token punctuation">(</span><span class="token string">"1002"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        context<span class="token punctuation">.</span><span class="token function">AddUser</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">User</span><span class="token punctuation">(</span><span class="token string">"1006"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        context<span class="token punctuation">.</span><span class="token function">AddUser</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">User</span><span class="token punctuation">(</span><span class="token string">"1008"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        context<span class="token punctuation">.</span><span class="token function">AddToken</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">Token</span><span class="token punctuation">(</span><span class="token string">"1002"</span><span class="token punctuation">,</span> <span class="token string">"Weirdo"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        context<span class="token punctuation">.</span><span class="token function">AddToken</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">Token</span><span class="token punctuation">(</span><span class="token string">"1001"</span><span class="token punctuation">,</span> <span class="token string">"Waldo"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        context<span class="token punctuation">.</span><span class="token function">AddToken</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token constructor-invocation class-name">Token</span><span class="token punctuation">(</span><span class="token string">"1008"</span><span class="token punctuation">,</span> <span class="token string">"Quattro"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// at this point we want to start counting accesses from scratch</span>
+        Console<span class="token punctuation">.</span><span class="token function">WriteLine</span><span class="token punctuation">(</span><span class="token string">"---"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        Console<span class="token punctuation">.</span><span class="token function">WriteLine</span><span class="token punctuation">(</span><span class="token string">"User by token {0} = {1}"</span><span class="token punctuation">,</span> <span class="token string">"Waldo"</span><span class="token punctuation">,</span> context<span class="token punctuation">.</span><span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token string">"Waldo"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Essentially, whenever we add any user or tag, we put them in a dictionary <em>(an index)</em> in memory.</p>
+<p>Okay, we sacrifice some memory, but do we earn anything from it?</p>
+<p>The output of the program is very short:</p>
+<pre><code>User&lt;1001&gt;.Id was accessed
+User&lt;1002&gt;.Id was accessed
+User&lt;1006&gt;.Id was accessed
+User&lt;1008&gt;.Id was accessed
+Token&lt;Weirdo&gt;.Body was accessed
+Token&lt;Weirdo&gt;.UserId was accessed
+Token&lt;Waldo&gt;.Body was accessed
+Token&lt;Waldo&gt;.UserId was accessed
+Token&lt;Quattro&gt;.Body was accessed
+Token&lt;Quattro&gt;.UserId was accessed
+---
+User by token Waldo = User
+</code></pre>
+<p>So essentially, no collection is iterated. The access to the required object is immediate.</p>
+<p>One might argue that the examples here are very synthetic and do not showcase anything.
+But imagine a real product with millions or even billions of entities like those.
+Think an average Google-size organization using Jira. Now replace <code>User</code> with <code>Issue</code> and <code>Token</code> with <code>Comment</code>.
+I can assure you, the numbers would be 10-folded.</p>
+<p>Contra: the code is written to be read (more often than not) and deleted (my favourite scenario).
+So even thought hashmaps might seem appealing, indexing on few more fields might make the code hard to maintain.
+This is especially crucial for long-lasting projects, where developers come and go as the time passes.
+So <em>sometimes</em> this might be a necessary evil.</p>
+<p>But sometimes it is best to know the theory rather than the tool.</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

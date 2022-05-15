@@ -1,0 +1,268 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Gantt chart with D3. Part 2</h1>
+
+    <time>02 Aug 2020 at 05:04</time>
+
+    <div class="content"><p><strong>UPDATE:</strong> there is a follow-up to this blog, <a href="2021-03-04-gantt-chart-part3">Gantt chart with Canvas</a>.</p>
+<p>This is a follow-up to the blog I wrote a bit over three years ago, <a href="2017-04-09-gantt-chart-with-d3">Gantt chart with D3</a></p>
+<p>In the original blog I claimed to implement something like this:</p>
+<LazyImg src="/images/gantt_chart_with_d3/gantt-sample_optimized.webp" alt="" />
+
+<p>Yet I ended up implementing something more like this:</p>
+<LazyImg src="/images/gantt_chart_with_d3/d3-gantt-chart_optimized.webp" alt="" />
+
+<p>Does not look quite same, right? It also does not work quite same and lacks few quite important features too.</p>
+<p>Don’t get me wrong, the original implementation did serve project needs, but it was not something anybody could simply use in their project management software and expect customers to love it.</p>
+<p>Hence I came up with these complaints about the implementation:</p>
+<LazyImg src="/images/gantt_chart_with_d3_part2/complaints-min.webp" alt="" />
+
+<p>Namely, there are three main issues that I see:</p>
+<ol>
+<li>there is a place for mistakes: milestones are allowed to depend on later milestones or simultaneously going ones</li>
+<li>there is no clear distinction between the dates each specific milestone starts or ends</li>
+<li>if the milestones overlap with current timeframe, current day is not highlighted on the chart (and that often is useful)</li>
+</ol>
+<p>Apart from that, there are few technical challenges preventing his whole thing from becoming a real application component:</p>
+<ul>
+<li>dependency lines look ugly with those sharp corners</li>
+<li>the implementation is not based on any framework neither does it declare its dependencies (like D3 or MomentJS)</li>
+</ul>
+<p>Now I want to revise the original implementation and make it a bit more usable, just like this:</p>
+<LazyImg src="/images/gantt_chart_with_d3_part2/chart_with_current_date-min.webp" alt="" />
+
+<!--more-->
+
+<p>The plan for this blog is:</p>
+<ul>
+<li>Technical improvements<ul>
+<li>revise the implementation into a proper Node package</li>
+<li>optimize for bundle size</li>
+</ul>
+</li>
+<li>Feature improvements<ul>
+<li>render milestone conflicts in different style</li>
+<li>draw days on a background</li>
+<li>draw current date, if applicable</li>
+<li>make lines more like curves</li>
+</ul>
+</li>
+</ul>
+<h2 id="extracting-into-a-package">Extracting into a package</h2>
+<p>Well this one is pretty easy - you just do <code>npm init -y</code>, add dependencies with <code>npm install --save moment d3</code> and require them in your file.</p>
+<p>I went a tiny bit further and also changed few minor syntactic inconsistencies to follow with the more modern ES syntax:</p>
+<ul>
+<li>using <code>import</code> instead of <code>require()</code></li>
+<li>preferring <code>const</code> over <code>let</code> and <code>var</code></li>
+<li>replacing the <code>Object.assign</code> with spread operator</li>
+<li>passing in the default values to the function params instead of constantly checking for <code>null</code> and <code>undefined</code></li>
+</ul>
+<h2 id="bundling">Bundling</h2>
+<p>Although the package declares the dependencies, it does not really use them. Well, it could, but only in case it would be used in the system which defined <code>require()</code> function.</p>
+<p>D3 itself is a heavy package. Same applies to moment.js. If you bundle the library with anything (I have used Parcel to do it quickly), you’ll see that this relatively small library builds into a 500kB bundle.</p>
+<LazyImg src="/images/gantt_chart_with_d3_part2/bundle_size1-min.webp" alt="" />
+
+<p>I think that is quite ridiculous, so here are few considerations:</p>
+<ul>
+<li>replace momentjs with something more lightweight</li>
+<li>import only specific packages from D3 instead of the whole thing</li>
+</ul>
+<p>Let us actually start with D3.</p>
+<p>The library currently operates on few features from D3:</p>
+<ul>
+<li>selecting DOM nodes</li>
+<li>drawing<ul>
+<li>axes</li>
+<li>lines (actually, multilines or paths)</li>
+<li>rounded rectangles</li>
+<li>text</li>
+</ul>
+</li>
+<li>scaling values (across timeframe)</li>
+</ul>
+<p>These features actually come in just few D3 packages:</p>
+<ul>
+<li><code>d3-axis</code></li>
+<li><code>d3-scale</code></li>
+<li><code>d3-select</code></li>
+</ul>
+<pre><code class="language-js"><span class="token keyword">import</span> <span class="token punctuation">{</span> axisBottom <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'d3-axis'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> scaleTime <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'d3-scale'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> select <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'d3-selection'</span><span class="token punctuation">;</span>
+</code></pre>
+<p>By just using these three imports (and using these functions instead of their <code>d3.</code> counterparts), we can half the size of the bundle:</p>
+<LazyImg src="/images/gantt_chart_with_d3_part2/bundle_size2-min.webp" alt="" />
+
+<p>Some of the features (like drawing text) are actually just methods on the <code>selection</code>, provided by <code>d3-select</code> or the <code>path</code> object, provided by <code>d3-path</code>.</p>
+<h2 id="optimizing-even-more">Optimizing even more</h2>
+<p>Currently, <code>moment.js</code> is used for few purposes:</p>
+<ul>
+<li>parse the dates</li>
+<li>sort the milestones by dates</li>
+<li>calculate the length of each milestone based on its start and end dates or either of those and a duration</li>
+</ul>
+<p>Moment is quite a heavy thing. For now, let’s ignore date parsing and just replace the initial data with the <code>Date</code> object from the native APIs:</p>
+<pre><code class="language-js"><span class="token function">moment</span><span class="token punctuation">(</span>date<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// => date</span>
+date<span class="token punctuation">.</span><span class="token function">toDate</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// => date</span>
+date<span class="token punctuation">.</span><span class="token function">subtract</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// => date - x</span>
+date<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// => date + x</span>
+<span class="token function">moment</span><span class="token punctuation">(</span>string<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// => new Date(string)</span>
+</code></pre>
+<p>By doing so, we have cut another 60 kB off the bundle!</p>
+<LazyImg src="/images/gantt_chart_with_d3_part2/bundle_size3-min.webp" alt="" />
+
+<p>Before we do hardcore optimizations (getting rid of D3 itself), let us do a bit of feature work first.</p>
+<h2 id="detecting-conflicts">Detecting conflicts</h2>
+<p>To figure out if a given milestone conflicts with any other milestones, we have to traverse its dependencies and check if any of those start on or after the current milestone’s start date.</p>
+<p>Luckily the internal representation of a milestone already contains that data, so all we have to do is dependencies traversal:</p>
+<pre><code class="language-js"><span class="token keyword">const</span> <span class="token function-variable function">detectConflicts</span> <span class="token operator">=</span> <span class="token parameter">data</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> dataCache <span class="token operator">=</span> <span class="token function">createDataCacheById</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> data<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token parameter">milestone</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> errorousDependencies <span class="token operator">=</span> milestone<span class="token punctuation">.</span>dependsOn<span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token parameter">dependencyId</span> <span class="token operator">=></span> dataCache<span class="token punctuation">[</span>dependencyId<span class="token punctuation">]</span><span class="token punctuation">.</span>startDate <span class="token operator">>=</span> milestone<span class="token punctuation">.</span>startDate<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    milestone<span class="token punctuation">.</span>errors <span class="token operator">=</span> <span class="token punctuation">(</span>milestone<span class="token punctuation">.</span>errors <span class="token operator">||</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">concat</span><span class="token punctuation">(</span>errorousDependencies<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token parameter">errorId</span> <span class="token operator">=></span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">Dependency </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>errorId<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string"> must end before this milestone</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> milestone<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Then we can render those milestones with errors and their connectivity lines with different styles:</p>
+<pre><code class="language-js"><span class="token keyword">let</span> stroke <span class="token operator">=</span> color<span class="token punctuation">;</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span>d<span class="token punctuation">.</span>errors<span class="token punctuation">.</span>length <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  strokeDash <span class="token operator">=</span> <span class="token string">'3'</span><span class="token punctuation">;</span>
+  stroke <span class="token operator">=</span> <span class="token string">'#d33'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+linesContainer
+  <span class="token punctuation">.</span><span class="token function">selectAll</span><span class="token punctuation">(</span><span class="token string">'polyline'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">data</span><span class="token punctuation">(</span>polylineData<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">enter</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'polyline'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'fill'</span><span class="token punctuation">,</span> <span class="token string">'none'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'stroke'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>stroke<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'stroke-dasharray'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>strokeDash<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'points'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>points<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<LazyImg src="/images/gantt_chart_with_d3_part2/chart_with_errors1-min.webp" alt="" />
+
+<p>For milestones themselves we can add a <code>pattern</code> and make it striped:</p>
+<pre><code class="language-js"><span class="token comment">// error style</span>
+svg<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'pattern'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'error-fill'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'patternUnits'</span><span class="token punctuation">,</span> <span class="token string">'userSpaceOnUse'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'width'</span><span class="token punctuation">,</span> <span class="token string">'4'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'height'</span><span class="token punctuation">,</span> <span class="token string">'4'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'path'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'d'</span><span class="token punctuation">,</span> <span class="token string">'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'stroke'</span><span class="token punctuation">,</span> <span class="token string">'#d33'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'stroke-width'</span><span class="token punctuation">,</span> <span class="token string">'1'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+bars
+  <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'rect'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'rx'</span><span class="token punctuation">,</span> elementHeight <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'ry'</span><span class="token punctuation">,</span> elementHeight <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'x'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>x<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'y'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>y<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'width'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>width<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'height'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>height<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'fill'</span><span class="token punctuation">,</span> <span class="token parameter">d</span> <span class="token operator">=></span> d<span class="token punctuation">.</span>errors<span class="token punctuation">.</span>length <span class="token operator">></span> <span class="token number">0</span> <span class="token operator">?</span> <span class="token string">'url(#error-fill)'</span> <span class="token operator">:</span> <span class="token string">'#ddd'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'stroke'</span><span class="token punctuation">,</span> <span class="token string">'black'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<LazyImg src="/images/gantt_chart_with_d3_part2/chart_with_errors2-min.webp" alt="" />
+
+<h2 id="displaying-days-on-a-background">Displaying days on a background</h2>
+<p>We can leverage the features of a time scale that D3 provides us with to render the days on a background.</p>
+<p>The scale, however, is not that easy - it operates on dates, so the width of each day is something we will have to calculate ourselves.
+It also might have extra ticks in between days (for the month change, for instance) - and that is something I am yet to overcome.</p>
+<p>Long story short, before rendering the milestones and their connectivity lines, we can add a bunch of semi-transparent rectangles:</p>
+<pre><code class="language-js"><span class="token keyword">const</span> grid <span class="token operator">=</span> g1<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'g'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>xAxis<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+grid
+  <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'g'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">selectAll</span><span class="token punctuation">(</span><span class="token string">'rect'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">data</span><span class="token punctuation">(</span>xScale<span class="token punctuation">.</span><span class="token function">ticks</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">enter</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'rect'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'x'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">d<span class="token punctuation">,</span> i</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">xScale</span><span class="token punctuation">(</span>d<span class="token punctuation">)</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'y'</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'height'</span><span class="token punctuation">,</span> svgHeight<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'width'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">d<span class="token punctuation">,</span> i</span><span class="token punctuation">)</span> <span class="token operator">=></span> svgWidth <span class="token operator">/</span> xScale<span class="token punctuation">.</span><span class="token function">ticks</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>length<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'fill'</span><span class="token punctuation">,</span> <span class="token string">'#dedede30'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>As you can see, the width of a rectangle is being calculated based on the total width of an <code>svg</code> container and the amount of scale’s <code>ticks</code>.</p>
+<LazyImg src="/images/gantt_chart_with_d3_part2/chart_with_days1-min.webp" alt="" />
+
+<p>One little change to this implementation that I would like to see is alteration in rectangles’ colors:</p>
+<pre><code class="language-js">grid
+  <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'g'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">selectAll</span><span class="token punctuation">(</span><span class="token string">'rect'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">data</span><span class="token punctuation">(</span>xScale<span class="token punctuation">.</span><span class="token function">ticks</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">enter</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'rect'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'x'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">d<span class="token punctuation">,</span> i</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">xScale</span><span class="token punctuation">(</span>d<span class="token punctuation">)</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'y'</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'height'</span><span class="token punctuation">,</span> svgHeight<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'width'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">d<span class="token punctuation">,</span> i</span><span class="token punctuation">)</span> <span class="token operator">=></span> svgWidth <span class="token operator">/</span> xScale<span class="token punctuation">.</span><span class="token function">ticks</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>length<span class="token punctuation">)</span>
+  <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'fill'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">d<span class="token punctuation">,</span> i</span><span class="token punctuation">)</span> <span class="token operator">=></span> i <span class="token operator">%</span> <span class="token number">2</span> <span class="token operator">?</span> <span class="token string">'#dedede30'</span> <span class="token operator">:</span> <span class="token string">'#dedede00'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<LazyImg src="/images/gantt_chart_with_d3_part2/chart_with_days2-min.webp" alt="" />
+
+<h2 id="highlighting-the-current-date">Highlighting the current date</h2>
+<p>Right before we draw the rectangles and even the axis itself (again, to prevent the overlapping), we can draw a line showing the current date, if it fits into the range of the chart. For this we can also leverage the properties of the <code>xScale</code>, this time <code>.range()</code>, which returns a two-element array, denoting the beginning and end values of the scale. Of course, we will have to convert the current date to the value on that scale too:</p>
+<pre><code class="language-js"><span class="token keyword">const</span> nowOnScale <span class="token operator">=</span> <span class="token function">xScale</span><span class="token punctuation">(</span>Date<span class="token punctuation">.</span><span class="token function">now</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span>nowOnScale <span class="token operator">>=</span> xScale<span class="token punctuation">.</span><span class="token function">range</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">&amp;&amp;</span> nowOnScale <span class="token operator">&lt;=</span> xScale<span class="token punctuation">.</span><span class="token function">range</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  grid
+    <span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">'line'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'x1'</span><span class="token punctuation">,</span> nowOnScale<span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'y1'</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'x2'</span><span class="token punctuation">,</span> nowOnScale<span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">attr</span><span class="token punctuation">(</span><span class="token string">'y2'</span><span class="token punctuation">,</span> svgHeight<span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'stroke'</span><span class="token punctuation">,</span> <span class="token string">'rgb(232, 102, 102)'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">style</span><span class="token punctuation">(</span><span class="token string">'stroke-width'</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<LazyImg src="/images/gantt_chart_with_d3_part2/chart_with_current_date-min.webp" alt="" />
+
+<h2 id="to-be-continued">To be continued</h2>
+<p>The source code of this implementation could be found on <a href="https://github.com/shybovycha/gantt-chart">Github</a>.</p>
+<p>I think that is enough for now, but it is not the end! There’s still some work to be done in removing the D3 from this setup completely,
+which is actually done in <a href="2021-03-04-gantt-chart-part3">Gantt chart: part 3</a> blog.</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

@@ -1,0 +1,170 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Erlang in 5 minutes</h1>
+
+    <time>10 Jan 2020 at 04:24</time>
+
+    <div class="content"><h2 id="x--erlang-y--5-ioformatlearn-s-in-s-minutes--x-y-">X = erlang, Y = 5, io:format(“Learn ~s in ~s minutes”, [ X, Y ]).</h2>
+<p>Welcome to a 5-minute Erlang introduction!</p>
+<p>First things first:</p>
+<ul>
+<li>Erlang is a functional programming language</li>
+<li><code>erl</code> is the REPL shell</li>
+<li><kbd>Ctrl + G</kbd> and then <kbd>q</kbd> <strong>or</strong> <code>q().</code> to exit the shell</li>
+<li><code>c(file_name).</code> to load the code from file</li>
+</ul>
+<p>Now, to the language constructs:</p>
+<ul>
+<li>every statement has to end with a dot (<code>.</code>) symbol</li>
+<li>multiple statements are separated by comma (<code>,</code>) character</li>
+<li>constants start with a <strong>C</strong>apital <strong>L</strong>etter</li>
+<li><em>atoms</em> (yes, like in Ruby) start with <strong>l</strong>owercase <strong>l</strong>etter</li>
+<li>atoms are allowed to contain spaces (sic!), but then they have to be quoted: <code>&#39;atoms are awesome&#39;</code></li>
+<li>atoms can also have the at sign (<code>@</code>)</li>
+<li>anonymous functions are defined as <code>fun() -&gt; return_statement end.</code></li>
+<li>last statement before <code>end</code> <strong>must not</strong> end with comma</li>
+<li>function signature is <code>function_name/number_of_arguments</code>: <code>factorial/1</code>, <code>format/2</code></li>
+<li>comments start with percent (<code>%</code>) symbol</li>
+<li>lists are <code>[ TheOnlyElement ]</code> or <code>[ Head | TailElements ]</code>, where <code>TailElements</code> is also a list</li>
+<li>pattern matching just works <code>[ Head1 | Head2 | Tails ] = [ 1, 2, 3, 4 ]</code></li>
+<li>strings are just <code>&quot;strings&quot;</code></li>
+<li>tuples are quirky <code>{ elt1, elt2 }</code></li>
+<li>maps are even weirder <code>#{ key =&gt; value }</code></li>
+<li>operators are almost fine:<ul>
+<li>comparison: <code>&lt;</code> (less than), <code>&gt;</code> (greater than), <code>&gt;=</code> (greater than or equals to), <code>=&lt;</code> (equals to or less than), <code>==</code> (equals to), <code>/=</code> (not equals to), <code>=:=</code> (adds type checking on tops, JS equivalent of <code>===</code>)</li>
+<li>assignment / pattern matching: <code>=</code></li>
+<li>math: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>div</code>, <code>rem</code> (Pascal way)</li>
+<li>typechecking: <code>is_atom/1</code>, <code>is_function/1</code>, <code>is_number/1</code>, <code>is_boolean/1</code>, <code>is_pid/1</code>, <code>is_list/1</code>, etc.</li>
+</ul>
+</li>
+<li>list comprehentions are similar to lists: <code>[ N || N &lt;- [ 1, 2, 3, 4, 5 ], N rem 2 == 0 ].</code></li>
+<li>files are modules, defined with few statements:<ul>
+<li><code>-module(module_name).</code></li>
+<li><code>-export([ list_of_function_signatures ]).</code></li>
+<li><code>-import(module_name, [ list_of_functions ]).</code></li>
+</ul>
+</li>
+<li>calling module’s export be like <code>module_name:function_name(arguments).</code></li>
+</ul>
+<p>Quick recap:</p>
+<pre><code class="language-erlang"><span class="token comment">%%% module comment</span>
+<span class="token operator">-</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token atom">erlang_example</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token comment">% exporting the functions from the module</span>
+<span class="token operator">-</span><span class="token function">export</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token atom">factorial</span><span class="token operator">/</span><span class="token number">1</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token comment">% importing the functions from the other module</span>
+<span class="token operator">-</span><span class="token function">import</span><span class="token punctuation">(</span><span class="token atom">my_other_module</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token atom">new_factorial</span><span class="token operator">/</span><span class="token number">1</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token comment">% constants with pattern matching - will assign the value to non-defined constant on success</span>
+<span class="token variable">X</span> <span class="token operator">=</span> <span class="token number">5.</span>
+
+<span class="token comment">% redefinition is prohibited</span>
+<span class="token variable">X</span> <span class="token operator">=</span> <span class="token number">10.</span> <span class="token comment">% exception</span>
+
+<span class="token comment">% functions can also be constants</span>
+<span class="token variable">PlusOne</span> <span class="token operator">=</span> <span class="token keyword">fun</span><span class="token punctuation">(</span><span class="token variable">X</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">X</span> <span class="token operator">+</span> <span class="token number">1</span> <span class="token keyword">end</span><span class="token punctuation">.</span>
+
+<span class="token comment">% or, multiline</span>
+<span class="token variable">PlusTwo</span> <span class="token operator">=</span> <span class="token keyword">fun</span><span class="token punctuation">(</span><span class="token variable">X</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token variable">X</span> <span class="token operator">+</span> <span class="token number">2</span>
+
+  <span class="token keyword">end</span><span class="token punctuation">.</span>
+
+<span class="token comment">% the standard way</span>
+<span class="token function">bad_factorial</span><span class="token punctuation">(</span><span class="token variable">N</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token variable">N</span> <span class="token operator">*</span> <span class="token function">factorial</span><span class="token punctuation">(</span><span class="token variable">N</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token comment">%% function documentation</span>
+<span class="token comment">% functions can have *guargs*, which are basically pattern matching</span>
+<span class="token comment">% also, function overloading is split with semicolon (;)</span>
+<span class="token function">factorial</span><span class="token punctuation">(</span><span class="token variable">N</span><span class="token punctuation">)</span> <span class="token keyword">when</span> <span class="token variable">N</span> <span class="token operator">=</span><span class="token operator">&lt;</span> <span class="token number">1</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+<span class="token comment">% last overload ends with dot (.)</span>
+<span class="token function">factorial</span><span class="token punctuation">(</span><span class="token variable">N</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">N</span> <span class="token operator">*</span> <span class="token function">factorial</span><span class="token punctuation">(</span><span class="token variable">N</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token comment">% some return types</span>
+<span class="token function">string_fn</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token string">"hello, world!"</span><span class="token punctuation">.</span>
+
+<span class="token function">list_fn</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">[</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"elements could be of different types too"</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">3.14</span><span class="token punctuation">,</span> <span class="token atom">atom</span> <span class="token punctuation">]</span><span class="token punctuation">.</span>
+
+<span class="token function">function_function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token keyword">fun</span><span class="token punctuation">(</span><span class="token variable">X</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">X</span> <span class="token atom">mod</span> <span class="token number">2</span> <span class="token keyword">end</span><span class="token punctuation">.</span>
+
+<span class="token function">dict_fn</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">#</span><span class="token punctuation">{</span> <span class="token string">"key"</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token operator">-</span><span class="token number">3.14</span> <span class="token punctuation">}</span><span class="token punctuation">.</span>
+
+<span class="token function">tuple_fn</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">{</span> <span class="token atom">elt1</span><span class="token punctuation">,</span> <span class="token atom">elt2</span><span class="token punctuation">,</span> <span class="token string">"elt 3"</span> <span class="token punctuation">}</span><span class="token punctuation">.</span>
+
+<span class="token comment">%% note how overriden_function/1 has different definition than overriden_function/2</span>
+<span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token variable">List</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token variable">List</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token comment">% the power of pattern matching!</span>
+<span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token variable">Head</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">Acc</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Acc</span> <span class="token operator">+</span> <span class="token variable">Head</span><span class="token punctuation">;</span>
+
+<span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token variable">Head1</span> <span class="token punctuation">|</span> <span class="token variable">Head2</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">Acc</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Acc</span> <span class="token operator">+</span> <span class="token variable">Head1</span> <span class="token operator">+</span> <span class="token variable">Head2</span><span class="token punctuation">;</span>
+
+<span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token variable">Head</span> <span class="token punctuation">|</span> <span class="token variable">Tail</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">Acc</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token variable">Tail</span><span class="token punctuation">,</span> <span class="token variable">Acc</span> <span class="token operator">+</span> <span class="token variable">Head</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token function">overriden_function</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">Acc</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Acc</span><span class="token punctuation">.</span>
+
+<span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">A</span><span class="token punctuation">,</span> <span class="token variable">B</span><span class="token punctuation">)</span> <span class="token keyword">when</span> <span class="token variable">A</span> <span class="token operator">=</span><span class="token operator">&lt;</span> <span class="token variable">B</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">A</span><span class="token punctuation">;</span>
+<span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">A</span><span class="token punctuation">,</span> <span class="token variable">B</span><span class="token punctuation">)</span> <span class="token keyword">when</span> <span class="token variable">A</span> <span class="token operator">></span> <span class="token variable">B</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">B</span><span class="token punctuation">.</span>
+
+<span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">A</span><span class="token punctuation">,</span> <span class="token variable">B</span><span class="token punctuation">,</span> <span class="token variable">C</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token variable">X</span> <span class="token operator">=</span> <span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">A</span><span class="token punctuation">,</span> <span class="token variable">B</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">X</span><span class="token punctuation">,</span> <span class="token variable">C</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">A</span><span class="token punctuation">,</span> <span class="token variable">B</span><span class="token punctuation">,</span> <span class="token variable">C</span><span class="token punctuation">,</span> <span class="token variable">D</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+  <span class="token variable">X</span> <span class="token operator">=</span> <span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">A</span><span class="token punctuation">,</span> <span class="token variable">B</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token variable">Y</span> <span class="token operator">=</span> <span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">C</span><span class="token punctuation">,</span> <span class="token variable">D</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token function">complex_function</span><span class="token punctuation">(</span><span class="token variable">X</span><span class="token punctuation">,</span> <span class="token variable">Y</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token function">fst</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">First</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">First</span><span class="token punctuation">.</span>
+
+<span class="token function">snd</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">Second</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Second</span><span class="token punctuation">.</span>
+
+<span class="token function">evens</span><span class="token punctuation">(</span><span class="token variable">List</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">[</span> <span class="token variable">X</span> <span class="token punctuation">|</span><span class="token punctuation">|</span> <span class="token variable">X</span> <span class="token operator">&lt;</span><span class="token operator">-</span> <span class="token variable">List</span><span class="token punctuation">,</span> <span class="token variable">X</span> <span class="token operator">rem</span> <span class="token number">2</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">]</span><span class="token punctuation">.</span>
+
+<span class="token function">keys</span><span class="token punctuation">(</span><span class="token punctuation">#</span><span class="token punctuation">{</span> <span class="token variable">Key</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token variable">Value</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<p>There also are few good resources on this: [<a href="https://learnxinyminutes.com/docs/erlang/%5D">https://learnxinyminutes.com/docs/erlang/]</a>(Learn X in Y minutes (where X = erlang)) and [<a href="http://erlang.org/doc/apps/inets/http_client.html%5D">http://erlang.org/doc/apps/inets/http_client.html]</a>(Official Erlang docs).</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

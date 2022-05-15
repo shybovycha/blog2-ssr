@@ -1,0 +1,421 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Functional web</h1>
+
+    <time>18 Feb 2017 at 16:44</time>
+
+    <div class="content"><LazyImg src="/images/functional_web/bicycle.webp" class="img-responsive img-sm img-rounded pull-right" />
+
+<p>In last couple of years the functional programming paradigm became very popular.
+A huge amount of libraries, tools, tutorials and blog posts appeared.
+Although the paradigm itself is rather old <em>(lambda calculus was developed around 1930 and the Lisp language was introduced in 1950)</em>, its popularity blew up rapidly somewhere in 2014-2016 and that’s what is happening right now.
+Probably one of the most powerful influencers, giving FP <em>(functional programming)</em> that thrust is web development.
+Since Facebook introduced <strong>React</strong>, the community started incorporating many things from FP with React - including <strong>Redux</strong> and <strong>Immutable.js</strong>.
+But there are much more interesting things which were invented on this wave of FP popularity. One of them is <a href="http://elm-lang.org/">Elm</a>.</p>
+<p>This is a story how I <s>implemented</s> invented yet another <s>web framework</s> wheel.</p>
+<!--more-->
+
+<h2 id="tldr">TL;DR</h2>
+<h3 id="react">React</h3>
+<pre><code class="language-jsx"><span class="token keyword">class</span> <span class="token class-name">App</span> <span class="token keyword">extends</span> <span class="token class-name">React<span class="token punctuation">.</span>Component</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">props</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">super</span><span class="token punctuation">(</span>props<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>state <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token literal-property property">counter</span><span class="token operator">:</span> <span class="token number">0</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token function">increment</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">setState</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">counter</span><span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>state<span class="token punctuation">.</span>counter <span class="token operator">+</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token function">decrement</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">setState</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">counter</span><span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>state<span class="token punctuation">.</span>counter <span class="token operator">-</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">
+        </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">increment</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token punctuation">></span></span><span class="token plain-text">Increment</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">></span></span><span class="token plain-text">
+        </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">decrement</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token punctuation">></span></span><span class="token plain-text">Decrement</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">></span></span><span class="token plain-text">
+        </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">Counter: </span><span class="token punctuation">{</span><span class="token keyword">this</span><span class="token punctuation">.</span>state<span class="token punctuation">.</span>counter<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+ReactDOM<span class="token punctuation">.</span><span class="token function">render</span><span class="token punctuation">(</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">App</span></span> <span class="token punctuation">/></span></span><span class="token punctuation">,</span> document<span class="token punctuation">.</span>body<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><a href="http://codepen.io/shybovycha/pen/dNErOY">Run this code</a></p>
+<h3 id="redux">Redux</h3>
+<pre><code class="language-jsx"><span class="token keyword">function</span> <span class="token function">App</span><span class="token punctuation">(</span><span class="token parameter">props</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">var</span> store <span class="token operator">=</span> props<span class="token punctuation">.</span>store<span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> store<span class="token punctuation">.</span><span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'INCREMENT'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token punctuation">></span></span><span class="token plain-text">Increment</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> store<span class="token punctuation">.</span><span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'DECREMENT'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token punctuation">></span></span><span class="token plain-text">Decrement</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">Counter: </span><span class="token punctuation">{</span>store<span class="token punctuation">.</span><span class="token function">getState</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">function</span> <span class="token function">update</span><span class="token punctuation">(</span><span class="token parameter">state <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> action</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">switch</span> <span class="token punctuation">(</span>action<span class="token punctuation">.</span>type<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">case</span> <span class="token string">'INCREMENT'</span><span class="token operator">:</span>
+    <span class="token keyword">return</span> state <span class="token operator">+</span> <span class="token number">1</span>
+  <span class="token keyword">case</span> <span class="token string">'DECREMENT'</span><span class="token operator">:</span>
+    <span class="token keyword">return</span> state <span class="token operator">-</span> <span class="token number">1</span>
+  <span class="token keyword">default</span><span class="token operator">:</span>
+    <span class="token keyword">return</span> state
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">var</span> store <span class="token operator">=</span> Redux<span class="token punctuation">.</span><span class="token function">createStore</span><span class="token punctuation">(</span>update<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">function</span> <span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  ReactDOM<span class="token punctuation">.</span><span class="token function">render</span><span class="token punctuation">(</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">App</span></span> <span class="token attr-name">store</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>store<span class="token punctuation">}</span></span> <span class="token punctuation">/></span></span><span class="token punctuation">,</span> document<span class="token punctuation">.</span>body<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+store<span class="token punctuation">.</span><span class="token function">subscribe</span><span class="token punctuation">(</span>render<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><a href="http://codepen.io/shybovycha/pen/RKmYVy">Run this code</a></p>
+<h3 id="elm">Elm</h3>
+<pre><code class="language-haskell"><span class="token import-statement"><span class="token keyword">import</span> Html</span> <span class="token hvariable">exposing</span> <span class="token punctuation">(</span><span class="token hvariable">beginnerProgram</span><span class="token punctuation">,</span> <span class="token builtin">div</span><span class="token punctuation">,</span> <span class="token hvariable">button</span><span class="token punctuation">,</span> <span class="token hvariable">text</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Html<span class="token punctuation">.</span>Events</span> <span class="token hvariable">exposing</span> <span class="token punctuation">(</span><span class="token hvariable">onClick</span><span class="token punctuation">)</span>
+<span class="token hvariable">initialState</span> <span class="token operator">=</span> <span class="token number">0</span>
+<span class="token hvariable">view</span> <span class="token hvariable">state</span> <span class="token operator">=</span>
+  <span class="token builtin">div</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token punctuation">[</span> <span class="token hvariable">button</span> <span class="token punctuation">[</span> <span class="token hvariable">onClick</span> <span class="token constant">Increment</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">text</span> <span class="token string">"Increment"</span> <span class="token punctuation">]</span>
+    <span class="token punctuation">,</span> <span class="token hvariable">button</span> <span class="token punctuation">[</span> <span class="token hvariable">onClick</span> <span class="token constant">Decrement</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">text</span> <span class="token string">"Decrement"</span> <span class="token punctuation">]</span>
+    <span class="token punctuation">,</span> <span class="token builtin">div</span> <span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">text</span> <span class="token punctuation">(</span><span class="token string">"Counter:"</span> <span class="token operator">++</span> <span class="token punctuation">(</span><span class="token hvariable">toString</span> <span class="token hvariable">state</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">]</span>
+    <span class="token punctuation">]</span>
+<span class="token keyword">type</span> <span class="token constant">Msg</span> <span class="token operator">=</span> <span class="token constant">Increment</span> <span class="token operator">|</span> <span class="token constant">Decrement</span>
+<span class="token hvariable">update</span> <span class="token hvariable">msg</span> <span class="token hvariable">state</span> <span class="token operator">=</span>
+  <span class="token keyword">case</span> <span class="token hvariable">msg</span> <span class="token keyword">of</span>
+    <span class="token constant">Increment</span> <span class="token operator">-></span>
+      <span class="token hvariable">state</span> <span class="token operator">+</span> <span class="token number">1</span>
+    <span class="token constant">Decrement</span> <span class="token operator">-></span>
+      <span class="token hvariable">state</span> <span class="token operator">-</span> <span class="token number">1</span>
+<span class="token hvariable">main</span> <span class="token operator">=</span>
+  <span class="token hvariable">beginnerProgram</span> <span class="token punctuation">{</span> <span class="token hvariable">model</span> <span class="token operator">=</span> <span class="token hvariable">initialState</span><span class="token punctuation">,</span> <span class="token hvariable">view</span> <span class="token operator">=</span> <span class="token hvariable">view</span><span class="token punctuation">,</span> <span class="token hvariable">update</span> <span class="token operator">=</span> <span class="token hvariable">update</span> <span class="token punctuation">}</span>
+</code></pre>
+<p><a href="http://codepen.io/shybovycha/pen/egaLXv">Compiled code</a></p>
+<h3 id="mithril">Mithril</h3>
+<pre><code class="language-js"><span class="token keyword">var</span> count$ <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> App <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token function-variable function">view</span><span class="token operator">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> <span class="token function">m</span><span class="token punctuation">(</span><span class="token string">'main'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+        <span class="token function">m</span><span class="token punctuation">(</span><span class="token string">'button'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token keyword">class</span><span class="token operator">:</span> <span class="token string">'decrement'</span><span class="token punctuation">,</span> <span class="token function-variable function">onclick</span><span class="token operator">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> count$<span class="token operator">--</span><span class="token punctuation">;</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Decrement'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token function">m</span><span class="token punctuation">(</span><span class="token string">'button'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token keyword">class</span><span class="token operator">:</span> <span class="token string">'increment'</span><span class="token punctuation">,</span> <span class="token function-variable function">onclick</span><span class="token operator">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> count$<span class="token operator">++</span><span class="token punctuation">;</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Increment'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token function">m</span><span class="token punctuation">(</span><span class="token string">'p'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Counter: '</span> <span class="token operator">+</span> count$<span class="token punctuation">)</span><span class="token punctuation">,</span>
+      <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+m<span class="token punctuation">.</span><span class="token function">mount</span><span class="token punctuation">(</span>document<span class="token punctuation">.</span>body<span class="token punctuation">,</span> App<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><a href="http://codepen.io/shybovycha/pen/WRBgWv">Run this code</a></p>
+<h3 id="cycle">Cycle</h3>
+<pre><code class="language-js"><span class="token keyword">var</span> xs <span class="token operator">=</span> xstream<span class="token punctuation">.</span>default<span class="token punctuation">;</span>
+<span class="token keyword">var</span> <span class="token punctuation">{</span> div<span class="token punctuation">,</span> p<span class="token punctuation">,</span> button<span class="token punctuation">,</span> makeDOMDriver <span class="token punctuation">}</span> <span class="token operator">=</span> CycleDOM<span class="token punctuation">;</span>
+<span class="token keyword">function</span> <span class="token function">App</span><span class="token punctuation">(</span><span class="token parameter">sources</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">var</span> decrement$ <span class="token operator">=</span> sources<span class="token punctuation">.</span><span class="token constant">DOM</span>
+    <span class="token punctuation">.</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token string">'.decrement'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">events</span><span class="token punctuation">(</span><span class="token string">'click'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">mapTo</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">var</span> increment$ <span class="token operator">=</span> sources<span class="token punctuation">.</span><span class="token constant">DOM</span>
+    <span class="token punctuation">.</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token string">'.increment'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">events</span><span class="token punctuation">(</span><span class="token string">'click'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">mapTo</span><span class="token punctuation">(</span><span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">var</span> action$ <span class="token operator">=</span> xs<span class="token punctuation">.</span><span class="token function">merge</span><span class="token punctuation">(</span>decrement$<span class="token punctuation">,</span> increment$<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">var</span> count$ <span class="token operator">=</span> action$<span class="token punctuation">.</span><span class="token function">fold</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">acc<span class="token punctuation">,</span> v</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token keyword">return</span> acc <span class="token operator">+</span> v<span class="token punctuation">;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">var</span> vtree$ <span class="token operator">=</span> count$<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">count</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">div</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+      <span class="token function">button</span><span class="token punctuation">(</span><span class="token string">'.decrement'</span><span class="token punctuation">,</span> <span class="token string">'Decrement'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+      <span class="token function">button</span><span class="token punctuation">(</span><span class="token string">'.increment'</span><span class="token punctuation">,</span> <span class="token string">'Increment'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+      <span class="token function">p</span><span class="token punctuation">(</span><span class="token string">'Counter: '</span> <span class="token operator">+</span> count<span class="token punctuation">)</span>
+    <span class="token punctuation">]</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token punctuation">{</span> <span class="token constant">DOM</span><span class="token operator">:</span> vtree$ <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+Cycle<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>App<span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token constant">DOM</span><span class="token operator">:</span> <span class="token function">makeDOMDriver</span><span class="token punctuation">(</span><span class="token string">'body'</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><a href="http://codepen.io/shybovycha/pen/XpOQvx">Run this code</a></p>
+<h3 id="libc">libc</h3>
+<pre><code class="language-js"><span class="token keyword">var</span> initialState <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token keyword">function</span> <span class="token function">update</span><span class="token punctuation">(</span><span class="token parameter">state<span class="token punctuation">,</span> message</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>message <span class="token operator">==</span> <span class="token string">'INCREMENT'</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> state <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>message <span class="token operator">==</span> <span class="token string">'DECREMENT'</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> state <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> state<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token keyword">function</span> <span class="token function">view</span><span class="token punctuation">(</span><span class="token parameter">state<span class="token punctuation">,</span> dispatch</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">[</span><span class="token string">'button'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token function-variable function">click</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token string">'INCREMENT'</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Increment'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token string">'button'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token function-variable function">click</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token string">'DECREMENT'</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Decrement'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">Count: </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span> state <span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">]</span>
+  <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> app <span class="token operator">=</span> <span class="token function">createApplication</span><span class="token punctuation">(</span>initialState<span class="token punctuation">,</span> update<span class="token punctuation">,</span> view<span class="token punctuation">)</span><span class="token punctuation">;</span>
+app<span class="token punctuation">.</span><span class="token function">mount</span><span class="token punctuation">(</span>document<span class="token punctuation">.</span>body<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><a href="http://codepen.io/shybovycha/pen/dNEgNa">Run this code</a></p>
+<h2 id="react--redux">React + Redux</h2>
+<p>Let’s start-off by writing a simple “counter” application with the well-known React + Redux bundle.</p>
+<h3 id="react-1">React</h3>
+<p>The purpose of Facebook’s React is to provide an interface to a virtual DOM, which allows users to track updates to the <em>application views</em> and perform DOM operations to update views <strong>with a minimal operation overhead</strong>. In other words, we do not need to remove all the DOM nodes and create new ones from scratch when we can update a single property in a single DOM node. It might look like this:</p>
+<pre><code class="language-jsx"><span class="token keyword">class</span> <span class="token class-name">App</span> <span class="token keyword">extends</span> <span class="token class-name">React<span class="token punctuation">.</span>Component</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">props</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">super</span><span class="token punctuation">(</span>props<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>state <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">increment</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">setState</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>state <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">decrement</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">setState</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>state <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>increment<span class="token punctuation">}</span></span><span class="token punctuation">></span></span><span class="token plain-text">Increment</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>decrement<span class="token punctuation">}</span></span><span class="token punctuation">></span></span><span class="token plain-text">Decrement</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">Counter: </span><span class="token punctuation">{</span><span class="token keyword">this</span><span class="token punctuation">.</span>state<span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+ReactDOM<span class="token punctuation">.</span><span class="token function">render</span><span class="token punctuation">(</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">App</span></span> <span class="token punctuation">/></span></span><span class="token punctuation">,</span> document<span class="token punctuation">.</span>body<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><a href="http://codepen.io/shybovycha/pen/dNErOY">Run this code</a></p>
+<h3 id="redux-1">Redux</h3>
+<p>Redux is an ancestor of Facebook’s Flux architecture and library. Flux’ main goal was to standardize the way application stores its state and handles state updates:</p>
+<ul>
+<li>application state is stored in stores</li>
+<li>to update application state, we dispatch messages to corresponding stores</li>
+<li>to reflect application state changes, we subscribe on the store state changes</li>
+</ul>
+<p>Than comes Redux and says <em>“hey! we probably can do that with just a single store!”</em>. And whilst Flux did not forbid state updates to modify the state objects themselves, Redux states clearly: <em>“you may not change state directly - rather you just calculate a new value for it and I take care of everything else”</em>.</p>
+<pre><code class="language-jsx"><span class="token keyword">function</span> <span class="token function">App</span><span class="token punctuation">(</span><span class="token parameter">props</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">var</span> store <span class="token operator">=</span> props<span class="token punctuation">.</span>store<span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">(</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> store<span class="token punctuation">.</span><span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'INCREMENT'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token punctuation">></span></span><span class="token plain-text">Increment</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">onClick</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> store<span class="token punctuation">.</span><span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'DECREMENT'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token punctuation">></span></span><span class="token plain-text">Decrement</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">></span></span><span class="token plain-text">
+      </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">Counter: </span><span class="token punctuation">{</span>store<span class="token punctuation">.</span><span class="token function">getState</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span class="token plain-text">
+    </span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">update</span><span class="token punctuation">(</span><span class="token parameter">state <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> action</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">switch</span> <span class="token punctuation">(</span>action<span class="token punctuation">.</span>type<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">case</span> <span class="token string">'INCREMENT'</span><span class="token operator">:</span>
+    <span class="token keyword">return</span> state <span class="token operator">+</span> <span class="token number">1</span>
+  <span class="token keyword">case</span> <span class="token string">'DECREMENT'</span><span class="token operator">:</span>
+    <span class="token keyword">return</span> state <span class="token operator">-</span> <span class="token number">1</span>
+  <span class="token keyword">default</span><span class="token operator">:</span>
+    <span class="token keyword">return</span> state
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">var</span> store <span class="token operator">=</span> Redux<span class="token punctuation">.</span><span class="token function">createStore</span><span class="token punctuation">(</span>update<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  ReactDOM<span class="token punctuation">.</span><span class="token function">render</span><span class="token punctuation">(</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token class-name">App</span></span> <span class="token attr-name">store</span><span class="token script language-javascript"><span class="token script-punctuation punctuation">=</span><span class="token punctuation">{</span>store<span class="token punctuation">}</span></span> <span class="token punctuation">/></span></span><span class="token punctuation">,</span> document<span class="token punctuation">.</span>body<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+store<span class="token punctuation">.</span><span class="token function">subscribe</span><span class="token punctuation">(</span>render<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><a href="http://codepen.io/shybovycha/pen/RKmYVy">Run this code</a></p>
+<h2 id="elm-1">Elm</h2>
+<p>Elm is ML-like <em>(Haskell-like)</em> language, which compiles to JS, and provides developer with a runtime, allowing one to build web applications in a functional, strongly-typed language. Elm enforces its way of building web applications, where each web app is a combination of three entities:</p>
+<ol>
+<li><strong>model</strong>, which is basically just a structure of application state</li>
+<li><strong>update function</strong>, which takes current state and an event <em>(<strong>action</strong> in terms of Redux; <strong>message</strong> in terms of Elm; an object, representing user action or any other event)</em> and provides the new value for app state <em>(model)</em></li>
+<li><strong>view function</strong>, which converts current app state into a virtual DOM tree</li>
+</ol>
+<LazyImg src="/images/functional_web/elm_architecture.webp" alt="Elm workflow" />
+
+<p>Elm runtime handles everything else - passing messages to the <code>update</code> function, comparing the actual DOM tree with the one, provided by a <code>view</code> function and performing all DOM tree manipulations.</p>
+<p>Elm can be compared to <code>React + Redux + ML-language</code> combination.</p>
+<p>Let’s take a look at our sample application, written in Elm:</p>
+<pre><code class="language-haskell"><span class="token import-statement"><span class="token keyword">import</span> Html</span> <span class="token hvariable">exposing</span> <span class="token punctuation">(</span><span class="token hvariable">beginnerProgram</span><span class="token punctuation">,</span> <span class="token builtin">div</span><span class="token punctuation">,</span> <span class="token hvariable">button</span><span class="token punctuation">,</span> <span class="token hvariable">text</span><span class="token punctuation">)</span>
+<span class="token import-statement"><span class="token keyword">import</span> Html<span class="token punctuation">.</span>Events</span> <span class="token hvariable">exposing</span> <span class="token punctuation">(</span><span class="token hvariable">onClick</span><span class="token punctuation">)</span>
+
+
+<span class="token hvariable">initialState</span> <span class="token operator">=</span> <span class="token number">0</span>
+
+
+<span class="token hvariable">view</span> <span class="token hvariable">state</span> <span class="token operator">=</span>
+  <span class="token builtin">div</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token punctuation">[</span> <span class="token hvariable">button</span> <span class="token punctuation">[</span> <span class="token hvariable">onClick</span> <span class="token constant">Increment</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">text</span> <span class="token string">"Increment"</span> <span class="token punctuation">]</span>
+    <span class="token punctuation">,</span> <span class="token hvariable">button</span> <span class="token punctuation">[</span> <span class="token hvariable">onClick</span> <span class="token constant">Decrement</span> <span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">text</span> <span class="token string">"Decrement"</span> <span class="token punctuation">]</span>
+    <span class="token punctuation">,</span> <span class="token builtin">div</span> <span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token punctuation">[</span> <span class="token hvariable">text</span> <span class="token punctuation">(</span><span class="token string">"Counter:"</span> <span class="token operator">++</span> <span class="token punctuation">(</span><span class="token hvariable">toString</span> <span class="token hvariable">state</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">]</span>
+    <span class="token punctuation">]</span>
+
+
+<span class="token keyword">type</span> <span class="token constant">Msg</span> <span class="token operator">=</span> <span class="token constant">Increment</span> <span class="token operator">|</span> <span class="token constant">Decrement</span>
+
+
+<span class="token hvariable">update</span> <span class="token hvariable">msg</span> <span class="token hvariable">state</span> <span class="token operator">=</span>
+  <span class="token keyword">case</span> <span class="token hvariable">msg</span> <span class="token keyword">of</span>
+    <span class="token constant">Increment</span> <span class="token operator">-></span>
+      <span class="token hvariable">state</span> <span class="token operator">+</span> <span class="token number">1</span>
+
+    <span class="token constant">Decrement</span> <span class="token operator">-></span>
+      <span class="token hvariable">state</span> <span class="token operator">-</span> <span class="token number">1</span>
+
+
+<span class="token hvariable">main</span> <span class="token operator">=</span>
+  <span class="token hvariable">beginnerProgram</span> <span class="token punctuation">{</span> <span class="token hvariable">model</span> <span class="token operator">=</span> <span class="token hvariable">initialState</span><span class="token punctuation">,</span> <span class="token hvariable">view</span> <span class="token operator">=</span> <span class="token hvariable">view</span><span class="token punctuation">,</span> <span class="token hvariable">update</span> <span class="token operator">=</span> <span class="token hvariable">update</span> <span class="token punctuation">}</span>
+</code></pre>
+<p><a href="http://codepen.io/shybovycha/pen/egaLXv">Run compiled version of this code</a></p>
+<p>In this example, we first define initial application state, which is just integer number of zero.</p>
+<p>Then we describe the view of our application, how the application will display the current state in HTML. This is the battle field of a <code>view</code> function.</p>
+<p>After that we define possible actions <em>(or messages in terms of Elm)</em>. It would be either <code>Increment</code> or <code>Decrement</code> action with no additional parameters.</p>
+<p>Right after that we define how each message will affect application state. Since our application’ state is only an integer number, the <code>update</code> function will return the new state given the current state value and an action.</p>
+<p>Lastly we create our application, providing Elm with all the entities we defined above.</p>
+<p>I found this code to be more clear, than in case with React + Redux, since in case we’d like to write something more complex, we don’t need to use tons of mapping/reducing/selecting functions, split into a huge bunch of files. I’ll cover more complex examples later on.</p>
+<h2 id="mithril-1">Mithril</h2>
+<p>Mithril is a tiny JS framework, whose main feature is virtual DOM. Just take a look at a sample application:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> count$ <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+<span class="token keyword">var</span> App <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token function-variable function">view</span><span class="token operator">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> <span class="token function">m</span><span class="token punctuation">(</span><span class="token string">'main'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+        <span class="token function">m</span><span class="token punctuation">(</span><span class="token string">'button'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token keyword">class</span><span class="token operator">:</span> <span class="token string">'decrement'</span><span class="token punctuation">,</span> <span class="token function-variable function">onclick</span><span class="token operator">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> count$<span class="token operator">--</span><span class="token punctuation">;</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Decrement'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token function">m</span><span class="token punctuation">(</span><span class="token string">'button'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token keyword">class</span><span class="token operator">:</span> <span class="token string">'increment'</span><span class="token punctuation">,</span> <span class="token function-variable function">onclick</span><span class="token operator">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> count$<span class="token operator">++</span><span class="token punctuation">;</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Increment'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token function">m</span><span class="token punctuation">(</span><span class="token string">'p'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Counter: '</span> <span class="token operator">+</span> count$<span class="token punctuation">)</span><span class="token punctuation">,</span>
+      <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+m<span class="token punctuation">.</span><span class="token function">mount</span><span class="token punctuation">(</span>document<span class="token punctuation">.</span>body<span class="token punctuation">,</span> App<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><a href="http://codepen.io/shybovycha/pen/WRBgWv">Run this code</a></p>
+<p>This is much less code than in case with React + Redux, isn’t it?</p>
+<h2 id="cycle-1">Cycle</h2>
+<p>Cycle is a reactive framework; kind of React + Rx. This means an application is basically a view function, subscribed to all the events allowed in your application. An example straight from <a href="https://cycle.js.org/">cycle</a> website:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> xs <span class="token operator">=</span> xstream<span class="token punctuation">.</span>default<span class="token punctuation">;</span>
+<span class="token keyword">var</span> <span class="token punctuation">{</span> div<span class="token punctuation">,</span> p<span class="token punctuation">,</span> button<span class="token punctuation">,</span> makeDOMDriver <span class="token punctuation">}</span> <span class="token operator">=</span> CycleDOM<span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">App</span><span class="token punctuation">(</span><span class="token parameter">sources</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">var</span> decrement$ <span class="token operator">=</span> sources<span class="token punctuation">.</span><span class="token constant">DOM</span>
+    <span class="token punctuation">.</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token string">'.decrement'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">events</span><span class="token punctuation">(</span><span class="token string">'click'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">mapTo</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">var</span> increment$ <span class="token operator">=</span> sources<span class="token punctuation">.</span><span class="token constant">DOM</span>
+    <span class="token punctuation">.</span><span class="token function">select</span><span class="token punctuation">(</span><span class="token string">'.increment'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">events</span><span class="token punctuation">(</span><span class="token string">'click'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">mapTo</span><span class="token punctuation">(</span><span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">var</span> action$ <span class="token operator">=</span> xs<span class="token punctuation">.</span><span class="token function">merge</span><span class="token punctuation">(</span>decrement$<span class="token punctuation">,</span> increment$<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">var</span> count$ <span class="token operator">=</span> action$<span class="token punctuation">.</span><span class="token function">fold</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">acc<span class="token punctuation">,</span> v</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token keyword">return</span> acc <span class="token operator">+</span> v<span class="token punctuation">;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">var</span> vtree$ <span class="token operator">=</span> count$<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">count</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">div</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+      <span class="token function">button</span><span class="token punctuation">(</span><span class="token string">'.decrement'</span><span class="token punctuation">,</span> <span class="token string">'Decrement'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+      <span class="token function">button</span><span class="token punctuation">(</span><span class="token string">'.increment'</span><span class="token punctuation">,</span> <span class="token string">'Increment'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+      <span class="token function">p</span><span class="token punctuation">(</span><span class="token string">'Counter: '</span> <span class="token operator">+</span> count<span class="token punctuation">)</span>
+    <span class="token punctuation">]</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> <span class="token punctuation">{</span> <span class="token constant">DOM</span><span class="token operator">:</span> vtree$ <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+Cycle<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>App<span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token constant">DOM</span><span class="token operator">:</span> <span class="token function">makeDOMDriver</span><span class="token punctuation">(</span><span class="token string">'body'</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><a href="http://codepen.io/shybovycha/pen/XpOQvx">Run this code</a></p>
+<p>Let me explain this source, since this might not be obvious.</p>
+<p>First, Cycle <em>(or, actually, <strong>RxJS</strong>)</em> operates on <strong>event streams</strong>. In this particular application there are two event streams: clicks on the “Increment” button and clicks on the “Decrement” button. So we first make all “click” events on the “Decrement” button (expressed by <code>sources.DOM.select(&#39;.decrement&#39;).events(&#39;click&#39;)</code>) to become just <code>-1</code> number (which is made by mapping each event to a value <code>-1</code>, <code>eventStream.map(-1)</code>). Then we do the similar thing to the clicks on the “Increment” button, but transform each event to <code>1</code> (positive) number.</p>
+<p>Now, we merge both streams into a single one (thus both “Increment” and “Decrement” clicks will come from a single event stream, namely <code>action$</code>).</p>
+<p>Then we transform our unified event stream <code>action$</code> into a stream of a single value by adding all the events (values) from <code>action$</code> stream.</p>
+<p>And lastly, we transform our single-value stream <code>count$</code> into a virtual DOM tree and update the real dom, if needed.</p>
+<h3 id="event-streams">Event streams</h3>
+<p>Here’s what should be explained regarding those event streams: a <strong>stream</strong> is a series of some values. That’s it. Nothing more. When a value is added to a stream <em>(an event is fired)</em>, all the transformations are run as they are nothing but observers to the “on value appeared” event. Ans since all those transformations can be chained, we can imagine each transforming function is just a new event listener for that “on value appeared” event. And each transformation will provide us with a new stream, what allows us to add many different listeners to the same stream.</p>
+<p>Here’s a diagram, showing all the transformations:</p>
+<LazyImg src="/images/functional_web/CycleJS_example-compressed.webp" alt="Event transformations diagram" />
+
+<p>So once a click event <em>(on one of two buttons, of course)</em> appears, it is transformed to either <code>-1</code> or <code>1</code>, depending on the button which fired that event; then this number is added to the existing <em>(which might appear to be empty)</em> event stream <code>action$</code>; then the sum is calculated over all the numbers in that stream; then the sum is transformed into a virtual DOM tree; and lastly, the virtual DOM tree is returned from a view function and Cycle does its job to update the actual DOM. And since there always will be a different value of sum in our example, the DOM will always be updated.</p>
+<h2 id="libc-1">libc</h2>
+<p>So far I’ve covered four different implementations of a very simple yet <em>interactive</em> web application. Some of them require a whole bunch of libraries to be injected into a page (in case with React+Redux+whatever, Cycle), some of them introduce a whole new approach to create interactive applications (Cycle, Elm, Mithril). Based on that, I created my own micro library, which inherits most interesting features of frameworks discussed above.</p>
+<p>I called it <a href="https://github.com/shybovycha/libc.js">libc</a>.</p>
+<p>The same “counter” application, written in libc looks like this:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> initialState <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">update</span><span class="token punctuation">(</span><span class="token parameter">state<span class="token punctuation">,</span> message</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>message <span class="token operator">==</span> <span class="token string">'INCREMENT'</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> state <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>message <span class="token operator">==</span> <span class="token string">'DECREMENT'</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> state <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> state<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">view</span><span class="token punctuation">(</span><span class="token parameter">state<span class="token punctuation">,</span> dispatch</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">[</span><span class="token string">'button'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token function-variable function">click</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token string">'INCREMENT'</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Increment'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token string">'button'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token function-variable function">click</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token string">'DECREMENT'</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Decrement'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">Count: </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span> state <span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">]</span>
+  <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">var</span> app <span class="token operator">=</span> <span class="token function">createApplication</span><span class="token punctuation">(</span>initialState<span class="token punctuation">,</span> update<span class="token punctuation">,</span> view<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">mount</span><span class="token punctuation">(</span>document<span class="token punctuation">.</span>body<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><a href="http://codepen.io/shybovycha/pen/dNEgNa">Run this code</a></p>
+<p>All the DOM nodes are created using the array returned, which should match pattern <code>[tag, {attributes}, (text | [children]))</code> <em>(just like Mithril uses <code>m()</code> function or Elm uses <code>div</code> and other helper functions)</em>. Originally, <code>libc</code> used <code>c()</code> helper function to do that <em>(similar to Mithril’s <code>m()</code> function)</em>, and that’s why it was called <code>libC</code>.</p>
+<p>The library makes use of a VirtualDOM approach to create a virtual DOM tree and chech which nodes/node properties need changes and reflect only the needed changes in a real DOM tree.</p>
+<p><code>libc</code> uses the <code>message -&gt; update -&gt; view</code> chain, just like Elm does. The inner application state is handled similarly to Redux - application has only one store, which contains application state. And the <code>update()</code> function just calculates the new value for a state, without actually assigning it. Library then checks whether state needs to be updated or not <em>(using <code>Object.deepEqual</code> method, exposed by a library)</em>. If the new state value is different from the existing one - the state is replaced with a new value and the <code>view()</code> function is being called with a new state value. <code>view</code> function returns the new value of a virtual DOM tree. Library then checks whether it needs to update actual DOM tree or not.</p>
+<p>There are however couple highlights regarding <code>libc</code>:</p>
+<ul>
+<li>it can create arbitrary tags <em>(DOM nodes)</em> within the <code>view()</code> function <em>(the first element in each array is tag name, which could be pretty much anything)</em>, so it’s quite easy to use it in couple with other libraries <em>(such as Angular-material, React or Polymer, for instance)</em></li>
+<li>properties, whose value is a function are automatically mapped to event listeners; taking into account that property names could be arbitrary as well, you may add event listeners to your custom events</li>
+<li>again, property names could be arbitrary, so you can use even angular ones if you want:</li>
+</ul>
+<p>::: v-pre</p>
+<pre><code class="language-js"><span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token string-property property">'ng-repeat'</span><span class="token operator">:</span> <span class="token string">'item in items'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'{{item.name}}'</span><span class="token punctuation">]</span>
+</code></pre>
+<p>:::</p>
+<ul>
+<li>both <code>properties</code> and <code>children or text</code> arguments are optional; thus you can create empty DOM elements: <code>[&#39;hr&#39;]</code></li>
+<li>to enable communication with your applications from the outside, application instance, returned by the <code>createApplication()</code> function, has the <code>dispatch(message)</code> method</li>
+</ul>
+<p>In later posts I’ll provide more examples of using <code>libc</code>.</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

@@ -1,0 +1,287 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Two sides of web application. Part 1: the tools</h1>
+
+    <time>20 Sep 2015 at 19:18</time>
+
+    <div class="content"><LazyImg src="/images/two-sides-of-web-application/chocolate_tools.webp" />
+
+<h2 id="prologue">Prologue</h2>
+<p>How do we usually create a web application? We run a bootstrapping script, which provides us with a skeleton of our application and then we just extend it with the features we need.</p>
+<p>That’s exactly what we did at the last hackathon we were attending - we started with <code>rails new twf</code> and spent half of the day integrating our blank app with Angular, Paperclip, creating API methods and so on. But the effort we needed to accomplish our goal (quite a simple web app) was really huge.</p>
+<p>So I decided to find the best combination of backend and frontend technologies that would cause less pain.</p>
+<p>At the project I was recently introduced to, the line between frontend and backend is distinguished very clearly: we have an API, written in Clojure and thin frontend application, made with Angular that works on a generated set of static assets - HTMLs, CSS and JS files <em>(but under the hood we are using HAML and SCSS)</em>.</p>
+<p>The application I will be implementing throughout the whole article has the same architecture: it has RESTful API and MVVM on the frontend, made with Angular. I welcome you to the journey of research and new technologies!</p>
+<!--more-->
+
+<h2 id="why-not-go-with-rails">Why not go with Rails?</h2>
+<p>Because Rails is often overused. Especially if you install all of frontend libraries
+<em>(like Angular, Bootstrap, some Angular plugins, etc.)</em> as RubyGems. Frontend should stay
+on the front end of the application; you should not lock your application at some precise
+version of the JS script, provided by a gem and rely on author’s way to integrate it with
+Rails.</p>
+<p>In our case, Rails is too heavy - when all you need is database + routing + a couple of
+lightweight controllers, all Rails’ features will become a ballast to our app, which
+must be small, by design.</p>
+<h2 id="the-goal">The goal</h2>
+<p>Before we start, let’s think of what we’ll be creating. Will it be a web shop? Or a blog?
+No, we need something outstanding! Something we’ve done never before…</p>
+<p>After an hour of imaging what it may be, I decided to go with web analytics tool. A prototype,
+which will be able to tell how many visitors your web application gained recently.</p>
+<p>It shouldn’t be too complicated, because, you know, it’s just a tutorial… So we’ll be
+tracking users’ location and browser only. And we’ll be displaying those analytics as a chart
+<em>(values like total visitors, browser usage)</em> and in a table <em>(the same info as the chart)</em>.</p>
+<h2 id="architecture-preview">Architecture preview</h2>
+<p>We will be developing our application with two layers (or two sides) - front-end and back-end:</p>
+<LazyImg src="/images/two-sides-of-web-application/general_architecture.webp" />
+
+<p>The front-end part is the one the user sees and uses - the web page, mobile or desktop application. The back-end part is the one, which does all the magic - prepares data for the front-end side to display, performs data operations as a reaction on user’s actions, etc. Thus we could easily replace either the back-end part or the front-end one or even both and replace them with all brand-new implementation. This architecture allows us to do that really easily.</p>
+<h2 id="build-with-the-right-tools">Build with the right tools!</h2>
+<p>Now, since we separated our frontend part of application from the backend part, we may use different preprocessing
+languages to write stylesheets and views. And even controllers! So let’s take the most from 2015 and use the newest
+tool set: <em>Jade</em>, <em>ES6+</em> and <em>SCSS</em>. And put them all together with <em>Bower</em> and <em>Gulp</em>.</p>
+<p>All those Jade, SCSS and ES6 are not supported by a browser out-of-the box. They must be compiled to HTML, CSS and JS in order to be recognized by the browser. But they are here to help you writing code quickly. I listed some of their key features below.</p>
+<h3 id="jade">Jade</h3>
+<p>Jade is a template rendering engine with its own markup language. It is somewhat similar to Haml and Slim - it
+nests XHTML nodes with indentation, closes tags automatically… But it is especially good at writing complex web
+pages, consisting of <em>layouts</em> and <em>partials</em>.</p>
+<p><em>Layouts</em> are big templates, containing placeholders, where
+concrete partials will be placed. So, for example, you may create a separate layout for your webshop’ landing
+page, account page and shopping cart. They will be different. And all of them will use different sets of partials.
+But, for example, a footer and a quick shopping cart preview or user account widget (the one with a link to user’s
+account page) will be the same. To prevent duplicating those widgets’ code on each of the layouts, we extract them
+to separate files, called <em>partials</em> and then just make a reference (a placeholder) in our layouts, saying
+<em>“place that partial’s content here”</em>.</p>
+<p>In case of Jade, we may override or extend existing partials in a layout, without touching partial’s file itself.
+So, for example, if we want to make user’s avatar to be shown in a user account widget only on a product page, we just override user widget partial on a product page, removing the part with the avatar.</p>
+<h3 id="scss">SCSS</h3>
+<p>SCSS is a way to simplify writing CSS. It is so simple, yet so powerful, that you will fall in love with it
+after the first few stylesheets! See, in CSS when you write a long selector, specifying many parents, you may
+find your stylesheets ugly and huge, when describing different children of one, deeply nested parent.</p>
+<p>So, let’s say you are having a user widget. And it may be placed both on page’s header, footer and sidebar. But
+the avatar image will look differently on each of those - it must be smaller in header and footer. So you
+start writing selectors like <code>.sidebar .user-widget .avatar img</code> and <code>.header .user-widget .avatar img</code>.
+That’s painful, but not that much, if you have just a couple of those. However, as your website grows, you
+start getting really, really upset about that.</p>
+<p>And here’s where SCSS is just a revelation: its great power is in its <em>selectors</em>, <em>variables</em> and <em>mixins</em>.</p>
+<p><em>Selectors</em> allow you to describe selector’ nesting just as you’d be writing C code:</p>
+<pre><code class="language-scss"><span class="token selector">.header </span><span class="token punctuation">{</span>
+    <span class="token comment">// header styles</span>
+
+    <span class="token selector">.user-widget </span><span class="token punctuation">{</span>
+        <span class="token comment">// header user-widget styles</span>
+
+        <span class="token selector">.avatar </span><span class="token punctuation">{</span>
+            <span class="token comment">// maybe something differs in avatar itself?</span>
+
+            <span class="token selector">img </span><span class="token punctuation">{</span>
+                <span class="token comment">// ah! here's it!</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><em>Variables</em> allow you to get rid of all those magic values. So if you use one color many times across your styles,
+you just extract it into a named constant and use the pretty named value everywhere!</p>
+<p><em>Mixins</em> allow even more: you may extract the parts of the styles into a named and even <strong>parametrized</strong> function!</p>
+<p>Relating on all of those, you may re-write your user widget as follows:</p>
+<pre><code class="language-scss"><span class="token property"><span class="token variable">$header-avatar-size</span></span><span class="token punctuation">:</span> 50px<span class="token punctuation">;</span>
+<span class="token property"><span class="token variable">$sidebar-avatar-size</span></span><span class="token punctuation">:</span> 150px<span class="token punctuation">;</span>
+
+<span class="token keyword">@mixin</span> <span class="token function">avatar</span><span class="token punctuation">(</span><span class="token variable">$avatar_size</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token property">max-width</span><span class="token punctuation">:</span> <span class="token variable">$avatar_size</span><span class="token punctuation">;</span>
+    <span class="token property">max-height</span><span class="token punctuation">:</span> <span class="token variable">$avatar_size</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector">.header </span><span class="token punctuation">{</span>
+    <span class="token selector">.user-widget .avatar </span><span class="token punctuation">{</span>
+        <span class="token keyword">@include</span> <span class="token function">avatar</span><span class="token punctuation">(</span><span class="token variable">$header-avatar-size</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector">.sidebar </span><span class="token punctuation">{</span>
+    <span class="token selector">.user-widget .avatar </span><span class="token punctuation">{</span>
+        <span class="token keyword">@include</span> <span class="token function">avatar</span><span class="token punctuation">(</span><span class="token variable">$sidebar-avatar-size</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="gulp">Gulp</h3>
+<p>I found Gulp to be super-easy for tasks like compiling stylesheets, views and javascripts. But before
+we continue with Gulp, let’s initialize an NPM project with <code>npm init</code> and install the plugins required:</p>
+<pre><code class="language-bash"><span class="token function">npm</span> <span class="token function">install</span> -g gulp
+</code></pre>
+<p>And Gulp plugins:</p>
+<pre><code class="language-bash"><span class="token function">npm</span> <span class="token function">install</span> --save-dev gulp gulp-babel gulp-scss gulp-jade
+</code></pre>
+<p>I will describe how Gulp works and how we can use it in our project in a minute. For now, let’s
+just install the frontend dependencies.</p>
+<h3 id="bower">Bower</h3>
+<p>Let’s fix our frontend on specific versions of frontend libraries, so when we update the whole project, nothing gets broken. To make our development quick, we’ll use <em>Twitter Bootstrap</em>. All the frontend dependencies will be managed by a tool called <em>Bower</em>.</p>
+<p>Bower is a tool like <code>npm</code>, but used strictly with frontend libraries like <em>jQuery</em>, <em>Angular</em>, <em>Twitter Bootstrap</em> and many others. It’s important to keep frontend libraries separate from the backend ones, so we can keep our backend application completely separate from frontend one.</p>
+<p>Bower comes with a command-line tool, <code>bower</code>, which we’ll use to fill out the <code>bower.json</code> file. It is used by Bower to specify which libraries does our application require:</p>
+<pre><code class="language-bash"><span class="token function">npm</span> <span class="token function">install</span> -g bower
+bower init
+bower <span class="token function">install</span> --save bootstrap angular
+</code></pre>
+<p>These commands create a directory <code>bower_components</code>, containing all the dependencies installed, each in its own sub-directory. With that in mind, we’ll be referencing our frontend dependencies, relatively to their catalogs within the <code>bower_components</code> directory.</p>
+<p>Now let’s write a build task for Gulp. Gulp is a streamed build tool. That means, that each operation you perform, passes its result to another operation as the input argument. So, for example, if you run <code>gulp.src(&#39;src/styles/*.scss&#39;)</code>, it’ll return you an object with the list of all the SCSS files and the magic <code>pipe()</code> method. And when you call the <code>gulp.src(...).pipe(scss())</code>, Gulp will pass that list to the SCSS compiler plugin, so you will get a compiled CSS code. That is, not a CSS file itself, but a compressed, merged, CSS file’ content.</p>
+<p>And that describes the second important feature of Gulp: it does not store the intermediate operation results. It is almost like a functional programming - you just have the input data. Then you call a chain of functions on it,
+passing the result of one function call to the next function as its input. Same happens here, but in
+a manner not that strict - since we are using Javascript, we can store the intermediate results in the memory. But to store
+the results in the files, we should pass them to the <code>gulp.dest(...)</code> function. Depending on the function, looking
+to store its results, <code>gulp.dest()</code> may point to a directory or a single file, where the results will be stored.</p>
+<p>Below is our first Gulp task. Write this code in the <code>gulpfile.js</code>:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> gulp <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'gulp'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    sass <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'gulp-scss'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    babel <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'gulp-babel'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    jade <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'gulp-jade'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+gulp<span class="token punctuation">.</span><span class="token function">task</span><span class="token punctuation">(</span><span class="token string">'build'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    gulp<span class="token punctuation">.</span><span class="token function">src</span><span class="token punctuation">(</span><span class="token string">'src/views/**/*.jade'</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span><span class="token function">jade</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span>gulp<span class="token punctuation">.</span><span class="token function">dest</span><span class="token punctuation">(</span><span class="token string">'public/'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    gulp<span class="token punctuation">.</span><span class="token function">src</span><span class="token punctuation">(</span><span class="token string">'src/javascripts/**/*.js'</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span><span class="token function">babel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span>gulp<span class="token punctuation">.</span><span class="token function">dest</span><span class="token punctuation">(</span><span class="token string">'public/javascripts'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    gulp<span class="token punctuation">.</span><span class="token function">src</span><span class="token punctuation">(</span><span class="token string">'src/stylesheets/**/*.scss'</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span><span class="token function">sass</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">style</span><span class="token operator">:</span> <span class="token string">'expanded'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span>gulp<span class="token punctuation">.</span><span class="token function">dest</span><span class="token punctuation">(</span><span class="token string">'public/stylesheets'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>This tells Gulp to define <code>build</code> task, which compiles all the Jade, SCSS and ES6+ files into HTML, CSS
+and JS files, correspondingly. Compiled files are placed within the <code>public/</code> directory, so we may
+easily render them with almost any web-server. But first things first, we need to prepare directory structure
+like this for our task:</p>
+<pre><code class="language-bash"><span class="token builtin class-name">.</span>
+<span class="token operator">|</span>____bower.json
+<span class="token operator">|</span>____gulpfile.js
+<span class="token operator">|</span>____package.json
+<span class="token operator">|</span>____public
+<span class="token operator">|</span>____src
+<span class="token operator">|</span> <span class="token operator">|</span>____javascripts
+<span class="token operator">|</span> <span class="token operator">|</span>____stylesheets
+<span class="token operator">|</span> <span class="token operator">|</span>____views
+</code></pre>
+<p>This may seem odd to the paragraph, dedicated to build tools, but let’s check how our tasks work.
+To do this, we need to write some test files to check our <code>build</code> task. So let’s create one of each kind:</p>
+<p><em><code>src/views/index.jade</code>:</em></p>
+<pre><code class="language-pug"><span class="token tag">html<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">lang</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"en"</span></span><span class="token punctuation">)</span></span></span>
+<span class="token tag">head</span>
+    <span class="token tag">meta<span class="token attributes"><span class="token punctuation">(</span><span class="token attr-name">charset</span><span class="token punctuation">=</span><span class="token attr-value"><span class="token string">"UTF-8"</span></span><span class="token punctuation">)</span></span></span>
+    <span class="token tag">title</span> <span class="token plain-text">OurStats</span>
+    <span class="token tag">link</span>(rel<span class="token punctuation">=</span>"stylesheet" href<span class="token punctuation">=</span>"/stylesheets/dy
+    <span class="token tag">h1</span> <span class="token plain-text">Hello, world!</span>
+</code></pre>
+<p><em><code>src/stylesheets/main.scss</code>:</em></p>
+<pre><code class="language-scss"><span class="token selector">h1 </span><span class="token punctuation">{</span>
+    <span class="token property">padding</span><span class="token punctuation">:</span> 0 10px<span class="token punctuation">;</span>
+    <span class="token property">border-bottom</span><span class="token punctuation">:</span> 1px solid #dedede<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><em><code>src/javascripts/main.js</code>:</em></p>
+<pre><code class="language-js"><span class="token keyword">function</span> <span class="token function">timeout</span><span class="token punctuation">(</span><span class="token parameter">ms</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">Promise</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">res</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">setTimeout</span><span class="token punctuation">(</span>res<span class="token punctuation">,</span> ms<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">async</span> <span class="token keyword">function</span> <span class="token function">f</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">await</span> <span class="token function">timeout</span><span class="token punctuation">(</span><span class="token number">1000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">await</span> <span class="token function">timeout</span><span class="token punctuation">(</span><span class="token number">1000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token function">f</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<p><a href="https://github.com/shybovycha/two-sides-of-web-application/tree/10f770a5ca64fad1cb6e58bc957e5210bc95bda3">Full code of these steps</a></p>
+<p>And to actually check our task, we need to run it with</p>
+<pre><code class="language-bash">gulp build
+</code></pre>
+<p>Now, you may open the HTML generated from Jade in a browser, but it’ll look ugly, because your
+browser will doubtfully find stylesheets and javascripts that easily. To make the magic happen, we
+will use another Gulp plugin, <code>gulp-server-livereload</code>. Generally, the development process with
+different build tools looks very similar nowadays: you set up the environment, find the plugins
+you need, install and configure them - and violà!</p>
+<p>I’ve chosen that server plugin because it comes with one handy feature: it automatically reloads
+the opened pages in your web-browser if any of the files you are browsing has changed. Here’s
+the code of our serving task:</p>
+<pre><code class="language-js">gulp<span class="token punctuation">.</span><span class="token function">task</span><span class="token punctuation">(</span><span class="token string">'serve'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    gulp<span class="token punctuation">.</span><span class="token function">src</span><span class="token punctuation">(</span><span class="token string">'public/'</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span><span class="token function">server</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+            <span class="token literal-property property">livereload</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">directoryListing</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">open</span><span class="token operator">:</span> <span class="token boolean">true</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>But if you remember, we are compiling our sources from SCSS/Jade into the <code>public/</code> directory.
+So how the server would know if anything changed in our <code>*.scss</code> or <code>*.jade</code> files? We need to
+reload the page in web-browser if anything changes in those files. To do that, we’ll write one
+more task, which will re-build our source files if anything changes:</p>
+<pre><code class="language-js">gulp<span class="token punctuation">.</span><span class="token function">task</span><span class="token punctuation">(</span><span class="token string">'watch'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    gulp<span class="token punctuation">.</span><span class="token function">watch</span><span class="token punctuation">(</span><span class="token string">'src/**/*'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'build'</span> <span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Here we used two new features of Gulp: <em>watching for file changes</em> and <em>running existing tasks from another task</em>.
+Simple? Yeah, <strong>that</strong> simple! So we just tell Gulp: <em>keep an eye on those files - if anything happens - run
+those tasks immediately!</em> - and the magic happens.</p>
+<p>But why should we run two tasks? Let’s merge them into one so we just run <code>gulp serve</code> and get both live reload
+and live re-compilation:</p>
+<pre><code class="language-js">gulp<span class="token punctuation">.</span><span class="token function">task</span><span class="token punctuation">(</span><span class="token string">'serve'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    gulp<span class="token punctuation">.</span><span class="token function">watch</span><span class="token punctuation">(</span><span class="token string">'src/**/*'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token string">'build'</span> <span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+    gulp<span class="token punctuation">.</span><span class="token function">src</span><span class="token punctuation">(</span><span class="token string">'public/'</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span><span class="token function">server</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+            <span class="token literal-property property">port</span><span class="token operator">:</span> <span class="token number">3000</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">livereload</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">directoryListing</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">open</span><span class="token operator">:</span> <span class="token boolean">true</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>This task first defines a watcher for our sources and then starts server, which will react to any changes
+in the <code>public/</code> directory. To check how this awesomeness works, start <code>gulp serve</code>, open the
+<code>localhost:3000/test.html</code> page and then change, for example,
+color for the <code>h1</code> tag to green. Save the SCSS file and just switch to the browser window, <strong>don’t reload
+it manually</strong>.</p>
+<p><a href="https://github.com/shybovycha/two-sides-of-web-application/tree/07f6cda21da377719861f41f89064a414e808268">Full code of these steps</a></p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

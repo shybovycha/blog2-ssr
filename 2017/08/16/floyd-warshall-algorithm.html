@@ -1,0 +1,908 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Floyd-Warshall algorithm</h1>
+
+    <time>04 Sep 2017 at 00:38</time>
+
+    <div class="content"><style>
+    table td {
+        padding: 0.25em 1em;
+        text-align: center;
+    }
+</style>
+
+<h2 id="the-story-behind-this-post">The story behind this post</h2>
+<p>Recently I’ve received <code>+10</code> karma on StackOverflow. I was curious for what question or answer and clicked to check this. It appeared
+to be a <a href="https://stackoverflow.com/a/4526639/330471"><strong>seven-year-old</strong> answer</a> about a Floyd-Warshall algorithm. I was surprised with both my bad English (back those days…) and the very small value the answer had. So I’ve revised it and here it is – the brand-new version!</p>
+<h2 id="the-definitions">The definitions</h2>
+<p>Let us have a graph, described by matrix <code>D</code>, where <code>D[i][j]</code> is the length of the edge <code>(i -&gt; j)</code> <em>(from graph’s vertex with index <code>i</code> to the vertex with index <code>j</code>)</em>.</p>
+<p>Matrix <code>D</code> has the size of <code>N * N</code>, where <code>N</code> is a total number of vertices in a graph because we can reach the maximum of paths by connecting each graph’s vertex to each other.</p>
+<p>Also, we’ll need matrix <code>R</code>, where we will store the vertices of the shortest paths (<code>R[i][j]</code> contains the index of a vertex, where the shortest path from vertex <code>i</code> to vertex <code>j</code> lies).</p>
+<p>Matrix <code>R</code> has the same size as <code>D</code>.</p>
+<p>The Floyd-Warshall algorithm performs these steps:</p>
+<ol>
+<li><p>initialize the matrix of all the paths between any two pairs of vertices in a graph with the edge’s end vertex <em>(this is important since this value will be used for path reconstruction)</em></p>
+</li>
+<li><p>for each pair of connected vertices <em>(read: for each edge <code>(u -&gt; v)</code>)</em>, <code>u</code> and <code>v</code>, find the vertex, which forms shortest path between them: if the vertex <code>k</code> defines two valid edges <code>(u -&gt; k)</code> and <code>(k -&gt; v)</code> <em>(if they are present in the graph)</em>, which are together shorter than path <code>(u -&gt; v)</code>, then assume the shortest path between <code>u</code> and <code>v</code> lies through <code>k</code>; set the shortest pivot point in matrix <code>R</code> for edge <code>(u -&gt; v)</code> to be the corresponding pivot point for edge <code>(u -&gt; k)</code></p>
+</li>
+</ol>
+<p>But how do we read the matrix <code>D</code>?</p>
+<!--more-->
+
+<h2 id="inputs">Inputs</h2>
+<p>Take sample graph:</p>
+<!--
+```graphviz
+digraph G {
+    // layout = "circo";
+
+    0->2 [label = "1"];
+    2->3 [label = "5"];
+    3->1 [label = "2"];
+    1->2 [label = "6"];
+    1->0 [label = "7"];
+}
+```
+-->
+
+<LazyImg src="/images/floyd-warshall/floyd-warshall-graph-sample.webp" alt="" />
+
+<p>In <em>GraphViz</em> it would be described as follows:</p>
+<pre><code class="language-dot"><span class="token keyword">digraph</span> <span class="token graph-name class-name">G</span> <span class="token punctuation">{</span>
+    <span class="token attr-name">layout</span> <span class="token operator">=</span> <span class="token attr-value">"circo"</span><span class="token punctuation">;</span>
+
+    <span class="token node">0</span><span class="token operator">-></span><span class="token node">2</span> <span class="token punctuation">[</span><span class="token attr-name">label</span> <span class="token operator">=</span> <span class="token attr-value">"1"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token node">2</span><span class="token operator">-></span><span class="token node">3</span> <span class="token punctuation">[</span><span class="token attr-name">label</span> <span class="token operator">=</span> <span class="token attr-value">"5"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token node">3</span><span class="token operator">-></span><span class="token node">1</span> <span class="token punctuation">[</span><span class="token attr-name">label</span> <span class="token operator">=</span> <span class="token attr-value">"2"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token node">1</span><span class="token operator">-></span><span class="token node">2</span> <span class="token punctuation">[</span><span class="token attr-name">label</span> <span class="token operator">=</span> <span class="token attr-value">"6"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token node">1</span><span class="token operator">-></span><span class="token node">0</span> <span class="token punctuation">[</span><span class="token attr-name">label</span> <span class="token operator">=</span> <span class="token attr-value">"7"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>We first create a two-dimensional array of size <code>4</code> <em>(since there are exactly <code>4</code> vertices in our graph)</em>.</p>
+<p>We initialize its main diagonal <em>(the items, whose indices are equal, for ex. <code>G[0, 0]</code>, <code>G[1, 1]</code>, etc.)</em> with zeros, because
+the shortest path from vertex to itself has the length <code>0</code> and the other elements with a very large number <em>(to indicate there is no edge or an infinitely long edge between them)</em>. The defined elements, corresponding to graph’s edges, we fill with edges’ lengths:</p>
+<pre><code class="language-csharp"><span class="token class-name"><span class="token keyword">int</span></span> N <span class="token operator">=</span> <span class="token number">4</span><span class="token punctuation">;</span>
+<span class="token class-name"><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">,</span><span class="token punctuation">]</span></span> D <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name"><span class="token keyword">int</span></span><span class="token punctuation">[</span>N<span class="token punctuation">,</span> N<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> t <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> t <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> t<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>i <span class="token operator">==</span> t<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            D<span class="token punctuation">[</span>i<span class="token punctuation">,</span> t<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            D<span class="token punctuation">[</span>i<span class="token punctuation">,</span> t<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">9999</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>And let’s say we initialize our <code>D</code> matrix by hand:</p>
+<pre><code class="language-csharp">D<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+D<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">7</span><span class="token punctuation">;</span>
+D<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">6</span><span class="token punctuation">;</span>
+D<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">5</span><span class="token punctuation">;</span>
+D<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span>
+</code></pre>
+<h2 id="the-algorithm-itself">The algorithm itself</h2>
+<p>Now that we are on a same page with definitions, algorithm can be implemented like this:</p>
+<pre><code class="language-csharp"><span class="token class-name"><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">,</span><span class="token punctuation">]</span></span> R <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name"><span class="token keyword">int</span></span><span class="token punctuation">[</span>N<span class="token punctuation">,</span> N<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Initialise the routes matrix R, essentially saying "the shortest path from u to v is straight"</span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> t <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> t <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> t<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        R<span class="token punctuation">[</span>i<span class="token punctuation">,</span> t<span class="token punctuation">]</span> <span class="token operator">=</span> t<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Floyd-Warshall algorithm; note the order of iterators DOES matter:</span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> k <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> k <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> k<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> u <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> u <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> u<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> v <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> v <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> v<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">// check if the shortest path from "u" to "v" is actually through "k"</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>D<span class="token punctuation">[</span>u<span class="token punctuation">,</span> v<span class="token punctuation">]</span> <span class="token operator">></span> D<span class="token punctuation">[</span>u<span class="token punctuation">,</span> k<span class="token punctuation">]</span> <span class="token operator">+</span> D<span class="token punctuation">[</span>k<span class="token punctuation">,</span> v<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                D<span class="token punctuation">[</span>u<span class="token punctuation">,</span> v<span class="token punctuation">]</span> <span class="token operator">=</span> D<span class="token punctuation">[</span>u<span class="token punctuation">,</span> k<span class="token punctuation">]</span> <span class="token operator">+</span> D<span class="token punctuation">[</span>k<span class="token punctuation">,</span> v<span class="token punctuation">]</span><span class="token punctuation">;</span>
+                R<span class="token punctuation">[</span>u<span class="token punctuation">,</span> v<span class="token punctuation">]</span> <span class="token operator">=</span> R<span class="token punctuation">[</span>u<span class="token punctuation">,</span> k<span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Let’s “animate” this algorithm in few steps for the sample graph from above:</p>
+<h3 id="initial-state">Initial state</h3>
+<ul>
+<li>the <code>D</code> matrix contains distance from vertex <code>u</code> to vertex <code>v</code>, where both <code>u</code> and <code>v</code> are indexes of those vertices in a graph and <code>u</code> is the index of a row and <code>v</code> is the index of the column in any of the matrices <code>R</code> and <code>D</code></li>
+<li>path from <code>u</code> to <code>u</code> is thought to be infinitely long meaning we do not allow this type of paths</li>
+<li>in matrix <code>R</code> we define the shortest path from <code>u</code> to <code>v</code> to lie through <code>v</code></li>
+</ul>
+<div class="row space-between">
+    <div class="col">
+        <table>
+            <tbody>
+                <tr>
+                    <td rowspan="2"></td>
+                    <td colspan="5" class="center head">D</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td class="head">1</td>
+                    <td class="head">2</td>
+                    <td class="head">3</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td>0</td>
+                    <td>&infin;</td>
+                    <td>1</td>
+                    <td>&infin;</td>
+                </tr>
+                <tr>
+                    <td class="head">1</td>
+                    <td>7</td>
+                    <td>0</td>
+                    <td>6</td>
+                    <td>&infin;</td>
+                </tr>
+                <tr>
+                    <td class="head">2</td>
+                    <td>&infin;</td>
+                    <td>&infin;</td>
+                    <td>0</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td class="head">3</td>
+                    <td>&infin;</td>
+                    <td>2</td>
+                    <td>&infin;</td>
+                    <td>0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <table>
+            <tbody>
+                <tr>
+                    <td rowspan="2"></td>
+                    <td colspan="5" class="center head">R</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td class="head">1</td>
+                    <td class="head">2</td>
+                    <td class="head">3</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="head">1</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="head">2</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="head">3</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h3 id="step-1">Step 1</h3>
+<p>We try to find the vertex which makes the <strong>shorter</strong> path through itself than the direct path between two vertices. E.g. for every vertex <code>k</code> we find the pair of vertices <code>u</code> and <code>v</code> where path <code>u -&gt; v</code> is <strong>longer</strong> than the path <code>u -&gt; k -&gt; v</code>. If we found one - we will update the matrices <code>D</code> and <code>R</code>, correspondingly.</p>
+<p>For vertex <code>k = 0</code> we will check each combination of:</p>
+<p><strong>paths through <code>0</code> starting at <code>0</code>:</strong></p>
+<ul>
+<li><code>0 -&gt; 0</code> vs <code>0 -&gt; 0 -&gt; 0</code></li>
+<li><code>0 -&gt; 1</code> vs <code>0 -&gt; 0 -&gt; 1</code></li>
+<li><code>0 -&gt; 2</code> vs <code>0 -&gt; 0 -&gt; 2</code></li>
+<li><code>0 -&gt; 3</code> vs <code>0 -&gt; 0 -&gt; 3</code></li>
+</ul>
+<p><strong>paths through <code>0</code> starting at <code>1</code>:</strong></p>
+<ul>
+<li><code>1 -&gt; 0</code> vs <code>1 -&gt; 0 -&gt; 0</code></li>
+<li><code>1 -&gt; 1</code> vs <code>1 -&gt; 0 -&gt; 1</code></li>
+<li><code>1 -&gt; 2</code> vs <code>1 -&gt; 0 -&gt; 2</code></li>
+<li><code>1 -&gt; 3</code> vs <code>1 -&gt; 0 -&gt; 3</code></li>
+</ul>
+<p><strong>paths through <code>0</code> starting at <code>2</code>:</strong></p>
+<ul>
+<li><code>2 -&gt; 0</code> vs <code>2 -&gt; 0 -&gt; 0</code></li>
+<li><code>2 -&gt; 1</code> vs <code>2 -&gt; 0 -&gt; 1</code></li>
+<li><code>2 -&gt; 2</code> vs <code>2 -&gt; 0 -&gt; 2</code></li>
+<li><code>2 -&gt; 3</code> vs <code>2 -&gt; 0 -&gt; 3</code></li>
+</ul>
+<p><strong>paths through <code>0</code> starting at <code>3</code>:</strong></p>
+<ul>
+<li><code>3 -&gt; 0</code> vs <code>3 -&gt; 0 -&gt; 0</code></li>
+<li><code>3 -&gt; 1</code> vs <code>3 -&gt; 0 -&gt; 1</code></li>
+<li><code>3 -&gt; 2</code> vs <code>3 -&gt; 0 -&gt; 2</code></li>
+<li><code>3 -&gt; 3</code> vs <code>3 -&gt; 0 -&gt; 3</code></li>
+</ul>
+<p>As you can see, there are lots of invalid paths here - those which either do not exist or do not make sense. Examples are: paths which do not exist <em>(like <code>0 -&gt; 3</code>)</em> and paths to any vertex through source vertex <em>(like <code>0 -&gt; 0 -&gt; 0</code> and <code>0 -&gt; 0 -&gt; (any)</code>)</em>.</p>
+<p>We could easily reduce the amount of the steps performed by the algorithm by throwing few <code>if</code> conditions to check for those cases.</p>
+<p>But let’s first finish animating this step: there are very few valid paths amongst <code>N * N === 16</code> of those we’ve checked. And only one comparison: for path <code>1 -&gt; 2</code> vs <code>1 -&gt; 0 -&gt; 2</code> we compare <code>6</code> <em>(direct)</em> and <code>7 + 1 = 8</code> <em>(<code>1 -&gt; 0</code> and then <code>0 -&gt; 2</code>)</em>.</p>
+<LazyImg src="/images/floyd-warshall/floyd-warshall-sample-step-1.webp" alt="" />
+
+<!--
+digraph G {
+    layout = "circo";
+
+    0->2 [label = "1", color = "blue"];
+    2->3 [label = "5"];
+    3->1 [label = "2"];
+    1->2 [label = "6", color = "green"];
+    1->0 [label = "7", color = "blue"];
+}
+-->
+
+<p>So there are no changes in our matrices.</p>
+<div class="row space-between">
+    <div class="col">
+        <table>
+            <tbody>
+                <tr>
+                    <td rowspan="2"></td>
+                    <td colspan="5" class="center head">D</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td class="head">1</td>
+                    <td class="head">2</td>
+                    <td class="head">3</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td>0</td>
+                    <td>&infin;</td>
+                    <td>1</td>
+                    <td>&infin;</td>
+                </tr>
+                <tr>
+                    <td class="head">1</td>
+                    <td>7</td>
+                    <td>0</td>
+                    <td>6</td>
+                    <td>&infin;</td>
+                </tr>
+                <tr>
+                    <td class="head">2</td>
+                    <td>&infin;</td>
+                    <td>&infin;</td>
+                    <td>0</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td class="head">3</td>
+                    <td>&infin;</td>
+                    <td>2</td>
+                    <td>&infin;</td>
+                    <td>0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <table>
+            <tbody>
+                <tr>
+                    <td rowspan="2"></td>
+                    <td colspan="5" class="center head">R</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td class="head">1</td>
+                    <td class="head">2</td>
+                    <td class="head">3</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="head">1</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="head">2</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="head">3</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h3 id="step-2">Step 2</h3>
+<p>For vertex <code>1</code> we will check each combination of:</p>
+<p><strong>paths through <code>1</code> starting at <code>0</code>:</strong></p>
+<ul>
+<li><code>0 -&gt; 0</code> vs <code>0 -&gt; 1 -&gt; 0</code></li>
+<li><code>0 -&gt; 1</code> vs <code>0 -&gt; 1 -&gt; 1</code></li>
+<li><code>0 -&gt; 2</code> vs <code>0 -&gt; 1 -&gt; 2</code></li>
+<li><code>0 -&gt; 3</code> vs <code>0 -&gt; 1 -&gt; 3</code></li>
+</ul>
+<p><strong>paths through <code>1</code> starting at <code>1</code>:</strong></p>
+<ul>
+<li><code>1 -&gt; 0</code> vs <code>1 -&gt; 1 -&gt; 0</code></li>
+<li><code>1 -&gt; 1</code> vs <code>1 -&gt; 1 -&gt; 1</code></li>
+<li><code>1 -&gt; 2</code> vs <code>1 -&gt; 1 -&gt; 2</code></li>
+<li><code>1 -&gt; 3</code> vs <code>1 -&gt; 1 -&gt; 3</code></li>
+</ul>
+<p><strong>paths through <code>1</code> starting at <code>2</code>:</strong></p>
+<ul>
+<li><code>2 -&gt; 0</code> vs <code>2 -&gt; 1 -&gt; 0</code></li>
+<li><code>2 -&gt; 1</code> vs <code>2 -&gt; 1 -&gt; 1</code></li>
+<li><code>2 -&gt; 2</code> vs <code>2 -&gt; 1 -&gt; 2</code></li>
+<li><code>2 -&gt; 3</code> vs <code>2 -&gt; 1 -&gt; 3</code></li>
+</ul>
+<p><strong>paths through <code>1</code> starting at <code>3</code>:</strong></p>
+<ul>
+<li><code>3 -&gt; 0</code> vs <code>3 -&gt; 1 -&gt; 0</code></li>
+<li><code>3 -&gt; 1</code> vs <code>3 -&gt; 1 -&gt; 1</code></li>
+<li><code>3 -&gt; 2</code> vs <code>3 -&gt; 1 -&gt; 2</code></li>
+<li><code>3 -&gt; 3</code> vs <code>3 -&gt; 1 -&gt; 3</code></li>
+</ul>
+<p>This case is more interesting - there are more things to compare. Let’s see each combination:</p>
+<ol>
+<li><code>3 -&gt; 0</code> does not exist (<code>inf</code>)</li>
+<li><code>3 -&gt; 1</code> has length <code>2</code> and <code>1 -&gt; 0</code> has length <code>7</code>, the indirect path <code>3 -&gt; 1 -&gt; 0</code> has length <code>9</code></li>
+</ol>
+<p>Hence we will update matrices <code>D</code> and <code>R</code> reflecting that.</p>
+<p>For path <code>3 -&gt; 1 -&gt; 2</code>:</p>
+<ol>
+<li>there is no path from <code>3</code> to <code>2</code> directly, so its length is <code>inf</code></li>
+<li><code>3 -&gt; 1</code> has length <code>2</code> and <code>1 -&gt; 2</code> has length <code>6</code>, the total is <code>8</code> which is infinitely better than infinity</li>
+</ol>
+<p>Here are the updated matrices:</p>
+<div class="row space-between">
+    <div class="col">
+        <table>
+            <tbody>
+                <tr>
+                    <td rowspan="2"></td>
+                    <td colspan="5" class="center head">D</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td class="head">1</td>
+                    <td class="head">2</td>
+                    <td class="head">3</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td>0</td>
+                    <td>&infin;</td>
+                    <td>1</td>
+                    <td>&infin;</td>
+                </tr>
+                <tr>
+                    <td class="head">1</td>
+                    <td>7</td>
+                    <td>0</td>
+                    <td>6</td>
+                    <td>&infin;</td>
+                </tr>
+                <tr>
+                    <td class="head">2</td>
+                    <td>&infin;</td>
+                    <td>&infin;</td>
+                    <td>0</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td class="head">3</td>
+                    <td class="change">9</td>
+                    <td>2</td>
+                    <td class="change">8</td>
+                    <td>0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <table>
+            <tbody>
+                <tr>
+                    <td rowspan="2"></td>
+                    <td colspan="5" class="center head">R</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td class="head">1</td>
+                    <td class="head">2</td>
+                    <td class="head">3</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="head">1</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="head">2</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="head">3</td>
+                    <td class="change">1</td>
+                    <td>1</td>
+                    <td class="change">1</td>
+                    <td>3</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h3 id="step-3">Step 3</h3>
+<p>For vertex <code>2</code> we will check each combination of:</p>
+<p><strong>paths through <code>2</code> starting at <code>0</code>:</strong></p>
+<ul>
+<li><code>0 -&gt; 0</code> vs <code>0 -&gt; 2 -&gt; 0</code></li>
+<li><code>0 -&gt; 1</code> vs <code>0 -&gt; 2 -&gt; 1</code></li>
+<li><code>0 -&gt; 2</code> vs <code>0 -&gt; 2 -&gt; 2</code></li>
+<li><code>0 -&gt; 3</code> vs <code>0 -&gt; 2 -&gt; 3</code></li>
+</ul>
+<p><strong>paths through <code>2</code> starting at <code>1</code>:</strong></p>
+<ul>
+<li><code>1 -&gt; 0</code> vs <code>1 -&gt; 2 -&gt; 0</code></li>
+<li><code>1 -&gt; 1</code> vs <code>1 -&gt; 2 -&gt; 1</code></li>
+<li><code>1 -&gt; 2</code> vs <code>1 -&gt; 2 -&gt; 2</code></li>
+<li><code>1 -&gt; 3</code> vs <code>1 -&gt; 2 -&gt; 3</code></li>
+</ul>
+<p><strong>paths through <code>2</code> starting at <code>2</code>:</strong></p>
+<ul>
+<li><code>2 -&gt; 0</code> vs <code>2 -&gt; 2 -&gt; 0</code></li>
+<li><code>2 -&gt; 1</code> vs <code>2 -&gt; 2 -&gt; 1</code></li>
+<li><code>2 -&gt; 2</code> vs <code>2 -&gt; 2 -&gt; 2</code></li>
+<li><code>2 -&gt; 3</code> vs <code>2 -&gt; 2 -&gt; 3</code></li>
+</ul>
+<p><strong>paths through <code>2</code> starting at <code>3</code>:</strong></p>
+<ul>
+<li><code>3 -&gt; 0</code> vs <code>3 -&gt; 2 -&gt; 0</code></li>
+<li><code>3 -&gt; 1</code> vs <code>3 -&gt; 2 -&gt; 1</code></li>
+<li><code>3 -&gt; 2</code> vs <code>3 -&gt; 2 -&gt; 2</code></li>
+<li><code>3 -&gt; 3</code> vs <code>3 -&gt; 2 -&gt; 3</code></li>
+</ul>
+<p>The valid comparisons are:</p>
+<ul>
+<li><code>0 -&gt; 3</code> vs <code>0 -&gt; 2 -&gt; 3</code></li>
+<li><code>1 -&gt; 3</code> vs <code>1 -&gt; 2 -&gt; 3</code></li>
+</ul>
+<p>In first case, we compare infinity (<code>0 -&gt; 3</code>) to <code>1 + 5 == 6</code> (<code>0 -&gt; 2</code> and then <code>2 -&gt; 3</code>).
+In second case we compare infinity again (<code>1 -&gt; 3</code>) to <code>6 + 5 == 11</code> (<code>1 -&gt; 2</code> and then <code>2 -&gt; 3</code>).
+In both cases we select the path through vertex <code>2</code>.</p>
+<div class="row space-between">
+    <div class="col">
+        <table>
+            <tbody>
+                <tr>
+                    <td rowspan="2"></td>
+                    <td colspan="5" class="center head">D</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td class="head">1</td>
+                    <td class="head">2</td>
+                    <td class="head">3</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td>0</td>
+                    <td>&infin;</td>
+                    <td>1</td>
+                    <td class="change">6</td>
+                </tr>
+                <tr>
+                    <td class="head">1</td>
+                    <td>7</td>
+                    <td>0</td>
+                    <td>6</td>
+                    <td class="change">11</td>
+                </tr>
+                <tr>
+                    <td class="head">2</td>
+                    <td>&infin;</td>
+                    <td>&infin;</td>
+                    <td>0</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td class="head">3</td>
+                    <td>9</td>
+                    <td>2</td>
+                    <td>8</td>
+                    <td>0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <table>
+            <tbody>
+                <tr>
+                    <td rowspan="2"></td>
+                    <td colspan="5" class="center head">R</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td class="head">1</td>
+                    <td class="head">2</td>
+                    <td class="head">3</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td class="change">2</td>
+                </tr>
+                <tr>
+                    <td class="head">1</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td class="change">2</td>
+                </tr>
+                <tr>
+                    <td class="head">2</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="head">3</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>3</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h3 id="step-4">Step 4</h3>
+<p>For vertex <code>3</code> we will check each combination of:</p>
+<p><strong>paths through <code>3</code> starting at <code>0</code>:</strong></p>
+<ul>
+<li><code>0 -&gt; 0</code> vs <code>0 -&gt; 3 -&gt; 0</code></li>
+<li><code>0 -&gt; 1</code> vs <code>0 -&gt; 3 -&gt; 1</code></li>
+<li><code>0 -&gt; 2</code> vs <code>0 -&gt; 3 -&gt; 2</code></li>
+<li><code>0 -&gt; 3</code> vs <code>0 -&gt; 3 -&gt; 3</code></li>
+</ul>
+<p><strong>paths through <code>3</code> starting at <code>1</code>:</strong></p>
+<ul>
+<li><code>1 -&gt; 0</code> vs <code>1 -&gt; 3 -&gt; 0</code></li>
+<li><code>1 -&gt; 1</code> vs <code>1 -&gt; 3 -&gt; 1</code></li>
+<li><code>1 -&gt; 2</code> vs <code>1 -&gt; 3 -&gt; 2</code></li>
+<li><code>1 -&gt; 3</code> vs <code>1 -&gt; 3 -&gt; 3</code></li>
+</ul>
+<p><strong>paths through <code>3</code> starting at <code>2</code>:</strong></p>
+<ul>
+<li><code>2 -&gt; 0</code> vs <code>2 -&gt; 3 -&gt; 0</code></li>
+<li><code>2 -&gt; 1</code> vs <code>2 -&gt; 3 -&gt; 1</code></li>
+<li><code>2 -&gt; 2</code> vs <code>2 -&gt; 3 -&gt; 2</code></li>
+<li><code>2 -&gt; 3</code> vs <code>2 -&gt; 3 -&gt; 3</code></li>
+</ul>
+<p><strong>paths through <code>3</code> starting at <code>3</code>:</strong></p>
+<ul>
+<li><code>3 -&gt; 0</code> vs <code>3 -&gt; 3 -&gt; 0</code></li>
+<li><code>3 -&gt; 1</code> vs <code>3 -&gt; 3 -&gt; 1</code></li>
+<li><code>3 -&gt; 2</code> vs <code>3 -&gt; 3 -&gt; 2</code></li>
+<li><code>3 -&gt; 3</code> vs <code>3 -&gt; 3 -&gt; 3</code></li>
+</ul>
+<p>This case is the last one. It is similar to the previous two. But please note that we are using the matrix values from the previous step.</p>
+<p>For path <code>0 -&gt; 1</code>:</p>
+<ol>
+<li>direct path from <code>0</code> to <code>1</code> does not exist, take it as <code>inf</code></li>
+<li>shortest path from <code>0</code> to <code>3</code> <em>(whichever it is)</em> has length <code>6</code>; <code>3 -&gt; 1</code> has length <code>2</code>; the total path has length <code>8</code> which is better than infinity</li>
+</ol>
+<LazyImg src="/images/floyd-warshall/floyd-warshall-sample-step-4-1.webp" alt="" />
+
+<!--
+digraph G {
+    layout = "circo";
+
+    0->2 [label = "1", color = "blue"];
+    2->3 [label = "5", color = "blue"];
+    3->1 [label = "2", color = "blue"];
+    1->2 [label = "6"];
+    1->0 [label = "7"];
+    0->1 [label = "∞", style = "dashed", color = "red"];
+}
+-->
+
+<p>For path <code>2 -&gt; 0</code>:</p>
+<ol>
+<li>direct path <code>2 -&gt; 0</code> does not exist</li>
+<li>the edge <code>2 -&gt; 3</code> exists and has length <code>5</code>; path from <code>3</code> to <code>0</code> has length <code>9</code>; so the shortest path from <code>2</code> to <code>0</code> through <code>3</code> will have length <code>9 + 5 == 14</code></li>
+</ol>
+<p>For path <code>2 -&gt; 1</code>:</p>
+<ol>
+<li>there is no direct path <code>2 -&gt; 1</code></li>
+<li>the path <code>2 -&gt; 3</code> is <code>5</code> and <code>3 -&gt; 1</code> is <code>2</code>, so <code>2 -&gt; 3 -&gt; 1</code> is <code>7</code></li>
+</ol>
+<p>Both matrices <code>R</code> and <code>D</code> will be updated to reflect that:</p>
+<div class="row space-between">
+    <div class="col">
+        <table>
+            <tbody>
+                <tr>
+                    <td rowspan="2"></td>
+                    <td colspan="5" class="center head">D</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td class="head">1</td>
+                    <td class="head">2</td>
+                    <td class="head">3</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td>0</td>
+                    <td class="change">8</td>
+                    <td>1</td>
+                    <td>6</td>
+                </tr>
+                <tr>
+                    <td class="head">1</td>
+                    <td>7</td>
+                    <td>0</td>
+                    <td>6</td>
+                    <td>11</td>
+                </tr>
+                <tr>
+                    <td class="head">2</td>
+                    <td class="change">14</td>
+                    <td class="change">7</td>
+                    <td>0</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td class="head">3</td>
+                    <td>9</td>
+                    <td>2</td>
+                    <td>8</td>
+                    <td>0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <table>
+            <tbody>
+                <tr>
+                    <td rowspan="2"></td>
+                    <td colspan="5" class="center head">R</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td class="head">1</td>
+                    <td class="head">2</td>
+                    <td class="head">3</td>
+                </tr>
+                <tr>
+                    <td class="head">0</td>
+                    <td>0</td>
+                    <td class="change">2</td>
+                    <td>2</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td class="head">1</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td class="head">2</td>
+                    <td class="change">3</td>
+                    <td class="change">3</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="head">3</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>3</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<p>And then the algorithm is done.</p>
+<h2 id="path-reconstruction">Path reconstruction</h2>
+<p>In order to reconstruct the path from vertex <code>u</code> to vertex <code>v</code>, you need follow the elements of matrix <code>R</code>, effectively going “through” each vertex:</p>
+<pre><code class="language-csharp">    <span class="token class-name">List<span class="token punctuation">&lt;</span>Int32<span class="token punctuation">></span></span> Path <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span>Int32<span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">while</span> <span class="token punctuation">(</span>start <span class="token operator">!=</span> end<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Path<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span>start<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        start <span class="token operator">=</span> R<span class="token punctuation">[</span>start<span class="token punctuation">,</span> end<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    Path<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span>end<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Let’s follow this logic in steps again, “animating” the algorithm. For instance, the longest path in this graph possible, from <code>0</code> to <code>1</code>:</p>
+<ol start="0">
+<li><code>start = 0, end = 1</code></li>
+<li><code>R[0, 1] == 2, start = 2, end = 1</code></li>
+<li><code>R[2, 1] == 3, start = 3, end = 1</code></li>
+<li><code>R[3, 1] == 1, start = 1, end = 1</code></li>
+</ol>
+<p>So the path from <code>0</code> to <code>1</code> is all the values the <code>start</code> variable takes <em>(except last)</em>, namely: <code>0 -&gt; 2 -&gt; 3</code>.</p>
+<h2 id="summary">Summary</h2>
+<p>The whole code could be wrapped in a couple of methods:</p>
+<pre><code class="language-csharp"><span class="token keyword">using</span> <span class="token namespace">System</span><span class="token punctuation">;</span>
+<span class="token keyword">using</span> <span class="token namespace">System<span class="token punctuation">.</span>Collections<span class="token punctuation">.</span>Generic</span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">FloydWarshallPathFinder</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token class-name"><span class="token keyword">int</span></span> N<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token class-name"><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">,</span><span class="token punctuation">]</span></span> D<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token class-name"><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">,</span><span class="token punctuation">]</span></span> R<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token function">FloydWarshallPathFinder</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> NumberOfVertices<span class="token punctuation">,</span> <span class="token class-name"><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">,</span><span class="token punctuation">]</span></span> EdgesLengths<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        N <span class="token operator">=</span> NumberOfVertices<span class="token punctuation">;</span>
+        D <span class="token operator">=</span> EdgesLengths<span class="token punctuation">;</span>
+        R <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token return-type class-name"><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">,</span><span class="token punctuation">]</span></span> <span class="token function">FindAllPaths</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        R <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name"><span class="token keyword">int</span></span><span class="token punctuation">[</span>N<span class="token punctuation">,</span> N<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> t <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> t <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> t<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                R<span class="token punctuation">[</span>i<span class="token punctuation">,</span> t<span class="token punctuation">]</span> <span class="token operator">=</span> t<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> k <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> k <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> k<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> v <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> v <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> v<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> u <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> u <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> u<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">if</span> <span class="token punctuation">(</span>D<span class="token punctuation">[</span>u<span class="token punctuation">,</span> k<span class="token punctuation">]</span> <span class="token operator">+</span> D<span class="token punctuation">[</span>k<span class="token punctuation">,</span> v<span class="token punctuation">]</span> <span class="token operator">&lt;</span> D<span class="token punctuation">[</span>u<span class="token punctuation">,</span> v<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        D<span class="token punctuation">[</span>u<span class="token punctuation">,</span> v<span class="token punctuation">]</span> <span class="token operator">=</span> D<span class="token punctuation">[</span>u<span class="token punctuation">,</span> k<span class="token punctuation">]</span> <span class="token operator">+</span> D<span class="token punctuation">[</span>k<span class="token punctuation">,</span> v<span class="token punctuation">]</span><span class="token punctuation">;</span>
+                        R<span class="token punctuation">[</span>u<span class="token punctuation">,</span> v<span class="token punctuation">]</span> <span class="token operator">=</span> R<span class="token punctuation">[</span>u<span class="token punctuation">,</span> k<span class="token punctuation">]</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">return</span> R<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token return-type class-name">List<span class="token punctuation">&lt;</span>Int32<span class="token punctuation">></span></span> <span class="token function">FindShortestPath</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> start<span class="token punctuation">,</span> <span class="token class-name"><span class="token keyword">int</span></span> end<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>R <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">FindAllPaths</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token class-name">List<span class="token punctuation">&lt;</span>Int32<span class="token punctuation">></span></span> Path <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">List<span class="token punctuation">&lt;</span>Int32<span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">while</span> <span class="token punctuation">(</span>start <span class="token operator">!=</span> end<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            Path<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span>start<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            start <span class="token operator">=</span> R<span class="token punctuation">[</span>start<span class="token punctuation">,</span> end<span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        Path<span class="token punctuation">.</span><span class="token function">Add</span><span class="token punctuation">(</span>end<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> Path<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MainClass</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token return-type class-name"><span class="token keyword">void</span></span> <span class="token function">Main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token class-name"><span class="token keyword">int</span></span> N <span class="token operator">=</span> <span class="token number">4</span><span class="token punctuation">;</span>
+        <span class="token class-name"><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">,</span><span class="token punctuation">]</span></span> D <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name"><span class="token keyword">int</span></span><span class="token punctuation">[</span>N<span class="token punctuation">,</span> N<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">int</span></span> t <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> t <span class="token operator">&lt;</span> N<span class="token punctuation">;</span> t<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>i <span class="token operator">==</span> t<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    D<span class="token punctuation">[</span>i<span class="token punctuation">,</span> t<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                    D<span class="token punctuation">[</span>i<span class="token punctuation">,</span> t<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">9999</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        D<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        D<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">7</span><span class="token punctuation">;</span>
+        D<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">6</span><span class="token punctuation">;</span>
+        D<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">5</span><span class="token punctuation">;</span>
+        D<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">FloydWarshallPathFinder</span> pathFinder <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token constructor-invocation class-name">FloydWarshallPathFinder</span><span class="token punctuation">(</span>N<span class="token punctuation">,</span> D<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token class-name"><span class="token keyword">int</span></span> start <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token class-name"><span class="token keyword">int</span></span> end <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+        Console<span class="token punctuation">.</span><span class="token function">WriteLine</span><span class="token punctuation">(</span><span class="token string">"Path: {0}"</span><span class="token punctuation">,</span> String<span class="token punctuation">.</span><span class="token function">Join</span><span class="token punctuation">(</span><span class="token string">" -> "</span><span class="token punctuation">,</span> pathFinder<span class="token punctuation">.</span><span class="token function">FindShortestPath</span><span class="token punctuation">(</span>start<span class="token punctuation">,</span> end<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">ToArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>You can read ‘bout this algorithm on <a href="http://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm">wikipedia</a> and get some data structures generated automatically <a href="http://quickgraph.codeplex.com/">here</a></p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

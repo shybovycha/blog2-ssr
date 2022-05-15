@@ -1,0 +1,198 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>IntelliJ productivity tips</h1>
+
+    <time>18 Sep 2017 at 07:00</time>
+
+    <div class="content"><p>This post is based on a <a href="https://www.youtube.com/watch?v=eq3KiAH4IBI">talk on IntelliJ productivity</a> and contains some tips and tricks I found handy in my everyday work.</p>
+<p>You may disagree with me or find these recommendations useless for yourself, but I and some of my teammates have found out these tips have made us more efficient when dealing with lots of code in a big project.</p>
+<ul>
+<li><p><strong>say “no!” to tabs</strong> – that’s it – disable them. Forever. IntellJ has many ways to navigate the project, just check them out: <kbd>Cmd+E</kbd>, <kbd>Cmd+Alt+&larr;</kbd> and <kbd>Cmd+Alt+&rarr;</kbd></p>
+</li>
+<li><p><strong>stop using mouse</strong> – just as with navigation in open files, IntelliJ offers awesome code navigation: want to go to the method definition? <kbd>Cmd+B</kbd>, want to find a file or class or method? <kbd>Shift, Shift</kbd> or <kbd>Ctrl+Shift+N</kbd> or <kbd>Ctrl+N</kbd>, want to move around in Project Manager? <kbd>Cmd+1</kbd> (and then <kbd>Esc</kbd> to switch between editor and Manager)</p>
+</li>
+<li><p><strong>use IntelliJ’s code intelligence</strong> – if you forgot what params method takes, use <kbd>Cmp+P</kbd>, if you want to find variable or class or method usage – use <kbd>Alt+F7</kbd>, use the power of <em>“Refactor -&gt; Extract Constant/Field”</em> function</p>
+</li>
+<li><p><strong>use action finder popup</strong> – that one can save you lot of time when you do not remember where the function needed is located or what key shortcut to use – <kbd>Cmd+Shift+A</kbd> is your friend</p>
+</li>
+</ul>
+<p><strong>WARNING: lots of video/gifs under the cut!</strong></p>
+<!--more-->
+
+<h2 id="summary">Summary</h2>
+<section>
+    <div>Open/hide tool window (Project, Structure, Version Control, etc.)</div>
+
+<pre><code>&lt;div&gt;&lt;kbd&gt;Cmd+1&lt;/kbd&gt; .. &lt;kbd&gt;Cmd+9&lt;/kbd&gt;&lt;/div&gt;
+
+&lt;div&gt;
+    To go back to editor - just hit &lt;kbd&gt;Esc&lt;/kbd&gt; &lt;br /&gt;
+    Project Tree: &lt;br /&gt;
+    &lt;video preload autoplay loop muted&gt;
+        &lt;source src=&quot;/images/intellij-performance-tips/cmd_1_esc.webm&quot; /&gt;
+        &lt;source src=&quot;/images/intellij-performance-tips/cmd_1_esc.webp&quot; /&gt;
+    &lt;/video&gt;
+    &lt;br /&gt;
+    Search results:
+    &lt;br /&gt;
+    &lt;video preload autoplay loop muted&gt;
+        &lt;source src=&quot;/images/intellij-performance-tips/cmd_3_esc.webm&quot; /&gt;
+        &lt;source src=&quot;/images/intellij-performance-tips/cmd_3_esc.webp&quot; /&gt;
+    &lt;/video&gt;
+    &lt;br /&gt;
+    Version Control:
+    &lt;br /&gt;
+    &lt;video preload autoplay loop muted&gt;
+        &lt;source src=&quot;/images/intellij-performance-tips/cmd_9_esc.webm&quot; /&gt;
+        &lt;source src=&quot;/images/intellij-performance-tips/cmd_9_esc.webp&quot; /&gt;
+    &lt;/video&gt;
+&lt;/div&gt;
+</code></pre>
+</section>
+
+<section>
+    <div>Switch between open files</div>
+    <div><kbd>Cmd+E</kbd></div>
+    <div>
+        <video preload autoplay loop muted>
+            <source src="/images/intellij-performance-tips/cmd_e.webm" />
+            <source src="/images/intellij-performance-tips/cmd_e.webp" />
+        </video>
+    </div>
+</section>
+
+<section>
+    <div>Go back/forward</div>
+    <div><kbd>Cmd+Alt+&larr;</kbd> and <kbd>Cmd+Alt+&rarr;</kbd></div>
+    <div>
+        <video preload autoplay loop muted>
+            <source src="/images/intellij-performance-tips/cmd_alt_arrows.webm" />
+            <source src="/images/intellij-performance-tips/cmd_alt_arrows.webp" />
+        </video>
+    </div>
+</section>
+
+<section>
+    <div>Search for class, method, variable</div>
+    <div><kbd>Shift, Shift</kbd></div>
+    <div>
+        <video preload autoplay loop muted>
+            <source src="/images/intellij-performance-tips/shift_shift.webm" />
+            <source src="/images/intellij-performance-tips/shift_shift.webp" />
+        </video>
+        <br />
+        Use <kbd>Cmd+N</kbd> for class search:
+        <br />
+        <video preload autoplay loop muted>
+            <source src="/images/intellij-performance-tips/cmd_n.webm" />
+            <source src="/images/intellij-performance-tips/cmd_n.webp" />
+        </video>
+    </div>
+</section>
+
+<section>
+    <div>Search for file</div>
+    <div><kbd>Cmd+Shift+N</kbd></div>
+    <div>
+        <video preload autoplay loop muted>
+            <source src="/images/intellij-performance-tips/cmd_shift_n.webm" />
+            <source src="/images/intellij-performance-tips/cmd_shift_n.webp" />
+        </video>
+    </div>
+</section>
+
+<section>
+    <div>Go to variable/method definition</div>
+    <div><kbd>Cmd+B</kbd></div>
+    <div>
+        <video preload autoplay loop muted>
+            <source src="/images/intellij-performance-tips/cmd_b.webm" />
+            <source src="/images/intellij-performance-tips/cmd_b.webp" />
+        </video>
+        <br />
+        To go to implementations/overrides, use <kbd>Cmd+Alt+B</kbd>:
+        <br />
+        <video preload autoplay loop muted>
+            <source src="/images/intellij-performance-tips/cmd_alt_b.webm" />
+            <source src="/images/intellij-performance-tips/cmd_alt_b.webp" />
+        </video>
+    </div>
+</section>
+
+<section>
+    <div>Search for actions available</div>
+    <div><kbd>Cmd+Shift+A</kbd></div>
+    <div>
+        <video preload autoplay loop muted>
+            <source src="/images/intellij-performance-tips/cmd_shift_a.webm" />
+            <source src="/images/intellij-performance-tips/cmd_shift_a.webp" />
+        </video>
+    </div>
+</section>
+
+<section>
+    <div>Disable tabs</div>
+    <div><kbd>Cmd+Shift+A</kbd> and search for <em>tabs placement</em></div>
+    <div>
+        <LazyImg src="/images/intellij-performance-tips/intellij-disable-tabs-optimized.webp" alt="" />
+    </div>
+</section>
+
+<section>
+    <div>Show method parameters hint</div>
+    <div><kbd>Cmd+P</kbd></div>
+    <div>
+        <video preload autoplay loop muted>
+            <source src="/images/intellij-performance-tips/cmd_p.webm" />
+            <source src="/images/intellij-performance-tips/cmd_p.webp" />
+        </video>
+    </div>
+</section>
+
+<section>
+    <div>Find method/class/variable usages</div>
+    <div><kbd>Alt+F7</kbd></div>
+    <div>
+        <video preload autoplay loop muted>
+            <source src="/images/intellij-performance-tips/alt_f7.webm" />
+            <source src="/images/intellij-performance-tips/alt_f7.webp" />
+        </video>
+    </div>
+</section></div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

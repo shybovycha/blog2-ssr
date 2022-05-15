@@ -1,0 +1,191 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>One-night games: Tetris</h1>
+
+    <time>01 Jun 2018 at 06:00</time>
+
+    <div class="content"><p>Did you ever think of how old games like tetris or snake <em>(hail the Nokia fans!)</em> work?</p>
+<p>I always wanted to write a few relatively simple games just to practice my coding skills.
+Back when I was at the uni, I’ve made <a href="https://en.wikipedia.org/wiki/Peg_solitaire">peg solitaire</a> and <a href="https://en.wikipedia.org/wiki/Bejeweled">three-in-a-row</a> games in C/C++ with SFML. I even wrote a <em>(pretty shitty)</em> server-client <a href="https://github.com/shybovycha/moo-chess">chess game</a> <em>(be warned: this code was written in 2011 and only contains fixes to make it run on a new version of SFML, so it might look… smelly… on each and every line…)</em>. My latest achievements were the <a href="https://github.com/shybovycha/entanglement-ios">Entanglement</a> game and a well-designed <em>(at least from my perspective)</em> <a href="https://github.com/shybovycha/python-shooter">arcade space shooter</a>.</p>
+<p>But I’ve never implemented more well-known games like tetris or snake. And they are interesting from the algorithmic perspective.</p>
+<p>And recently I’ve came to the point when I really wanted to create something interesting. And that was the chance to try myself as a early-2000-ies developer!</p>
+<p>As I wanted to accomplish my goal as soon as possible, I’ve decided to not pick up any libraries and just implement everything with HTML5 Canvas API. And this is what I ended up with:</p>
+<LazyImg src="/images/one-night-games/snake-screenshot.webp" />
+
+<p>In this post I’ll talk about Tetris. Under the cut you’ll find the interesting algorithmic solutions I’ve used for it.</p>
+<!--more-->
+
+<h2 id="tetris">Tetris</h2>
+<p><a href="https://github.com/shybovycha/moo-tetris">Source code</a></p>
+<p>The most interesting part about tetris was to implement piece rotation. I’ve represented all the possible figures as a list of matrices.</p>
+<pre><code class="language-js"><span class="token keyword">const</span> <span class="token constant">FIGURES</span> <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+</code></pre>
+<p>The problem however is that all figures are different, hence all the matrices have different dimensions - a “stick” is 4x1, whilst a “cube” is 2x2. Other pieces are 3x2. Rotation algorithm might not be simple. And it implies one limitation - pieces should preserve their position - not to move to the sides when rotating them.</p>
+<p>Pieces are best represented as matrices, but in order to operate on matrices we need to have the corresponding methods. I decided to just implement the class <code>Piece</code> with the essential methods:</p>
+<pre><code class="language-js"><span class="token keyword">class</span> <span class="token class-name">Piece</span> <span class="token punctuation">{</span>
+    <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">row<span class="token punctuation">,</span> col<span class="token punctuation">,</span> shape</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>piece <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">.</span><span class="token function">apply</span><span class="token punctuation">(</span>shape<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>rows <span class="token operator">=</span> shape<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>cols <span class="token operator">=</span> shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>col <span class="token operator">=</span> col<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>row <span class="token operator">=</span> row<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Here <code>row</code> and <code>col</code> describe the position of a piece on a screen whilst <code>rows</code> and <code>cols</code> are the dimensions of a piece. <code>piece</code> contains the matrix data of a piece.</p>
+<p>The rotation algorithm I’ve implemented tries to transpose piece’s matrix in a very simple manner:</p>
+<pre><code class="language-js"><span class="token keyword">class</span> <span class="token class-name">Piece</span> <span class="token punctuation">{</span>
+    <span class="token function">rotate</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> result <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Array</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>cols<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token keyword">this</span><span class="token punctuation">.</span>cols<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>result<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                result<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> t <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> t <span class="token operator">&lt;</span> <span class="token keyword">this</span><span class="token punctuation">.</span>rows<span class="token punctuation">;</span> t<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                result<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>t<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>figure<span class="token punctuation">[</span>t<span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token keyword">this</span><span class="token punctuation">.</span>cols <span class="token operator">-</span> <span class="token number">1</span> <span class="token operator">-</span> i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">this</span><span class="token punctuation">.</span>figure <span class="token operator">=</span> result<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>rows <span class="token operator">=</span> result<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>cols <span class="token operator">=</span> result<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>What it does is actually creating a totally new matrix, where the dimensions are swapped and the data is the opposite data to what was in the original matrix. In other words, we iterate the original matrix over its normal indices, but write the data to the new matrix in the reversed direction. So if we read the row with index <code>0</code> and column with index <code>2</code>, this means we need to write the data from the source matrix at <code>data[0][2]</code> to the destination matrix at <code>data[2][0]</code>. Sounds correct, right?</p>
+<p>But if we do that with the array, we will end up having the new matrix mirrored:</p>
+<pre><code>           given:
+
+      0   1   2   3
+    +---+---+---+---+
+ 0  | 1 | 2 | 3 | 4 |
+    +---+---+-------+
+ 1  | 5 | 6 | 7 | 8 |
+    +---+---+---+---+
+
+
+            expectation:
+
+      0   1                0    1
+    +---+---+             +---+---+
+ 0  | 4 | 8 |          0  | 5 | 1 |
+    +---+---+             +---+---+
+ 1  | 3 | 7 |          1  | 6 | 2 |
+    +---+---+    or       +---+---+
+ 2  | 2 | 6 |          2  | 7 | 3 |
+    +---+---+             +---+---+
+ 3  | 1 | 5 |          3  | 8 | 4 |
+    +---+---+             +---+---+
+
+
+
+    reality:
+
+      0   1
+    +---+---+
+ 0  | 1 | 5 |
+    +---+---+
+ 1  | 2 | 6 |
+    +---+---+
+ 2  | 3 | 7 |
+    +---+---+
+ 3  | 4 | 8 |
+    +---+---+
+</code></pre>
+<p>Thus we need to copy the data to the new matrix in the reverse order along one axis.</p>
+<p>In order to allow for a two-way rotation I’ve introduced a numeric argument to the <code>Piece#rotate</code> method, defining which way <em>(clockwise or counter-clockwise)</em> the piece will be rotated:</p>
+<pre><code class="language-js"><span class="token function">rotate</span><span class="token punctuation">(</span><span class="token parameter">direction</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// ...</span>
+
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> t <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> t <span class="token operator">&lt;</span> <span class="token keyword">this</span><span class="token punctuation">.</span>rows<span class="token punctuation">;</span> t<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        result<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>t<span class="token punctuation">]</span> <span class="token operator">=</span> direction <span class="token operator">></span> <span class="token number">0</span> <span class="token operator">?</span> <span class="token keyword">this</span><span class="token punctuation">.</span>figure<span class="token punctuation">[</span>t<span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token keyword">this</span><span class="token punctuation">.</span>cols <span class="token operator">-</span> <span class="token number">1</span> <span class="token operator">-</span> i<span class="token punctuation">]</span> <span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>figure<span class="token punctuation">[</span><span class="token keyword">this</span><span class="token punctuation">.</span>rows <span class="token operator">-</span> <span class="token number">1</span> <span class="token operator">-</span> t<span class="token punctuation">]</span><span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// ...</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>The other interesting algorithm is collision detection. This is slightly more complex than just checking boundariesof a figure. Since we can not think of a regular (circle, rectangle, line) shape for the field formed by the previous pieces, we will need to check each cell of a field against each cell of a currently falling piece. But if we decide to do that - we should either do this before rendering the falling piece (to check whether we are allowed to render it) and then, in the case of collision we will be made to “cancel” the piece’s move down one cell. Alternatively, we could check each cell of a field agains the data of a falling piece, but with a one row shift down:</p>
+<pre><code>what we draw:
+
++-------+
+|   xx  |
+|    x  |
+|    x  |
+|   *   |
+| ****  |
+| ***** |
++-------+
+
+what we check:
+
++-------+
+|       |
+|   ..  |
+|    .  |
+|   *.  |
+| ****  |
+| ***** |
++-------+
+
+same example,
+but with the
+collision occuring:
+
++-------+
+|       |
+|       |
+|   ..  |
+|   *.  |
+| ***!  |
+| ***** |
++-------+
+</code></pre>
+<p>The check is trivial: if both field cell at the checked position and any of the piece data at the piece position plus one row shift down are non-zero - then we have detected a collision and we should not move the piece down, but just render it and generate the next piece.</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

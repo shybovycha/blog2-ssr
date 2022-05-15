@@ -1,0 +1,232 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>libc.js: component interaction</h1>
+
+    <time>12 Mar 2017 at 21:22</time>
+
+    <div class="content"><LazyImg src="/images/microverse-battery_optimized.webp" alt="" />
+
+<h1 id="libcjs">libc.js</h1>
+<p>Recently I’ve written a post about functional programming techniques, coming into the world of front-end and
+the library I crafted as an experiment. That library, <a href="https://github.com/shybovycha/libc.js">libc.js</a> was
+highly inspired by <a href="http://elm-lang.org/">Elm</a> and <a href="http://mithril.js.org">Mithril</a>. But it suffered two major features:</p>
+<ol>
+<li>components were hardly able to be used in other components</li>
+<li>the interaction between components was nearly impossible <em>(or, at least, not very transparent)</em></li>
+</ol>
+<p>What’s hidden beneath the next version of the library?</p>
+<!--more-->
+
+<p>The next logical step in library development was to make the interaction between components smooth and
+natural. I was primarily thinking of two options:</p>
+<ol>
+<li>inheriting component from a <code>VirtualDOMNode</code> class</li>
+<li>passing both properties and children as arguments to the <code>view</code> function of a component</li>
+</ol>
+<p>I’ll first describe the second approach a bit: since properties and children basically describe
+a <code>VirtualDOMNode</code> itself, that meant to pass a <code>VirtualDOMNode</code> instance to the <code>view</code> function.
+And if I did so, I’d get <code>Mithril.js</code>.</p>
+<p>If I inherit a component class from a <code>VirtualDOMNode</code>, I’d step away from the initial purpose
+of keeping <code>view</code> and <code>update</code> functions separated and pure.</p>
+<p>The library exposes a <code>Store</code> class, which is very similar to <a href="http://redux.js.org">Redux</a>.
+This class was also used internally to handle components’ state changes. But that did not
+solve the problem in any way.</p>
+<p>I ended up creating a <code>Component</code> class, which encapsulated both <code>view</code> and
+<code>update</code> functions, internal component state and the <code>dispatch</code> function, which operated on
+the component’s internal state. I also exposed the <code>render()</code> method, which could then be used
+to bind a component to an external <code>Store</code> object <em>(which I’ll cover in a minute)</em>.</p>
+<h1 id="re-using-components">Re-using components</h1>
+<p>The changes made allowed components to be used in other components. To illustrate that, I
+created a <code>Tab</code> component and the corresponding example:</p>
+<pre><code class="language-js"><span class="token keyword">let</span> Tabs <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> <span class="token function-variable function">update</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">state<span class="token punctuation">,</span> message</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>message<span class="token punctuation">.</span>type <span class="token operator">==</span> <span class="token string">'SELECT_TAB'</span><span class="token punctuation">)</span>
+            <span class="token keyword">return</span> Object<span class="token punctuation">.</span><span class="token function">assign</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> state<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                <span class="token literal-property property">currentTabIndex</span><span class="token operator">:</span> message<span class="token punctuation">.</span>tabIndex
+            <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> state<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">let</span> <span class="token function-variable function">view</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">state<span class="token punctuation">,</span> children<span class="token punctuation">,</span> dispatch</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> currentTabIndex <span class="token operator">=</span> state<span class="token punctuation">.</span>currentTabIndex <span class="token operator">||</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">let</span> tabHeaders <span class="token operator">=</span> children<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">tab<span class="token punctuation">,</span> tabIndex</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token punctuation">[</span> <span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">class</span><span class="token operator">:</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">tab-header </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>tabIndex <span class="token operator">==</span> currentTabIndex <span class="token operator">?</span> <span class="token string">'selected'</span> <span class="token operator">:</span> <span class="token string">''</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">,</span>
+                    <span class="token function-variable function">click</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+                        <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'SELECT_TAB'</span><span class="token punctuation">,</span>
+                        tabIndex
+                    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                <span class="token punctuation">[</span> tab<span class="token punctuation">.</span>children<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token punctuation">]</span>
+            <span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">let</span> tabs <span class="token operator">=</span> children<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">tab<span class="token punctuation">,</span> tabIndex</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token punctuation">[</span> <span class="token string">'div'</span><span class="token punctuation">,</span>
+                <span class="token punctuation">{</span> <span class="token keyword">class</span><span class="token operator">:</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">tab-content </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>tabIndex <span class="token operator">==</span> currentTabIndex <span class="token operator">?</span> <span class="token string">'selected'</span> <span class="token operator">:</span> <span class="token string">''</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                tab<span class="token punctuation">.</span>children<span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+            <span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> <span class="token punctuation">[</span> <span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+            <span class="token punctuation">[</span> <span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token keyword">class</span><span class="token operator">:</span> <span class="token string">'tab-headers'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> tabHeaders <span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token punctuation">[</span> <span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token keyword">class</span><span class="token operator">:</span> <span class="token string">'tab-container'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> tabs <span class="token punctuation">]</span>
+        <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token function">createComponent</span><span class="token punctuation">(</span>view<span class="token punctuation">,</span> update<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">let</span> app <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> <span class="token function-variable function">view</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">state<span class="token punctuation">,</span> children<span class="token punctuation">,</span> dispatch</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token punctuation">[</span> Tabs<span class="token punctuation">,</span> <span class="token punctuation">[</span>
+            <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+                <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token keyword">class</span><span class="token operator">:</span> <span class="token string">'header'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Tab #1'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+                <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token string">'FIRST TAB CONTENT'</span><span class="token punctuation">]</span>
+            <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+                <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token keyword">class</span><span class="token operator">:</span> <span class="token string">'header'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Tab #2'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+                <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token string">'SECOND TAB CONTENT'</span><span class="token punctuation">]</span>
+            <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+                <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token keyword">class</span><span class="token operator">:</span> <span class="token string">'header'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Tab #3'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+                <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token string">'THIRD TAB CONTENT'</span><span class="token punctuation">]</span>
+            <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span> <span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token function">createComponent</span><span class="token punctuation">(</span>view<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">mount</span><span class="token punctuation">(</span>document<span class="token punctuation">.</span><span class="token function">querySelector</span><span class="token punctuation">(</span><span class="token string">'#app'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>I also use these styles to make tabs look like tabs:</p>
+<pre><code class="language-css"><span class="token selector">.tab-container</span> <span class="token punctuation">{</span>
+    <span class="token property">display</span><span class="token punctuation">:</span> flex<span class="token punctuation">;</span>
+    <span class="token property">flex-direction</span><span class="token punctuation">:</span> column<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector">.tab-headers</span> <span class="token punctuation">{</span>
+    <span class="token property">display</span><span class="token punctuation">:</span> flex<span class="token punctuation">;</span>
+    <span class="token property">justify-content</span><span class="token punctuation">:</span> space-around<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector">.tab-header</span> <span class="token punctuation">{</span>
+    <span class="token property">text-align</span><span class="token punctuation">:</span> center<span class="token punctuation">;</span>
+    <span class="token property">cursor</span><span class="token punctuation">:</span> pointer<span class="token punctuation">;</span>
+    <span class="token property">flex-grow</span><span class="token punctuation">:</span> 1<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector">.tab-header:hover</span> <span class="token punctuation">{</span>
+    <span class="token property">text-decoration</span><span class="token punctuation">:</span> underline<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector">.tab-header.selected:hover</span> <span class="token punctuation">{</span>
+    <span class="token property">text-decoration</span><span class="token punctuation">:</span> none<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector">.tab-header.selected</span> <span class="token punctuation">{</span>
+    <span class="token property">background</span><span class="token punctuation">:</span> #ddd<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector">.tab-content</span> <span class="token punctuation">{</span>
+    <span class="token property">display</span><span class="token punctuation">:</span> none<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token selector">.tab-content.selected</span> <span class="token punctuation">{</span>
+    <span class="token property">display</span><span class="token punctuation">:</span> block<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>This example shows how <code>Tabs</code> component could be used and, what’s more important,
+<strong>as a High-Order Component</strong>, passing tabs along with their headers as a set
+of children to the <code>Tabs</code> component.</p>
+<h1 id="using-external-state">Using external state</h1>
+<p>Using component’s <code>render()</code> method and the <code>createStore(initialState)</code> function,
+exposed by a library, we can also create and use the store as an external state
+provider for our component:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> counterStore <span class="token operator">=</span> <span class="token function">createStore</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">update</span><span class="token punctuation">(</span><span class="token parameter">state<span class="token punctuation">,</span> message</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>message <span class="token operator">==</span> <span class="token string">'INCREMENT'</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> state <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>message <span class="token operator">==</span> <span class="token string">'DECREMENT'</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> state <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> state<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+counterStore<span class="token punctuation">.</span><span class="token function">onAction</span><span class="token punctuation">(</span>update<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">view</span><span class="token punctuation">(</span><span class="token parameter">state</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> store <span class="token operator">=</span> state<span class="token punctuation">.</span>store<span class="token punctuation">;</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">[</span><span class="token string">'button'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token function-variable function">click</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> store<span class="token punctuation">.</span><span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token string">'INCREMENT'</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Increment'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">'button'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token function-variable function">click</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> store<span class="token punctuation">.</span><span class="token function">dispatch</span><span class="token punctuation">(</span><span class="token string">'DECREMENT'</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">'Decrement'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">'div'</span><span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">Count: </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span> store<span class="token punctuation">.</span><span class="token function">getState</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">]</span>
+    <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">var</span> Counter <span class="token operator">=</span> <span class="token function">createComponent</span><span class="token punctuation">(</span>view<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+counterStore<span class="token punctuation">.</span><span class="token function">onStateChanged</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> Counter<span class="token punctuation">.</span><span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+Counter<span class="token punctuation">.</span><span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">store</span><span class="token operator">:</span> counterStore <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">mount</span><span class="token punctuation">(</span>document<span class="token punctuation">.</span>body<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Here you can see how to create a store with an initial state. The initial state could be pretty
+much anything - a number, a string, an array, an object…</p>
+<p>Using store’s <code>onAction(handler)</code> and <code>onStateChanged(handler)</code> methods, we can set
+a chain of reducers and a list of observers to state changes, correspondingly.</p>
+<p>This example also shows how we can pass the initial state to a component’s instance, using
+the <code>init(state, children)</code> method of a <code>Component</code> instance <em>(in this example - <code>Counter.init()</code>)</em>.</p>
+<p>In this example a few method signatures are also shown in action:</p>
+<ul>
+<li><code>Component.init()</code> has two arguments: <code>initialState</code> and <code>children</code> and both are optional</li>
+<li><code>createComponent()</code> has two arguments: <code>viewFn</code> and <code>updateFn</code> and, again, both are optional</li>
+<li><code>viewFn</code> has three arguments: <code>state</code>, <code>children</code> and <code>dispatchFn</code>; last one is used to change component’s internal state; second one is used for HOCs and will be handy to make configurations or to wrap the children with a markup or logic; first argument is just an internal component’s state and, by the first call of the <code>viewFn</code> is equal to component’s <code>initialState</code>, passed by <code>Component.init()</code> call</li>
+<li><code>createStore(initialState)</code> is used to create a <code>Store</code> instance, where <code>initialState</code> is pretty much anything</li>
+<li><code>Store.dispatch()</code> has exactly the same signature as the <code>dispatchFn</code>, used in <code>viewFn</code></li>
+</ul>
+<h1 id="instead-of-wrap-up">Instead of wrap-up</h1>
+<p>I hope this library is a little bit more than just an experiment and once it will be used for a great good!</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

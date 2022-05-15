@@ -1,0 +1,111 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Easy way to understand algorithm complexity and big O notation</h1>
+
+    <time>15 Aug 2017 at 09:38</time>
+
+    <div class="content"><h2 id="foreword">Foreword</h2>
+<p>Some time ago I’ve published an <a href="2016-08-25-big-o-notation">article about bit O notation</a>. I’ve mentioned its source but never published it. So here it is, the original article.</p>
+<h2 id="the-article">The article</h2>
+<p>Big O notation is the most widely used method which describes algorithm complexity - the execution time required or the space used in memory or in the disk by an algorithm. Often in exams or interviews, you will be asked some questions about algorithm complexity in the following form:</p>
+<blockquote>
+<p>For an algorithm that uses a data structure of size n, what is the run-time complexity or space complexity of the algorithm? The answer to such questions often uses big O notations to describe the algorithm complexity, such as <code>O(1)</code>, <code>O(n)</code>, <code>O(n^2)</code> or <code>O(log(n))</code>.</p>
+</blockquote>
+<!--more-->
+
+<h2 id="big-o-for-time-complexity">Big O for time complexity</h2>
+<p>Here we don’t want to discuss big O mathematically. Basically, when analyzing the time complexity of an algorithm, big O notation is used to describe the rough estimate of the number of “steps” to complete the algorithm. Let’s take the following example:</p>
+<pre><code class="language-c"><span class="token keyword">void</span> <span class="token function">fun</span><span class="token punctuation">(</span><span class="token keyword">int</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// partl</span>
+    <span class="token function">doSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// part2</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">doSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// part3</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">doSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// part4</span>
+    <span class="token keyword">return</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Here lets assume that <code>doSomething()</code> takes <code>C</code> steps to complete. The whole <code>fun(n)</code> method has 4 parts. What is the time complexity of each part for different parameters <code>n</code>?</p>
+<p>For part 1, it does <code>doSomething()</code> so it takes constant <code>C</code> steps. Here <code>C</code> is independent of the parameter <code>n</code>. When the time complexity is independent of the parameter, we use <code>O(1)</code> to mark it.</p>
+<p>For part 2, it does <code>doSomething()</code> exactly <code>n</code> times. Each time it takes <code>C</code> steps. So in total, it takes <code>C*n</code> steps to complete part 2. Then as described above, we use <code>O(1)</code> to complete the <code>C</code> steps. Then for <code>C*n</code>, the complexity becomes <code>n * O(1)</code>. Here, an important rule is that <code>a * O(n)</code> equals <code>O(a * n)</code>. In such case, <code>n * O(1) = O(n)</code>. So the time complexity of part 2 is <code>O(n)</code>.</p>
+<p>For part 3, it has two loops. The inner loop is exactly like part 2. The outer loop does part 2 <code>n</code> times again so the time complexity of part 3 is <code>n * O(n)</code> which is <code>O(n^2)</code>.</p>
+<p>For part 4, it takes exactly <code>1</code> step to return. So the time complexity is <code>O(1)</code>.</p>
+<p>Then what is the total time complexity of the whole <code>fun(n)</code>? It is easy, we just need to add up the time complexity of all the 4 parts:</p>
+<pre><code>O(1) + O(n) + O(n^2) + O(1)
+</code></pre>
+<p>Now let’s assume <code>n</code> becomes very-very large. Parts 1 and 4 will still take constant number of steps, <code>C + 1</code>, to complete, so the total time of running part 1 and part 4 could be ignored when calculating the execution time for part 2 and part 3, as now both part 2 and part 3 take much more time than part 1 and part 4.</p>
+<p>Let’s we compare part 2 and part 3:</p>
+<ul>
+<li>when <code>n</code> is <code>1</code>, both part 2 and part 3 take <code>C</code> steps</li>
+<li>when <code>n</code> is <code>3</code>, part 2 takes <code>3*C</code> steps while part 3 takes <code>9*C</code> steps</li>
+<li>when <code>n</code> is <code>1000</code>, part 2 needs <code>1000 * C</code> steps but part 3 takes <code>1000000 * C</code> steps!</li>
+</ul>
+<p>As <code>n</code> increases, the time complexity of part 3 increases much quicker than part 2. When <code>n</code> becomes extremely large, the time of part 2 can be ignored by the time of part 3.</p>
+<p>So here is another rule: when we add up big O notation, the notation with slower increase speed could be ignored by the notation with faster increase speed. As we could see, <code>O(1)</code> does not increase at all so it could be ignored by <code>O(n)</code>. <code>O(n)</code> is slower than <code>O(n^2)</code> so it could be ignored by <code>O(n^2)</code>. Therefore, the complexity of the whole <code>fun()</code> is <code>O(n^2)</code>.</p>
+<h2 id="rules-summary-of-big-o-notation">Rules summary of big O notation</h2>
+<p>From the above examples, we could summarize the following rule: for multiplying two O notations, <code>O(A)</code> and <code>O(B)</code>, the result is <code>O(A*B)</code>. For example:</p>
+<pre><code>O(1) x O(n) = O(n).
+O(n) x O(n) = O(n^2).
+O(1) + O(n) = O(n).
+O(n) + O(n^2) = O(n^2).
+O(1) + O(n) + O(n^2) = O(n^2).
+</code></pre>
+<p>Here is the comparison of the increase speed of different O notations:</p>
+<pre><code>O(1) &lt; O(log(n)) &lt; O(n) &lt; O(n * log(n)) &lt; O(n^2)
+</code></pre>
+<h2 id="how-to-use-big-o-notation-to-compare-algorithm-complexity-and-why">How to use big O notation to compare algorithm complexity and why</h2>
+<p>When comparing different algorithms, we often say the one with a “smaller” big O notation is more efficient. However, there are situations that algorithms with “smaller” bit O is faster.</p>
+<p>For example, there are two algorithms <code>f1(n)</code> and <code>f2(n)</code>. <code>f(1)</code> takes <code>100</code> steps and <code>f(2)</code> takes <code>n</code> steps so <code>f(1)</code> is <code>O(1)</code> and <code>f(2)</code> is <code>O(n)</code>. When <code>n</code> is less than <code>100</code>, <code>f1(n)</code> is more efficient than <code>f2(n)</code>. However, big O compares when <code>n</code> goes to extremely (or infinitely) large. When <code>n</code> goes up to <code>10000</code>, <code>f2(n)</code> becomes way more efficient. As the nature of large-scale data in computer engineering, it makes more sense to compare algorithms in the cases that the data is very large.</p>
+<h2 id="big-0-for-space-complexity">Big 0 for space complexity</h2>
+<p>It is easier to understand using big O to estimate space complexity as it is more concrete. For example, in an algorithm, we need to create an array of size <code>n</code> to store the temporary results before getting the final result. If we assume that the size of the element in the array is a constant <code>C</code> which is independent of <code>n</code>, the space complexity of using the array is <code>C*n</code> which is</p>
+<pre><code>O(n) x O(C) = O(n) x O(1) = O(n)
+</code></pre>
+<p>When comparing different algorithms, we often compare how much “extra” space complexity is needed to solve the problem. For example, as an algorithm that needs an extra array of size <code>n</code> is not as good as the one which only needs two variables, <code>O(1)</code> space complexity is more efficient than <code>O(n)</code>.</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

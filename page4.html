@@ -1,0 +1,249 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }
+nav.bottom.svelte-14ldwbd.svelte-14ldwbd{grid-area:1/2/2/3;display:inline-grid;grid-template:1fr / 1fr 1fr 1fr
+    }footer nav.svelte-14ldwbd div.svelte-14ldwbd{display:flex;align-items:center
+    }footer nav.svelte-14ldwbd .prev.svelte-14ldwbd{grid-area:1/1/2/2;justify-content:flex-start
+    }footer nav.svelte-14ldwbd .current.svelte-14ldwbd{grid-area:1/2/2/3;justify-content:center
+    }footer nav.svelte-14ldwbd .next.svelte-14ldwbd{grid-area:1/3/2/4;justify-content:flex-end
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1><a href="/2017/04/09/gantt-chart-with-d3.html">Gantt chart with D3</a></h1>
+
+    <time>09 Apr 2017 at 09:04</time>
+
+    <div class="excerpt"><p>At work, I’ve had a task to implement a Gantt chart diagram to show dependencies and order of some… let’s say, milestones.
+Given this feature is in a very unstable beta in Google Charts, I thought to myself: <em>“Why don’t I implement it on my own?”</em>.
+And tried to recall my D3 knowledge.</p>
+<p>I’ve also found a minimalistic, but helpful example / screenshot of some Gantt chart implementation:</p>
+<LazyImg src="/images/gantt_chart_with_d3/gantt-sample_optimized.webp" alt="" />
+
+<p>The challenges I’ve faced were:</p>
+<ol>
+<li>order milestones on a timeline</li>
+<li>scale milestones to fit in a viewport</li>
+<li>create pretty connection lines</li>
+<li>center text inside each milestone</li>
+</ol>
+<p>And since D3 is a data-driven library, I’ve used map/reduce where possible.</p>
+<p>Here’s how the result looked like:</p>
+<LazyImg src="/images/gantt_chart_with_d3/d3-gantt-chart_optimized.webp" alt="" />
+
+<p>The implementation details are under the cut.</p>
+<h2 id="update-august-2020">Update August 2020</h2>
+<p>There are few updates to this original implementation in my <a href="2020-08-02-gantt-chart-part2">new blog</a>.</p>
+</div>
+
+        <a href="/2017/04/09/gantt-chart-with-d3.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2017/03/13/entanglement.html">Entanglement</a></h1>
+
+    <time>13 Mar 2017 at 09:42</time>
+
+    <div class="excerpt"><LazyImg src="/images/entanglement/ios-screen1_optimized.webp" alt="" />
+
+<h1 id="entanglement">Entanglement?</h1>
+<p>Some time ago there was a game popular over there, called Entanglement:</p>
+<LazyImg src="/images/entanglement/web-screen1.webp" alt="" />
+
+<p>There are a few implementations of this game under Android:</p>
+<style>
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .row .col {
+    max-width: 48%;
+    margin: 0 1%;
+  }
+</style>
+
+<div class="row">
+    <div class="col">
+        <LazyImg src="/images/entanglement/android-screen1.webp" alt="" />
+    </div>
+    <div class="col">
+        <LazyImg src="/images/entanglement/android-screen2.webp" alt="" />
+    </div>
+</div>
+
+<p>But there was no such game for iOS. And as I pursued my second M. Sc. degree, I have had a course
+“iOS development”, where we were learning to use Swift and iOS platform.</p>
+<p>I decided to implement this game as my course project. In Swift. Originally the game was implemented
+in Swift 2 <em>(there was no Swift 3 back those days)</em>.</p>
+<p>And recently I decided to refactor the game a bit and update it to the most recent Swift version
+<em>(which is Swift 3 at the moment of writing this post)</em>.</p>
+<p>In this post I’ll describe some interesting decisions I made while creating this game.</p>
+</div>
+
+        <a href="/2017/03/13/entanglement.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2017/03/12/libc-component-interaction.html">libc.js: component interaction</a></h1>
+
+    <time>12 Mar 2017 at 21:22</time>
+
+    <div class="excerpt"><LazyImg src="/images/microverse-battery_optimized.webp" alt="" />
+
+<h1 id="libcjs">libc.js</h1>
+<p>Recently I’ve written a post about functional programming techniques, coming into the world of front-end and
+the library I crafted as an experiment. That library, <a href="https://github.com/shybovycha/libc.js">libc.js</a> was
+highly inspired by <a href="http://elm-lang.org/">Elm</a> and <a href="http://mithril.js.org">Mithril</a>. But it suffered two major features:</p>
+<ol>
+<li>components were hardly able to be used in other components</li>
+<li>the interaction between components was nearly impossible <em>(or, at least, not very transparent)</em></li>
+</ol>
+<p>What’s hidden beneath the next version of the library?</p>
+</div>
+
+        <a href="/2017/03/12/libc-component-interaction.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2017/02/21/speeding-up-algorithms-with-sse.html">Speeding-up algorithms with SSE</a></h1>
+
+    <time>21 Feb 2017 at 15:59</time>
+
+    <div class="excerpt"><p>Have you ever asked anyone if assembly language might be useful nowadays? So, here’s the short answer: <strong>YES</strong>. When you know how your computer works <em>(not a processor itself, but the whole thing - memory organization, math co-processor and others)</em>, you may optimize your code while writing it. In this short article, I shall try to show you some use cases of optimizations, which you may incorporate with the usage of low-level programming.</p>
+<p>Recently I was reading through my old posts and found out there is a gap in the article about SSE - the post did not cover some of the implementation caveats. I decided to fulfill this and re-publish a new version.</p>
+</div>
+
+        <a href="/2017/02/21/speeding-up-algorithms-with-sse.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2017/02/14/functional-web.html">Functional web</a></h1>
+
+    <time>18 Feb 2017 at 16:44</time>
+
+    <div class="excerpt"><LazyImg src="/images/functional_web/bicycle.webp" class="img-responsive img-sm img-rounded pull-right" />
+
+<p>In last couple of years the functional programming paradigm became very popular.
+A huge amount of libraries, tools, tutorials and blog posts appeared.
+Although the paradigm itself is rather old <em>(lambda calculus was developed around 1930 and the Lisp language was introduced in 1950)</em>, its popularity blew up rapidly somewhere in 2014-2016 and that’s what is happening right now.
+Probably one of the most powerful influencers, giving FP <em>(functional programming)</em> that thrust is web development.
+Since Facebook introduced <strong>React</strong>, the community started incorporating many things from FP with React - including <strong>Redux</strong> and <strong>Immutable.js</strong>.
+But there are much more interesting things which were invented on this wave of FP popularity. One of them is <a href="http://elm-lang.org/">Elm</a>.</p>
+<p>This is a story how I <s>implemented</s> invented yet another <s>web framework</s> wheel.</p>
+</div>
+
+        <a href="/2017/02/14/functional-web.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2016/12/21/clojure-guards.html">Clojure guards</a></h1>
+
+    <time>21 Dec 2016 at 12:54</time>
+
+    <div class="excerpt"><p>Once I wanted to have something like a pretty “match” operator from Scala, but in Clojure.
+And hence there are no default options for it in Clojure out of the box, here are some
+alternatives I’ve found in the Internet.</p>
+</div>
+
+        <a href="/2016/12/21/clojure-guards.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2016/08/25/big-o-notation.html">Big O notation</a></h1>
+
+    <time>25 Aug 2016 at 13:00</time>
+
+    <div class="excerpt"><p>The best big O notation explanation I’ve ever saw I’ve found on… Google Play Market! I was
+hanging around, looking for the suggested software and, for some reason, I’ve decided to
+install some educational application for programmers. And here’s what I’ve found…</p>
+</div>
+
+        <a href="/2016/08/25/big-o-notation.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2016/03/05/chicken-in-blender.html">Chicken in Blender</a></h1>
+
+    <time>05 Mar 2016 at 22:24</time>
+
+    <div class="content"><p>This is a chicken. This 3D model I’ve made in 3.5 hrs in Blender <em>(with texturing)</em>.</p>
+<div class="text-center">
+    <LazyImg src="/images/shootthem/chicken_render1-compressed.webp" alt="" class="img-responsive" />
+</div>
+
+<div class="vspace"></div>
+
+<p>Taking into account the fact I’ve started learning <em>Unity 3D</em>, I will possibly use this
+in the remake of my old <a href="tumblr/2015-04-06-shootthem">Shoot Them!</a> game.
+Like this <em>(early preview, made with Unity 3D in ~3 hrs)</em>:</p>
+<div class="text-center">
+    <LazyImg src="/images/shootthem/ShootThem1.2-screen1-compressed.webp" alt="" class="img-responsive" />
+</div>
+</div>
+</article><article><h1><a href="/2016/02/11/two-sides-of-web-application-part-3.html">Two sides of web application. Part 3: Communication Layer</a></h1>
+
+    <time>11 Feb 2016 at 13:47</time>
+
+    <div class="excerpt"><div class="row" style="justify-content: space-between">
+    <div class="col-md-6 col-xs-12">
+        {% include references/two-sides-of-web-application.html %}
+    </div>
+    <div class="col-md-6 col-xs-12 text-xs-center text-md-right">
+        <LazyImg src="/images/two-sides-of-web-application/a305-1-compressed.webp" alt="Funny image" />
+    </div>
+</div>
+
+<h2 id="foreword">Foreword</h2>
+<p>In this section we will implement the communication layer for our application. It’ll handle
+all the requests to/from our web server. Have no worries - we will create server application
+in the next section!</p>
+<h2 id="first-resource">First resource</h2>
+<p>Let’s create a <code>Session</code> resource. Since we have no backend part, we should stub
+the data. We’ll use Angular <strong>Services</strong>. That’s easy: a service defines a
+function, returning, say, an object. That object will be used every time you
+call a service. And you may use not only objects - you may return functions,
+constants or literally anything from your services.</p>
+</div>
+
+        <a href="/2016/02/11/two-sides-of-web-application-part-3.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2016/02/11/two-sides-of-web-application-part-2.html">Two sides of web application. Part 2: sketching</a></h1>
+
+    <time>11 Feb 2016 at 12:47</time>
+
+    <div class="excerpt"><div class="row" style="justify-content: space-between">
+    <div class="col-md-6 col-xs-12">
+        {% include references/two-sides-of-web-application.html %}
+    </div>
+    <div class="col-md-6 col-xs-12 text-xs-center text-md-right">
+        <LazyImg src="/images/two-sides-of-web-application/Gyroscopic-Navigational-Footwear-compressed.webp" alt="Funny image" />
+    </div>
+</div>
+
+<h2 id="general-architecture">General architecture</h2>
+<p>The first thing we need to think of is how we’ll be gathering the information about users.
+It’s quite easy - we just need to get a request from a visitor. Of any kind -
+it may be a request to get an image, a file, a stylesheet or a script.</p>
+<p>Then we’ll just parse headers from that request and save the extracted data in the
+database. The only problem here is: <em>how to get unique key from each request?</em>. We may use
+visitor’s IP address. It’s the easiest way.</p>
+</div>
+
+        <a href="/2016/02/11/two-sides-of-web-application-part-2.html" class="btn svelte-7idbpu">Read more</a>
+</article></main>
+
+    <footer class="svelte-1gr3n62"><nav class="bottom svelte-14ldwbd"><div class="prev svelte-14ldwbd"><a href="/page3.html" class="prev svelte-14ldwbd">← Previous page</a></div>
+
+    <div class="current svelte-14ldwbd">Page #4 of 9</div>
+
+    <div class="next svelte-14ldwbd"><a href="/page5.html" class="next svelte-14ldwbd">Next page →</a></div>
+</nav></footer>
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

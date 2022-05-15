@@ -1,0 +1,748 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>Distributed Erlang example</h1>
+
+    <time>04 Apr 2022 at 00:00</time>
+
+    <div class="content"><p>As promised in <a href="2020-11-07-erlang-example-2">my previous blog about Erlang</a>, I continue
+on a journey to more practical Erlang examples.</p>
+<p>This might sound super ambitious, but let us build a distributed database.</p>
+<p>For sake of simplicity, let’s make it a reduced version of Redis - a key-value distributed in-memory storage.
+Essentially, an over-engineered hashmap.</p>
+<p>To draw some boundaries around this, let’s focus on these key features:</p>
+<ul>
+<li>simple CRUD actions - get, set and delete a value; this should operate on REST-like API:<ul>
+<li><code>get(&lt;key&gt;)</code> - get key value</li>
+<li><code>set(&lt;key&gt;)</code> - use request body for value and associate the value with the key</li>
+<li><code>delete(&lt;key&gt;)</code> - remove the key from the storage</li>
+</ul>
+</li>
+<li>running on multiple nodes (machines)</li>
+<li>synchronizing the data between the nodes; this should support:<ul>
+<li>ability to rotate the nodes in the cluster (switch off nodes and add new ones randomly) without the loss of data</li>
+<li>distributing the operations across the nodes to keep the data in sync</li>
+</ul>
+</li>
+</ul>
+<p>Sounds unbelievable, but with Erlang this is actually pretty simple.
+Erlang is actually a great choice for an application like this, since we do not have to worry about setting up the cluster
+and deal with communication protocols (as in how to pass data over the network between the nodes).</p>
+<p>We will need a “main” process, which will take the requests from the users and pass them to the nodes.
+Each node will store its own copy of the data in memory. On startup, each new node will receive the copy of the data
+from the first available node. If no nodes are available - that means the cluster is fresh and we can safely assume
+the data is empty (or the cluster has died altogether and that state is unrecoverable).</p>
+<!--more-->
+
+<h2 id="step-1-draw-a-circle">Step 1: draw a circle</h2>
+<p>Start simple: let us have a simple application which starts a background process and responds to some commands.
+It could be as simple as <code>ping - pong</code> application - the background process waits for a <code>ping</code> message and responds with <code>pong</code>
+upon receiving one.</p>
+<pre><code class="language-erlang"><span class="token operator">-</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token atom">db_server</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token operator">-</span><span class="token function">export</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token atom">start</span><span class="token operator">/</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token atom">stop</span><span class="token operator">/</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token atom">ping</span><span class="token operator">/</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token variable">Pid</span> <span class="token operator">=</span> <span class="token function">spawn_link</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token function">loop</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">end</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token function">register</span><span class="token punctuation">(</span><span class="token atom">server</span><span class="token punctuation">,</span> <span class="token variable">Pid</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token atom">ok</span><span class="token punctuation">.</span>
+
+<span class="token function">stop</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token atom">server</span> <span class="token operator">!</span> <span class="token atom">stop</span><span class="token punctuation">,</span>
+
+    <span class="token atom">ok</span><span class="token punctuation">.</span>
+
+<span class="token function">ping</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token atom">server</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">ping</span><span class="token punctuation">,</span> <span class="token function">self</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token keyword">receive</span>
+        <span class="token atom">pong</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">pong</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+
+<span class="token function">loop</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">ping</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token atom">pong</span><span class="token punctuation">,</span>
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token atom">stop</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">ok</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+</code></pre>
+<p>This is a relatively simple application, but it has few quirks:</p>
+<ul>
+<li><code>spawn_link/1</code> (<code>spawn_link(loop)</code>) - this function spawns a new background process and links it to the current one, so that once the current process stops, the linked process also stops</li>
+<li><code>register/2</code> (<code>register(server, Pid)</code>) - registers a global (in the current module scope) symbol (<code>server</code> in this case) and associates it with the process PID passed as the second parameter (<code>Pid</code> in this case, the PID of the spawned process running the <code>loop</code> function)</li>
+<li>the <code>ping/0</code> function sends a message (<code>{ ping, self() }</code> tuple) containing the atom <code>ping</code> and current process’ PID to the process registered as <code>server</code>; it then starts waiting for <em>any process</em> to send a <code>pong</code> message to the current process, effectively blocking the current process until that message is received</li>
+<li>the <code>loop</code> function responds to two messages:<ul>
+<li><code>{ ping, Pid }</code> - by sending <code>pong</code> message to the process with PID set in the <code>Pid</code> constant and running itself recursively (turning the entire <code>loop/0</code> function into a <code>while</code> loop)</li>
+<li><code>stop</code> - by simply returning the <code>ok</code> atom and exiting (thus terminating the loop)</li>
+</ul>
+</li>
+</ul>
+<p>To run this application, start the Erlang shell with <code>erl</code> and type in few prompts:</p>
+<pre><code>1&gt; c(db_server).
+{ok,db_server}
+2&gt; db_server:start().
+ok
+3&gt; db_server:ping().
+pong
+</code></pre>
+<p>The benefit of this architecture is that once we have an Erlang shell open and run the <code>start/0</code> function, it will start the background process and exit immediately. But the background process will keep running and we will have the other functions available to interact with that process, without loosing the access to the Erlang shell.</p>
+<p>This protocol also highlights the concurrent aspect of the application - we send the current process’ PID to the callee and start listening for the messages from <em>anywhere</em>.
+Once we receive the message - we pass it to the other process. So the entire application is predominantly non-blocking and asynchronous in nature.</p>
+<h2 id="step-2-draw-a-second-circle">Step 2: draw a second circle</h2>
+<p>The application is surely awesome, but let’s make it actually useful to any extent. We are designing a key-value storage, so why not to have one?
+Instead of just reacting to the <code>ping</code> message, we can have a <code>map</code> and have a simple API to set value, get value and delete a value from the map while
+keeping the map on the child process.</p>
+<pre><code class="language-erlang"><span class="token operator">-</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token atom">db_server</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token operator">-</span><span class="token function">export</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token atom">start</span><span class="token operator">/</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token atom">stop</span><span class="token operator">/</span><span class="token number">0</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+<span class="token operator">-</span><span class="token function">export</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token atom">get</span><span class="token operator">/</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token atom">set</span><span class="token operator">/</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token atom">delete</span><span class="token operator">/</span><span class="token number">1</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token variable">Pid</span> <span class="token operator">=</span> <span class="token function">spawn_link</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token function">loop</span><span class="token punctuation">(</span><span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">end</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token function">register</span><span class="token punctuation">(</span><span class="token atom">server</span><span class="token punctuation">,</span> <span class="token variable">Pid</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token atom">ok</span><span class="token punctuation">.</span>
+
+<span class="token function">stop</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token atom">server</span> <span class="token operator">!</span> <span class="token atom">stop</span><span class="token punctuation">,</span>
+
+    <span class="token atom">ok</span><span class="token punctuation">.</span>
+
+<span class="token function">set</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token atom">server</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token atom">ok</span><span class="token punctuation">.</span>
+
+<span class="token function">get</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token atom">server</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token function">self</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Value</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+
+<span class="token function">delete</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token atom">server</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token atom">ok</span><span class="token punctuation">.</span>
+
+<span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Data</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">NewData</span> <span class="token operator">=</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span><span class="token punctuation">,</span> <span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewData</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Data</span><span class="token punctuation">,</span> <span class="token atom">none</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">NewData</span> <span class="token operator">=</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">remove</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewData</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token atom">stop</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">ok</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+</code></pre>
+<p>As you can see, there’s nothing special going on here - all is quite simple. We start the background process with some initial data (<code>maps:new()</code>)
+and in the <code>loop/1</code> function whenever we enter recursion, we pass the new version of the data to the recursive call.
+The only function which actually is blocking its execution until it receives a response from a callee is <code>get/1</code> - we wait for the background process
+to send the value to the current process.</p>
+<p>The interaction with this application could look like this:</p>
+<pre><code>1&gt; c(db_server).
+{ok,db_server}
+2&gt; db_server:start().
+ok
+3&gt; db_server:set(moo, -3.14).
+ok
+4&gt; db_server:get(moo).
+-3.14
+5&gt; db_server:delete(moo).
+ok
+6&gt; db_server:get(moo).
+none
+</code></pre>
+<h2 id="step-3-draw-the-rest-of-the-owl">Step 3: draw the rest of the owl</h2>
+<p>Now for the juicy bits: let us have a worker node, which will actually be a replica of the database.
+It is as simple as extracting the logic from <code>loop/1</code> function to a separate module and having a new process being started
+on a new node, once we decide to add it to the cluster:</p>
+<pre><code class="language-erlang"><span class="token operator">-</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token atom">worker</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token operator">-</span><span class="token function">export</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token atom">loop</span><span class="token operator">/</span><span class="token number">1</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Data</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">NewData</span> <span class="token operator">=</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span><span class="token punctuation">,</span> <span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewData</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Data</span><span class="token punctuation">,</span> <span class="token atom">none</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">NewData</span> <span class="token operator">=</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">remove</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewData</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token atom">stop</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">ok</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+</code></pre>
+<p>The <code>db_server</code> module needs few changes:</p>
+<pre><code class="language-erlang"><span class="token operator">-</span><span class="token function">module</span><span class="token punctuation">(</span><span class="token atom">db_server</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token operator">-</span><span class="token function">export</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token atom">start</span><span class="token operator">/</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token atom">stop</span><span class="token operator">/</span><span class="token number">0</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+<span class="token operator">-</span><span class="token function">export</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token atom">get</span><span class="token operator">/</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token atom">set</span><span class="token operator">/</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token atom">delete</span><span class="token operator">/</span><span class="token number">1</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+<span class="token operator">-</span><span class="token function">export</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token atom">add_node</span><span class="token operator">/</span><span class="token number">1</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>
+
+<span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token variable">Pid</span> <span class="token operator">=</span> <span class="token function">spawn_link</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token function">loop</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">end</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token function">register</span><span class="token punctuation">(</span><span class="token atom">server</span><span class="token punctuation">,</span> <span class="token variable">Pid</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token atom">ok</span><span class="token punctuation">.</span>
+
+<span class="token function">stop</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token atom">server</span> <span class="token operator">!</span> <span class="token atom">stop</span><span class="token punctuation">,</span>
+
+    <span class="token atom">ok</span><span class="token punctuation">.</span>
+
+<span class="token function">set</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token atom">server</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token atom">ok</span><span class="token punctuation">.</span>
+
+<span class="token function">get</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token atom">server</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token function">self</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Value</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+
+<span class="token function">delete</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token atom">server</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token atom">ok</span><span class="token punctuation">.</span>
+
+<span class="token function">add_node</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token atom">server</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">add_node</span><span class="token punctuation">,</span> <span class="token variable">NodeAddr</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token atom">ok</span><span class="token punctuation">.</span>
+
+<span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token punctuation">[</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">FirstNodePid</span> <span class="token punctuation">}</span><span class="token punctuation">|</span><span class="token variable">_</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token variable">Nodes</span><span class="token punctuation">,</span>
+
+            <span class="token variable">FirstNodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token keyword">receive</span>
+                <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span>
+            <span class="token keyword">end</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">add_node</span><span class="token punctuation">,</span> <span class="token variable">NodeAddr</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Data</span> <span class="token operator">=</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NodePid</span> <span class="token operator">=</span> <span class="token function">spawn</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token atom">worker</span><span class="token punctuation">,</span> <span class="token atom">loop</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token variable">Data</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">monitor</span><span class="token punctuation">(</span><span class="token atom">process</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NewNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token atom">stop</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">ok</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+</code></pre>
+<p>The public API of the <code>db_server</code> module does not really change - there’s a new function <code>add_node/1</code> but that’s about it - these
+exported (aka “public”) functions only send messages to the <code>server</code> process.</p>
+<p>The <code>loop/1</code> function on the other hand has most changes - instead of sending message to a single process, it now distributes them
+across the processes stored in the <code>Nodes</code> constant. This constant is a list of tuples <code>{ NodeAdd, NodePid }</code> where the <code>NodeAddr</code>
+(the first element of the tuple) is just to keep track of nodes added to the list (for debug purposes predominantly) and <code>NodePid</code>
+(the second element of the tuple) is what is actually used to communicate with the <code>db_server</code> process.</p>
+<p>All the control messages (<code>get</code>, <code>set</code> and <code>delete</code>) are passed to <em>all</em> nodes from the <code>Nodes</code> list.
+Exception being the <code>{ get, Key, Pid }</code> message - it only sends the message to the first node from the list.
+And since all the <code>worker</code> nodes are (supposed to be) just replicas of each other, it is sufficient.</p>
+<p>So far this should work. Start the <code>db_server</code> node with</p>
+<pre><code class="language-bash">$ erl -sname supervisor
+</code></pre>
+<p>followed by the call to</p>
+<pre><code>(supervisor@MACHINENAME)&gt; c(db_server).
+{ok,db_server}
+(supervisor@MACHINENAME)&gt; db_server:start().
+ok
+</code></pre>
+<p>Then, add few nodes to the cluster. For that, the node must be running and must use the same naming convention as the supervisor
+(short name, set with <code>-sname</code> param to the <code>erl</code> or long name, set with the <code>-name</code> param to the <code>erl</code>) - otherwise they won’t see each other.</p>
+<pre><code class="language-bash">$ erl -sname subnode1
+</code></pre>
+<p>followed by</p>
+<pre><code>(subnode1@MACHINENAME)&gt; c(worker).
+{ok,worker}
+</code></pre>
+<p>Note how you don’t need to do anything on the worker node except compile the module. The supervisor node will start processes on that node itself.</p>
+<p>Lastly, on the server node call</p>
+<pre><code>(supervisor@MACHINENAME)&gt; server:add_node(subnode1@MACHINENAME).
+ok
+</code></pre>
+<p>The node name is printed out to the Erlang shell once you start <code>erl</code> with <code>-sname</code> or <code>-name</code> param provided.
+But you can also add <code>io:format(&quot;Started node at ~s~n&quot;, node())</code> as the first statement in the <code>loop/1</code> function in <code>worker</code> module -
+it will print out the node name to the Erlang shell once the function is started. You can then use it as a raw atom parameter to <code>server:add_node/1</code>.</p>
+<p>Now, the last piece to the system is keeping all the worker nodes in sync by copying the data from the first alive node to the new node once it is added
+to the supervisor.</p>
+<p>To do so, we will need to utilize the <code>net_adm</code> module, which conveniently has the <code>net_adm:ping/1</code> function, taking the node address and returning <code>pond</code>
+atom if the node is alive and is visible from the current node or <code>pang</code> otherwise.
+This way we can replace all the occurrences of the <code>Nodes</code> list in the <code>db_server:loop/1</code> function with the list of <em>alive</em> nodes:</p>
+<pre><code class="language-erlang"><span class="token comment">% supervisor</span>
+<span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token variable">AliveNodes</span> <span class="token operator">=</span> <span class="token atom">sets</span><span class="token punctuation">:</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">net_adm</span><span class="token punctuation">:</span><span class="token function">ping</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token atom">pong</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">FirstNodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token variable">_</span> <span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token variable">AliveNodes</span><span class="token punctuation">,</span>
+
+            <span class="token variable">FirstNodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token keyword">receive</span>
+                <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span>
+            <span class="token keyword">end</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">add_node</span><span class="token punctuation">,</span> <span class="token variable">NodeAddr</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Data</span> <span class="token operator">=</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NodePid</span> <span class="token operator">=</span> <span class="token function">spawn</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token atom">worker</span><span class="token punctuation">,</span> <span class="token atom">loop</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token variable">Data</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">monitor</span><span class="token punctuation">(</span><span class="token atom">process</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NewNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token atom">stop</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">ok</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+</code></pre>
+<p>Now to get the data from the node, we will need an extra message to be supported by the <code>worker</code> module:</p>
+<pre><code class="language-erlang"><span class="token comment">% worker</span>
+<span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Data</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">NewData</span> <span class="token operator">=</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span><span class="token punctuation">,</span> <span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewData</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Data</span><span class="token punctuation">,</span> <span class="token atom">none</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">NewData</span> <span class="token operator">=</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">remove</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewData</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token variable">Data</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token atom">stop</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">ok</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+</code></pre>
+<p>This way when we want to add a new node to the cluster, we will need to first get the data from the first available node
+and then send it to the newly added node in the <code>db_server</code> module. But if there are no nodes alive, we want the <code>maps:new()</code> to be the new data:</p>
+<pre><code class="language-erlang"><span class="token comment">% supervisor</span>
+<span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token variable">AliveNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">net_adm</span><span class="token punctuation">:</span><span class="token function">ping</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token atom">pong</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">FirstNodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token variable">_</span> <span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token variable">AliveNodes</span><span class="token punctuation">,</span>
+
+            <span class="token variable">FirstNodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token keyword">receive</span>
+                <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">ReceivedValue</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">ReceivedValue</span>
+            <span class="token keyword">end</span><span class="token punctuation">,</span>
+
+            <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">add_node</span><span class="token punctuation">,</span> <span class="token variable">NodeAddr</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Data</span> <span class="token operator">=</span> <span class="token keyword">case</span> <span class="token variable">AliveNodes</span> <span class="token keyword">of</span>
+                <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">FirstNodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token variable">_</span> <span class="token punctuation">]</span> <span class="token operator">-</span><span class="token operator">></span>
+                    <span class="token variable">FirstNodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token function">self</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+                    <span class="token keyword">receive</span>
+                        <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token variable">NewData</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NewData</span><span class="token punctuation">;</span>
+
+                        <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+                    <span class="token keyword">end</span><span class="token punctuation">;</span>
+
+                <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token keyword">end</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NodePid</span> <span class="token operator">=</span> <span class="token function">spawn</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token atom">worker</span><span class="token punctuation">,</span> <span class="token atom">loop</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token variable">Data</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">monitor</span><span class="token punctuation">(</span><span class="token atom">process</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NewNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token atom">stop</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">ok</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+</code></pre>
+<p>You may practice putting nodes on and off the running cluster, getting and setting the values at the same time.
+But occasionally you might stumble upon a <code>db_server:get/1</code> function hanging.
+This is what happens when there are no alive nodes on the cluster.
+In order to fix this, we can simply add a check for that instead of blindly taking the <em>first</em> node from the <code>AliveNodes</code> list:</p>
+<pre><code class="language-erlang"><span class="token comment">% supervisor</span>
+<span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token variable">AliveNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">net_adm</span><span class="token punctuation">:</span><span class="token function">ping</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token atom">pong</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Value</span> <span class="token operator">=</span> <span class="token keyword">case</span> <span class="token variable">AliveNodes</span> <span class="token keyword">of</span>
+                <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">FirstNodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token variable">_</span> <span class="token punctuation">]</span> <span class="token operator">-</span><span class="token operator">></span>
+                    <span class="token variable">FirstNodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token function">self</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+                    <span class="token keyword">receive</span>
+                        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">ReceivedValue</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">ReceivedValue</span>
+                    <span class="token keyword">end</span><span class="token punctuation">;</span>
+
+                <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">no_nodes</span>
+            <span class="token keyword">end</span><span class="token punctuation">,</span>
+
+            <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">add_node</span><span class="token punctuation">,</span> <span class="token variable">NodeAddr</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Data</span> <span class="token operator">=</span> <span class="token keyword">case</span> <span class="token variable">AliveNodes</span> <span class="token keyword">of</span>
+                <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">FirstNodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token variable">_</span> <span class="token punctuation">]</span> <span class="token operator">-</span><span class="token operator">></span>
+                    <span class="token variable">FirstNodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token function">self</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+                    <span class="token keyword">receive</span>
+                        <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token variable">NewData</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NewData</span><span class="token punctuation">;</span>
+
+                        <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+                    <span class="token keyword">end</span><span class="token punctuation">;</span>
+
+                <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token keyword">end</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NodePid</span> <span class="token operator">=</span> <span class="token function">spawn</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token atom">worker</span><span class="token punctuation">,</span> <span class="token atom">loop</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token variable">Data</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">monitor</span><span class="token punctuation">(</span><span class="token atom">process</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NewNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token atom">stop</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">ok</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+</code></pre>
+<p>This will still not work however. The issue is that we only assign the value to the <code>AliveNodes</code> once we enter the <code>db_server:loop/1</code> function.
+And that only happens <em>after</em> it processed a message. But the moment the value is actually needed is <em>right before processing a message</em>.
+See the difference? There might be a delay between processing (as in “receiving”) a message and figuring the list of actually alive nodes because
+the process is blocked waiting for new messages.</p>
+<p>One way to fix this is to move the <code>AliveNodes</code> assignment to <em>each branch</em> of the <code>receive</code> block:</p>
+<pre><code class="language-erlang"><span class="token comment">% supervisor</span>
+<span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">AliveNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">net_adm</span><span class="token punctuation">:</span><span class="token function">ping</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token atom">pong</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">AliveNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">net_adm</span><span class="token punctuation">:</span><span class="token function">ping</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token atom">pong</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token variable">Value</span> <span class="token operator">=</span> <span class="token keyword">case</span> <span class="token variable">AliveNodes</span> <span class="token keyword">of</span>
+                <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">FirstNodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token variable">_</span> <span class="token punctuation">]</span> <span class="token operator">-</span><span class="token operator">></span>
+                    <span class="token variable">FirstNodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token function">self</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+                    <span class="token keyword">receive</span>
+                        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">ReceivedValue</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">ReceivedValue</span>
+                    <span class="token keyword">end</span><span class="token punctuation">;</span>
+
+                <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">no_nodes</span>
+            <span class="token keyword">end</span><span class="token punctuation">,</span>
+
+            <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">AliveNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">net_adm</span><span class="token punctuation">:</span><span class="token function">ping</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token atom">pong</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">add_node</span><span class="token punctuation">,</span> <span class="token variable">NodeAddr</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">AliveNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">net_adm</span><span class="token punctuation">:</span><span class="token function">ping</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token atom">pong</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token variable">Data</span> <span class="token operator">=</span> <span class="token keyword">case</span> <span class="token variable">AliveNodes</span> <span class="token keyword">of</span>
+                <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">FirstNodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token variable">_</span> <span class="token punctuation">]</span> <span class="token operator">-</span><span class="token operator">></span>
+                    <span class="token variable">FirstNodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token function">self</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+                    <span class="token keyword">receive</span>
+                        <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token variable">NewData</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NewData</span><span class="token punctuation">;</span>
+
+                        <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+                    <span class="token keyword">end</span><span class="token punctuation">;</span>
+
+                <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token keyword">end</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NodePid</span> <span class="token operator">=</span> <span class="token function">spawn</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token atom">worker</span><span class="token punctuation">,</span> <span class="token atom">loop</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token variable">Data</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">monitor</span><span class="token punctuation">(</span><span class="token atom">process</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NewNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token atom">stop</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">ok</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+</code></pre>
+<p>Alternatively, we can utilize the <code>after</code> keyword which effectively implements a timeout mechanism:</p>
+<pre><code class="language-erlang"><span class="token comment">% supervisor</span>
+<span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Value</span> <span class="token operator">=</span> <span class="token keyword">case</span> <span class="token variable">Nodes</span> <span class="token keyword">of</span>
+                <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">FirstNodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token variable">_</span> <span class="token punctuation">]</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">FirstNodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token function">self</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+                    <span class="token keyword">receive</span>
+                        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">ReceivedValue</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">ReceivedValue</span><span class="token punctuation">,</span>
+
+                        <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">none</span>
+                    <span class="token keyword">end</span><span class="token punctuation">;</span>
+
+                <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">no_nodes</span>
+            <span class="token keyword">end</span><span class="token punctuation">,</span>
+
+            <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">add_node</span><span class="token punctuation">,</span> <span class="token variable">NodeAddr</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Data</span> <span class="token operator">=</span> <span class="token keyword">case</span> <span class="token variable">Nodes</span> <span class="token keyword">of</span>
+                <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">FirstNodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token variable">_</span> <span class="token punctuation">]</span> <span class="token operator">-</span><span class="token operator">></span>
+                    <span class="token variable">FirstNodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token function">self</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+                    <span class="token keyword">receive</span>
+                        <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token variable">NewData</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NewData</span><span class="token punctuation">;</span>
+
+                        <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+                    <span class="token keyword">end</span><span class="token punctuation">;</span>
+
+                <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token keyword">end</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NodePid</span> <span class="token operator">=</span> <span class="token function">spawn</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token atom">worker</span><span class="token punctuation">,</span> <span class="token atom">loop</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token variable">Data</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">monitor</span><span class="token punctuation">(</span><span class="token atom">process</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NewNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token atom">stop</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">ok</span>
+    <span class="token keyword">after</span>
+        <span class="token number">0</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">AliveNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">net_adm</span><span class="token punctuation">:</span><span class="token function">ping</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token atom">pong</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+</code></pre>
+<p>This will make the <code>receive</code> expression of the <code>db_server:loop/1</code> function check if there are any messages in the internal message inbox (aka message queue)
+associated with the current function. And if there are no messages after <code>0</code> (as in this case) time since the check started - the code in the corresponding
+matching expression will be executed. In our scenario, we figure the new list of alive nodes and restart the <code>loop</code> function. This way the time the process
+is sitting blocked waiting for messages is bare minimal.</p>
+<p>On the other hand, if you look carefully at all those <code>receive</code> statements within the <code>loop</code> function, you might just notice… that you don’t need them
+in fact - the worker nodes might just communicate with each other! So instead of sending <code>self()</code> PID to each worker node (for ex. for <code>get</code> message or <code>get_all</code> message),
+you can just send the received node PID (which is a part of the message) to the worker node. This will make the code highly asynchronous:</p>
+<pre><code class="language-erlang"><span class="token comment">% supervisor</span>
+<span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Nodes</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token variable">AliveNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">_</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">net_adm</span><span class="token punctuation">:</span><span class="token function">ping</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token atom">pong</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">Nodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token keyword">case</span> <span class="token variable">AliveNodes</span> <span class="token keyword">of</span>
+                <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">FirstNodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token variable">_</span> <span class="token punctuation">]</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">FirstNodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+                <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token atom">no_nodes</span> <span class="token punctuation">}</span>
+            <span class="token keyword">end</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">foreach</span><span class="token punctuation">(</span><span class="token keyword">fun</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token keyword">end</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">add_node</span><span class="token punctuation">,</span> <span class="token variable">NodeAddr</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">NodePid</span> <span class="token operator">=</span> <span class="token function">spawn</span><span class="token punctuation">(</span><span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token atom">worker</span><span class="token punctuation">,</span> <span class="token atom">loop</span><span class="token punctuation">,</span> <span class="token punctuation">[</span> <span class="token variable">Data</span> <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">monitor</span><span class="token punctuation">(</span><span class="token atom">process</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token variable">NewNodes</span> <span class="token operator">=</span> <span class="token atom">lists</span><span class="token punctuation">:</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">NodeAddr</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token variable">AliveNodes</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token keyword">case</span> <span class="token variable">AliveNodes</span> <span class="token keyword">of</span>
+                <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token variable">_</span><span class="token punctuation">,</span> <span class="token variable">FirstNodePid</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token variable">_</span> <span class="token punctuation">]</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">FirstNodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token variable">NodePid</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+                <span class="token variable">_</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token variable">NodePid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">got_all</span><span class="token punctuation">,</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">}</span>
+            <span class="token keyword">end</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewNodes</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token atom">stop</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">ok</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+</code></pre>
+<p>This will need a tiny adjustment to the <code>worker</code> module (to support that <code>{ got_all, Data }</code> messages), but the benefits are more than worth it!</p>
+<pre><code class="language-erlang"><span class="token comment">% worker</span>
+<span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Data</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span>
+    <span class="token keyword">receive</span>
+        <span class="token punctuation">{</span> <span class="token atom">set</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">NewData</span> <span class="token operator">=</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Value</span><span class="token punctuation">,</span> <span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewData</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get</span><span class="token punctuation">,</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Data</span><span class="token punctuation">,</span> <span class="token atom">none</span><span class="token punctuation">)</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">delete</span><span class="token punctuation">,</span> <span class="token variable">Key</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">NewData</span> <span class="token operator">=</span> <span class="token atom">maps</span><span class="token punctuation">:</span><span class="token function">remove</span><span class="token punctuation">(</span><span class="token variable">Key</span><span class="token punctuation">,</span> <span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewData</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token variable">Pid</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token variable">Pid</span> <span class="token operator">!</span> <span class="token punctuation">{</span> <span class="token atom">get_all</span><span class="token punctuation">,</span> <span class="token variable">Data</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">Data</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">{</span> <span class="token atom">got_all</span><span class="token punctuation">,</span> <span class="token variable">NewData</span> <span class="token punctuation">}</span> <span class="token operator">-</span><span class="token operator">></span>
+            <span class="token function">loop</span><span class="token punctuation">(</span><span class="token variable">NewData</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token atom">stop</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token atom">ok</span>
+    <span class="token keyword">end</span><span class="token punctuation">.</span>
+</code></pre>
+<h2 id="wrap-up">Wrap-up</h2>
+<p>The cherry on top of this cake would be to create an actual REST API (or any non-Erlang API for that matter) so that this database could be used
+from the outside world without starting an Erlang shell. But I’d rather save it for a later blog.</p>
+<p>For now you can actually plug and unplug nodes from the cluster, and while there is at least one node alive, the data integrity is guaranteed.</p>
+<p>The highly asynchronous architecture of the solution allows for non-blocking calls all over the place.</p>
+<p>For me, this is a great example on how to <em>actually</em> use Erlang!</p>
+<p>The slightly built-up code is hosted <a href="https://github.com/shybovycha/distributed-key-value-db">on GitHub</a>.</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>

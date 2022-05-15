@@ -1,0 +1,332 @@
+<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/prism.css">
+
+    <title>Document</title></head>
+<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>End-to-end testing with WebdriverIO</h1>
+
+    <time>26 Nov 2015 at 16:03</time>
+
+    <div class="content"><h2 id="small-intro">Small intro</h2>
+<p>Have you ever heard about end-to-end testing? Or maybe about testing automation?
+Those of you who had, may now be imaging Selenium. That’s right, in most of cases
+you will need to run <em>Selenium Server</em> and use <em>Selenium Webdriver</em> in your
+tests. Those come handy to run a standalone browser window, with no caches,
+filled-in fields or cookies and perform some operations in it.</p>
+<p>In this article I will tell you my story of writing E2E tests for Angular webapp.</p>
+<h2 id="a-brief-of-history">A brief of history</h2>
+<p>In my case, we first tried to use <em>Protractor</em> with <em>Chai.js</em>. That time we ended
+up with almost unsupportable bunch of code, succeeding in 100% of runs.</p>
+<p>Next time we eliminated <em>Chai</em> and reworked all our tests to use <em>Protractor</em> only.
+So the code became more clear <em>(I did not like the syntax, but it worked…)</em>,
+but after upgrading libraries <em>(including Protractor)</em>, the ratio of successfull
+test runs decreased to just 40%.</p>
+<p>We worked for two days, trying to fix those tests. And that’s how <em>webdriverio</em>
+came to our project.</p>
+<p>And here’s a short tutorial on how to implement E2E tests with <em>webdriverio</em> in
+a sample project.</p>
+<!--more-->
+
+<h2 id="the-requirements">The requirements</h2>
+<p>Before we start, we need to initialize an NPM project:</p>
+<pre><code class="language-bash"><span class="token function">npm</span> init
+</code></pre>
+<p>We barely want to manage Selenium versions by ourselves. When it comes to
+continuous integration, that is not an option. So we’d better find a way of
+downloading the needed Selenium version automatically. And writing a short
+script is somehow a bad idea - there is an NPM module for that task already:</p>
+<pre><code class="language-bash"><span class="token function">npm</span> <span class="token function">install</span> --save selenium-standalone
+</code></pre>
+<p>After installing that module, you may manage and run your Selenium with</p>
+<pre><code class="language-bash">./node_modules/selenium-standalone/bin/selenium-standalone <span class="token function">install</span>
+./node_modules/selenium-standalone/bin/selenium-standalone start
+</code></pre>
+<p>Now, in all our tests we will be using using <em>Jasmine</em>, since it allows to
+create a beautiful code, which is easy to support (if you need the maximum
+help from your customer - consider using <em>Cucumber</em> and BDD approach - I will
+cover this topic in one of my future posts). So we need to add Jasmine
+dependency to our project:</p>
+<pre><code class="language-bash"><span class="token function">npm</span> <span class="token function">install</span> --save jasmine
+</code></pre>
+<p>To initialize bare Jasmine-ready project you may use Jasmine itself:</p>
+<pre><code class="language-bash">./node_modules/jasmine/bin/jasmine.js init
+</code></pre>
+<p>This will create this directory structure for you:</p>
+<pre><code>.
+├── package.json
+└── spec
+    ├── helpers
+    └── support
+        ├── config.json
+        └── jasmine.json
+</code></pre>
+<p>So now you may place your tests in the <code>spec</code> directory, on any level. Just
+remember to name your test files with the <code>spec</code> postfix
+(for ex. <code>spec/feature1_spec.js</code> or <code>tests/spec/Feature1spec.js</code>).
+To change that lowercase <code>spec</code> postfix, specify which files Jasmine should
+look for in the <code>spec/support/jasmine.json</code> file, using the option <code>spec_files</code>.
+For example, you can make it look for both <code>*_spec</code> and <code>*Spec</code> (underscore and
+camel case file naming) postfixes:</p>
+<pre><code class="language-json"><span class="token punctuation">{</span>
+    <span class="token property">"spec_dir"</span><span class="token operator">:</span> <span class="token string">"spec"</span><span class="token punctuation">,</span>
+    <span class="token property">"spec_files"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+        <span class="token string">"features/**/*[sS]pec.js"</span><span class="token punctuation">,</span>
+        <span class="token string">"**/*_spec.js"</span><span class="token punctuation">,</span>
+        <span class="token string">"**/*_Spec.js"</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>The <code>spec_dir</code> option specifies the directory, where the test files are located.
+And the <code>spec_files</code> option is what we are mostly interested in: it tells Jasmine
+the pattern, it should use to check if a file (inside the <code>#{spec_dir}</code> directory)
+is a test file or not. For example, the first value, <code>&quot;features/**/*[sS]pec.js&quot;</code>,
+tells that any file, whose path is <code>spec/features/{any directory nesting depth}/*Spec.js</code>
+as well as any file with a path <code>spec/features/{any directory nesting depth}/*spec.js</code> is a
+file, containing a test definition.</p>
+<p>The last, but not least, we need the <em>webdriverio</em> itself:</p>
+<pre><code class="language-bash"><span class="token function">npm</span> <span class="token function">install</span> --save webdriverio
+</code></pre>
+<p>And now we are ready to make some code!</p>
+<h2 id="preparation">Preparation</h2>
+<p>First of all, we need to initialize the Selenium client.
+Generally speaking, it’s a special browser instance, which will be used for
+our tests only and when all the tests are done - it will be closed automatically.
+This browser (or a client) provides a programmable interface, e.g. executes commands
+we ask it to execute. The commands allow, for example, to manipulate the currently opened document
+(just like you used to do with javascript in the developer tools in your browser) -
+find an element, click it, retrieve its computed styles, etc. It also allows to manipulate
+the browser window itself - open a new tab, get and set its properties like width, height, position
+and many others.</p>
+<p>So we really need that client for our tests - that’s the core! And we need that to run all our
+tests (we don’t want to run a new browser instance for each separate test case, right?). So we
+can put all the code, initializing Selenium client in a helper script and make Jasmine run it
+before all (again, <strong>not each, but all</strong> - I’ll explain why this is essential in a moment) tests.
+Let’s define this in the <code>spec/helpers/settings.js</code> file:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> webdriverio <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'webdriverio'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">var</span> timeout <span class="token operator">=</span> <span class="token number">10</span> <span class="token operator">*</span> <span class="token number">1000</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> config <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token string-property property">"desiredCapabilities"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token string-property property">"browserName"</span><span class="token operator">:</span> <span class="token string">"chrome"</span><span class="token punctuation">,</span>
+    <span class="token string-property property">"host"</span><span class="token operator">:</span> <span class="token string">"localhost"</span><span class="token punctuation">,</span>
+    <span class="token string-property property">"port"</span><span class="token operator">:</span> <span class="token number">9876</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string-property property">"baseUrl"</span><span class="token operator">:</span> <span class="token string">"http://localhost"</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+jasmine<span class="token punctuation">.</span><span class="token constant">DEFAULT_TIMEOUT_INTERVAL</span> <span class="token operator">=</span> <span class="token number">2</span> <span class="token operator">*</span> timeout<span class="token punctuation">;</span>
+
+<span class="token function">beforeAll</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">done</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>client <span class="token operator">=</span> webdriverio
+        <span class="token punctuation">.</span><span class="token function">remote</span><span class="token punctuation">(</span>config<span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">url</span><span class="token punctuation">(</span><span class="token string">'/'</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>done<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token function">afterAll</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">done</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>client<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span>done<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+exports<span class="token punctuation">.</span>webdriverio <span class="token operator">=</span> webdriverio<span class="token punctuation">;</span>
+exports<span class="token punctuation">.</span>config <span class="token operator">=</span> config<span class="token punctuation">;</span>
+exports<span class="token punctuation">.</span>timeout <span class="token operator">=</span> timeout<span class="token punctuation">;</span>
+exports<span class="token punctuation">.</span>baseUrl <span class="token operator">=</span> config<span class="token punctuation">.</span>baseUrl<span class="token punctuation">;</span>
+</code></pre>
+<p>This code does three simple, but really important things:</p>
+<ol>
+<li>it sets up the <em>webdriverio</em> (which is an enhanced wrapper for Selenium client)
+<strong>for all the tests</strong>, opens browser <em>(configured by the <code>browserName</code> option)</em> window
+and navigates to the page, defined in the <code>baseUrl</code> option</li>
+<li>makes Jasmine wait a bit longer for each assertion in the tests, before marking it as
+<strong>failed on timeout</strong> <em>(when Jasmine has timed out, waiting for an assertion)</em></li>
+<li>makes <em>webdriverio</em> client instance available in any test through the <code>this.client</code> member
+(where <code>this</code> means the test instance)</li>
+</ol>
+<p>See, this code is run once, previous to <strong>all</strong> the tests, found by Jasmine. This is defined
+by the <code>beforeAll()</code> call. We could use the <code>beforeEach()</code> function instead, but since opening
+a new browser (Selenium client) instance is a time-consuming task, it’s better to do it once
+and then just operate on an existing instance, opening new tabs when necessary. Thus is why
+we are using <code>beforeAll()</code> for all the tests <em>in the scope</em>.</p>
+<p>Here I’ve mentioned another essential thing, <em>the test scope</em>. Test scope is the current set of tests.
+It could be defined by the <code>describe(&quot;description&quot;, function () { /* test code */ })</code> function call.
+But since we have no <code>describe()</code> calls before the <code>beforeAll</code> and <code>afterAll</code> calls, Jasmine
+assumes we want to use those functions for all the known tests. But if you use the <code>beforeAll</code> inside
+the <code>describe()</code> block, then this function (<code>beforeAll()</code>) will be run before all the tests,
+<em>defined inside that <code>describe()</code> block</em>.</p>
+<h2 id="first-scenario">First scenario</h2>
+<p>Assume our application is a simple webshop - it has three pages: <code>/#/products</code>, <code>/#/billing-details</code>
+and <code>/#/order-summary</code>. Rather simple webshop:</p>
+<LazyImg src="/images/e2e-testing-with-webdriverio/webshop1.webp" alt="" />
+<LazyImg src="/images/e2e-testing-with-webdriverio/webshop2.webp" alt="" />
+<LazyImg src="/images/e2e-testing-with-webdriverio/webshop3.webp" alt="" />
+
+<p>And here is our first scenario: user selects the iPhone, clicks <em>“Buy”</em>, fills in
+his billing details and waits for his brand-new iPhone to come.</p>
+<p>In terms of BDD it could be described in a scenario like this:</p>
+<pre><code class="language-gherkin"><span class="token feature"><span class="token keyword">Feature:</span><span class="token important"> Placing an order</span>
+</span>    <span class="token scenario"><span class="token keyword">Scenario:</span><span class="token important"> Ordering a single product</span></span>
+        <span class="token atrule">Given</span> <span class="token atrule">a</span> webshop page
+            <span class="token atrule">And</span> <span class="token atrule">a</span> guest user
+        <span class="token atrule">When</span> the user selects the <span class="token string">"iPhone"</span> product
+            <span class="token atrule">And</span> clicks the <span class="token string">"Buy"</span> button
+            <span class="token atrule">And</span> fills out the billing details correctly
+            <span class="token atrule">And</span> clicks the <span class="token string">"Submit"</span> button
+        <span class="token atrule">Then</span> the <span class="token string">"Billing successfull"</span> page is shown
+</code></pre>
+<p>This scenario is great for the customer. And it’s awesome if the customer
+is able to provide developer(-s) with a number of such scenarios.
+But our test will be more kind of “developer-friendly”.</p>
+<p>Let’s create a <code>specs/ordering_a_single_product_spec.js</code> file:</p>
+<pre><code class="language-js"><span class="token keyword">var</span> settings <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'../helpers/settings.js'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token function">describe</span><span class="token punctuation">(</span><span class="token string">'buying iPhone'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">describe</span><span class="token punctuation">(</span><span class="token string">'when user selects iPhone'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">it</span><span class="token punctuation">(</span><span class="token string">'he gets redirected to the billing-details page'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">done</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">this</span><span class="token punctuation">.</span>client
+                <span class="token punctuation">.</span><span class="token function">waitForExist</span><span class="token punctuation">(</span><span class="token string">'.title*=iPhone 6 White'</span><span class="token punctuation">,</span> settings<span class="token punctuation">.</span>timeout<span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">element</span><span class="token punctuation">(</span><span class="token string">'.title*=iPhone 6 White'</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">element</span><span class="token punctuation">(</span><span class="token string">'..'</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">click</span><span class="token punctuation">(</span><span class="token string">'button*=Buy'</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">waitForExist</span><span class="token punctuation">(</span><span class="token string">'button*=Check out'</span><span class="token punctuation">,</span> settings<span class="token punctuation">.</span>timeout<span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">url</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">err<span class="token punctuation">,</span> res</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token function">expect</span><span class="token punctuation">(</span>res<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toMatch</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">\/#\/billing-details$</span><span class="token regex-delimiter">/</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>done<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Let’s run our test: first, start your webserver to handle the webshop; then run a
+Selenium instance and at last, start <code>./node_modules/jasmine/bin/jasmine.js</code>.</p>
+<p>In this test case we do the following things:</p>
+<ol>
+<li>wait untill all the products are loaded (<code>waitForExist(&#39;.title*=iPhone 6 White&#39;, settings.timeout)</code>)</li>
+<li>select parent element for <em>iPhone 6 White</em> product (<code>element(&#39;.title*=iPhone 6 White&#39;).element(&#39;..&#39;)</code>)</li>
+<li>click on the <em>Buy</em> button within that product’ container (<code>click(&#39;button*=Buy&#39;)</code>)</li>
+<li>wait until the <em>Create account</em> button is shown, signalizing we have been redirected to the next page</li>
+<li>get page’ URL and make an assertion to check if we have been redirected to the correct page</li>
+</ol>
+<p>When we have done everything we need in our test case, we call the <code>done</code> callback to notify Jasmine
+we have finished our test. This is how asynchronous tests are made in Jasmine - you define the test
+with <code>it(...)</code>, providing it with a callback. And when you finish all the asynchronous things in your
+test, you just call that callback so Jasmine could switch to the next test.</p>
+<p>What’s interesting, Jasmine runs test in the order they are defined. So you may assume that everything
+you did in previous test cases defines your current state. For example, after our test case, namely
+<em>‘when user selects iPhone he gets redirected to the billing-details page’</em>, we stay on the page
+we finished shortly.</p>
+<p>Given that, we will not add additional checks or <code>waitForExist()</code>s to get to the next steps.</p>
+<h2 id="dealing-with-forms">Dealing with forms</h2>
+<p>The next step is filling out billing details:</p>
+<pre><code class="language-js"><span class="token function">describe</span><span class="token punctuation">(</span><span class="token string">'when user provides his billing details'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">it</span><span class="token punctuation">(</span><span class="token string">'he gets redirected to the order-summary page'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">done</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">var</span> billing <span class="token operator">=</span> <span class="token punctuation">{</span>
+            <span class="token literal-property property">firstName</span><span class="token operator">:</span> <span class="token string">'Test'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">lastName</span><span class="token operator">:</span> <span class="token string">'User'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">country</span><span class="token operator">:</span> <span class="token string">'United Kingdom'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">city</span><span class="token operator">:</span> <span class="token string">'London'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">address</span><span class="token operator">:</span> <span class="token string">'221B, Baker Street'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">zipCode</span><span class="token operator">:</span> <span class="token string">'12345'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">phone</span><span class="token operator">:</span> <span class="token string">'9998882245'</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">this</span><span class="token punctuation">.</span>client
+            <span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span><span class="token string">'[name="firstName"]'</span><span class="token punctuation">,</span> billing<span class="token punctuation">.</span>firstName<span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span><span class="token string">'[name="lastName"]'</span><span class="token punctuation">,</span> billing<span class="token punctuation">.</span>lastName<span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span><span class="token string">'[name="address"]'</span><span class="token punctuation">,</span> billing<span class="token punctuation">.</span>address<span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span><span class="token string">'[name="country"]'</span><span class="token punctuation">,</span> billing<span class="token punctuation">.</span>country<span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span><span class="token string">'[name="city"]'</span><span class="token punctuation">,</span> billing<span class="token punctuation">.</span>city<span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span><span class="token string">'[name="zipCode"]'</span><span class="token punctuation">,</span> billing<span class="token punctuation">.</span>zipCode<span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span><span class="token string">'[name="phone"]'</span><span class="token punctuation">,</span> billing<span class="token punctuation">.</span>phone<span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">click</span><span class="token punctuation">(</span><span class="token string">'button*=Check out'</span><span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">waitForExist</span><span class="token punctuation">(</span><span class="token string">'h2*=Order summary'</span><span class="token punctuation">,</span> settings<span class="token punctuation">.</span>timeout<span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">url</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">err<span class="token punctuation">,</span> url</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token function">expect</span><span class="token punctuation">(</span>url<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toMatch</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">\/#\/order-summary$</span><span class="token regex-delimiter">/</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>done<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>The new thing here is how we fill out input fields with <em>webdriverio</em> - using the <code>setValue()</code> method.</p>
+<h2 id="advanced-element-lookup">Advanced element lookup</h2>
+<p>The last page we need to check is <code>order-summary</code>. Here we want to check if the order total
+is exactly the same, as our iPhone’ price. But this is where things got tricky: we have two
+different rows with the same value. How do we check if we are looking at the correct one?</p>
+<p>We will use <em>XPath</em> to get to the correct element:</p>
+<pre><code class="language-js"><span class="token function">describe</span><span class="token punctuation">(</span><span class="token string">'order summary page'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">it</span><span class="token punctuation">(</span><span class="token string">'contains correct order total'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">done</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>client
+            <span class="token punctuation">.</span><span class="token function">isVisible</span><span class="token punctuation">(</span><span class="token string">'//div[contains(@class, "row") and contains(., "iPhone 6 White") and contains(., "$450.00") and ancestor-or-self::div[@ng-repeat]]'</span><span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">visibility</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token function">expect</span><span class="token punctuation">(</span>visibility<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toBe</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">isVisible</span><span class="token punctuation">(</span><span class="token string">'//div[contains(@class, "row") and descendant::div[contains(., "Total:")] and contains(., "$300.00") and not(contains(@class, "ng-scope"))]'</span><span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">visibility</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token function">expect</span><span class="token punctuation">(</span>visibility<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toBe</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>done<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Seems complicated, doesn’t it?.. But it’s not that hard. We used XPath instead of usual selectors
+to find the element needed. And here’s how one could read it:</p>
+<p>say, we have this XPath: <code>//div[contains(@class, &quot;row&quot;) and contains(., &quot;iPhone 6 White&quot;) and contains(., &quot;$450.00&quot;) and ancestor-or-self::div[@ng-repeat]]</code>.</p>
+<p>This could be split into three parts:</p>
+<ol>
+<li>path to the element, <code>//</code> - it tells browser’s engine to look for this element everywhere,
+independently on its parent</li>
+<li>element tag, <code>div</code>; it could be <em>“any”</em> selector, <code>*</code>, but we precised our search</li>
+<li>element attributes’ matchers, or everything in square brackets</li>
+</ol>
+<p>Let’s take a closer look on those - they are really interesting ones:</p>
+<ol>
+<li>first we have <code>contains(@class, &quot;row&quot;)</code>; it tells engine to look for an element, whose <code>class</code>
+attribute contains <em>(or “partially matches” if you wish)</em> <code>row</code> string</li>
+<li>now we have <code>contains(., &quot;iPhone 6 White&quot;)</code>; it looks for text content inside tag; including its
+children</li>
+<li>speaking of children, we’ve also got a parent matcher, <code>ancestor-or-self::div[@ng-repeat]</code>, which
+looks for <code>&lt;div&gt;</code> element with <code>ng-repeat</code> attribute in the current element or any of its parents</li>
+<li>you may noticed a concatenation of all those matchers with <code>and</code> keyword</li>
+</ol>
+<h2 id="wrapping-up">Wrapping up</h2>
+<p>So that was a really short example on how to use Jasmine, webdriverio and how to create end-to-end tests.
+As promised, I will cover the BDD testing and Cucumber in some of my future posts.</p>
+<h2 id="references">References</h2>
+<p>Try reading more on XPath on <a href="http://www.w3schools.com/xsl/xpath_intro.asp">w3schools</a>.</p>
+<p>Webdriverio API you may find <a href="http://webdriver.io/api.html">on its docs page</a>.</p>
+<p>Webshop application, used in this article is <a href="https://github.com/shybovycha/e2e-webshop">available on GitHub</a>.</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/lazyLoadImages.js"></script></body>
+</html>
