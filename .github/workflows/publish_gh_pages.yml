@@ -25,17 +25,19 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm run build
-    - name: Publish to GH pages
+    - name: Unpack the build files into GH pages branch
       run: |
-        git fetch
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
 
+        git fetch
         git checkout gh_pages
         mv dist/* .
-
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "ssr-blog+github-actions[bot]@users.noreply.github.com"
-
         git add --all
         git commit -m "Release $(date)"
 
-        git push
+    - name: Publish to GH pages
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: gh_pages
