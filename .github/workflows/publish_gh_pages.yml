@@ -32,7 +32,7 @@ jobs:
 
         git fetch
         git checkout gh_pages
-        mv dist/* .
+        rsync -a --delete dist .
         git add --all
         git commit -m "Release $(date)"
 
