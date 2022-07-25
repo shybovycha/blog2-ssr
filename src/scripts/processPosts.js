@@ -131,7 +131,7 @@ const loadPost = (absoluteFilePath, postDir) => {
     const src = fs.readFileSync(absoluteFilePath, 'utf-8');
     const { frontMatter, excerpt, content } = processContent(src, { excertpSeparator: '<!--more-->' });
 
-    const postLink = path.join(path.dirname(postPath), path.basename(postPath).replace(/^(\d+)-(\d+)-(\d+)-(.+)\.(md|html?)$/, '$1/$2/$3/$4.html')).replace(/^[\\\/]+/, '');
+    const postLink = path.join(path.dirname(postPath), path.basename(postPath).replace(/^(\d+)-(\d+)-(\d+)-(.+)\.(md|html?)$/, '$1/$2/$3/$4.html')).replace('\\', '/').replace(/^[\\\/]+/, '');
 
     console.log('Processing post', postPath, '->', postLink);
 
