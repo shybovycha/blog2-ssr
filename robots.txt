@@ -1,4 +1,5 @@
 
-User-agent: *
-Allow: /
-Sitemap: https://shybovycha.github.io/blog2-ssr/sitemap.txt
+    User-agent: *
+    Allow: /
+    Sitemap: https://shybovycha.github.io/blog2-ssr/sitemap.txt
+    
