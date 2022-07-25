@@ -82,7 +82,7 @@ nothing added to commit but untracked files present (use &quot;git add&quot; to 
 </code></pre>
 <p>No output means the path (in this case - <code>node_modules</code>) will <strong>not</strong> be ignored. Which should not be the case - there’s a rule as the first line of the <code>.gitignore</code> file, right?!</p>
 <p>The issue seems to be somewhat hidden - the file was saved in the <code>UTF16-LE</code> encoding, since I have used PowerShell to initialize the file with <code>echo &#39;node_modules&#39; &gt;&gt; .gitignore</code>:</p>
-<img data-src="/images/gitignore-not-ignoring/Screenshot 2022-05-11 093618.webp">
+<LazyImg src="/images/gitignore-not-ignoring/Screenshot 2022-05-11 093618.webp">
 
 <p>And seems like the valid encoding for <code>.gitignore</code> file would be <code>UTF-8</code>. Let’s use VSCode itself to save it in <code>UTF-8</code> instead and try it again:</p>
 <pre><code>$ git check-ignore --verbose node_modules
@@ -219,13 +219,13 @@ the ultimate goal was to enable users paint 3D objects and immediately see the r
 <p>This is a no unique feature nowadays, but back in 2013, to my knowledge, the only way to texture 3D models was to either
 unwrap them to UV maps and then paint the textures in graphics editor (such as Gimp or Paint.NET) or to use a proprietary
 software, 3D Coat.</p>
-<img data-src="/images/irr-paint-3d/blender_unwrapping.webp" alt="Unwrapping 3D model texture in Blender in 2013" />
+<LazyImg src="/images/irr-paint-3d/blender_unwrapping.webp" alt="Unwrapping 3D model texture in Blender in 2013" />
 
 <p>And a mere idea of implementing such tool myself was quite exciting. Darn, if I managed to implement it
 back in 2013, my thesis would shine among best thesises in my uni!</p>
 <p>Long story short, I have failed with that. And now, after spending just few days on this, I am happy to say I have achieved
 something with yet another glorious pet project revival:</p>
-<img data-src="/images/irr-paint-3d/final_version_screenshot.webp" alt="Revised 3D model painting" />
+<LazyImg src="/images/irr-paint-3d/final_version_screenshot.webp" alt="Revised 3D model painting" />
 
 <p>And it actually allows to paint the model in 3D, displaying the results in real-time!</p>
 <p>A bit of history on how I got there and maths behind the solution under the cut.</p>

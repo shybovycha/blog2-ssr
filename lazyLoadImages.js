@@ -2,11 +2,13 @@ const onIntersect = entries =>
     entries
         .filter(entry => entry.isIntersecting)
         .forEach(entry => {
-            const imgElt = entry.target;
-            const src = imgElt.dataset.src;
+            const lazyImgElt = entry.target;
+            const src = lazyImgElt.getAttribute('src');
 
+            const imgElt = document.createElement('img');
+            
             imgElt.src = src;
-            imgElt.removeAttribute('data-src');
+            lazyImgElt.appendChild(imgElt);
 
             observer.unobserve(imgElt);
         });
@@ -16,6 +18,6 @@ const observer = new IntersectionObserver(onIntersect, {
     threshold: 0.5
 });
 
-const images = [...document.body.querySelectorAll('img[data-src]')];
+const images = [...document.body.querySelectorAll('lazyimg')];
 
 images.forEach(imgElt => observer.observe(imgElt));

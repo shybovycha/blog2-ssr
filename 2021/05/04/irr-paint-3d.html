@@ -44,13 +44,13 @@ the ultimate goal was to enable users paint 3D objects and immediately see the r
 <p>This is a no unique feature nowadays, but back in 2013, to my knowledge, the only way to texture 3D models was to either
 unwrap them to UV maps and then paint the textures in graphics editor (such as Gimp or Paint.NET) or to use a proprietary
 software, 3D Coat.</p>
-<img data-src="/images/irr-paint-3d/blender_unwrapping.webp" alt="Unwrapping 3D model texture in Blender in 2013" />
+<LazyImg src="/images/irr-paint-3d/blender_unwrapping.webp" alt="Unwrapping 3D model texture in Blender in 2013" />
 
 <p>And a mere idea of implementing such tool myself was quite exciting. Darn, if I managed to implement it
 back in 2013, my thesis would shine among best thesises in my uni!</p>
 <p>Long story short, I have failed with that. And now, after spending just few days on this, I am happy to say I have achieved
 something with yet another glorious pet project revival:</p>
-<img data-src="/images/irr-paint-3d/final_version_screenshot.webp" alt="Revised 3D model painting" />
+<LazyImg src="/images/irr-paint-3d/final_version_screenshot.webp" alt="Revised 3D model painting" />
 
 <p>And it actually allows to paint the model in 3D, displaying the results in real-time!</p>
 <p>A bit of history on how I got there and maths behind the solution under the cut.</p>
@@ -64,20 +64,20 @@ my B.Sc. thesis.</p>
 on 2D plane at point <code>(0, 0)</code> and figuring out the 2D coordinates of the other two vertices using the lengths of the triangle
 edges in 3D, using two circles, with centres at the pinned point (<code>(0, 0)</code>) and radiuses equal to triangle edges’ lengths.
 The circles would overlap in two points, and both are candidates for the other two triangle’ verices mapping:</p>
-<img data-src="/images/irr-paint-3d/mapping_near.webp" alt="The idea behind my unwrapping algorithm" />
+<LazyImg src="/images/irr-paint-3d/mapping_near.webp" alt="The idea behind my unwrapping algorithm" />
 
 <p>The algorithm… worked… in some cases:</p>
-<img data-src="/images/irr-paint-3d/cube_unwrapped.webp" alt="Sample algorithm result, unwrapped cube" />
+<LazyImg src="/images/irr-paint-3d/cube_unwrapped.webp" alt="Sample algorithm result, unwrapped cube" />
 
 <p>I did try to understand the concept of barycentric coordinates, but that is something completely different to what I imagined,
 apparently:</p>
-<img data-src="/images/irr-paint-3d/barycentric_coordinates.webp" alt="My previous understanding of barycentric coordinates" />
+<LazyImg src="/images/irr-paint-3d/barycentric_coordinates.webp" alt="My previous understanding of barycentric coordinates" />
 
 <h2 id="the-maths-behind">The maths behind</h2>
 <p>With my new approach, I took an idea from the enormously cool introduction to computer graphics and the math underneath
 by <a href="https://www.youtube.com/watch?v=ih20l3pJoeU">One Lone Coder</a>. The idea itself is rather trivial: any vector could be represented
 as a sum of two other (not necessarily orthogonal) vectors (plus a condition that the angle between the two should not be 180 degrees).</p>
-<img data-src="/images/irr-paint-3d/vector_as_a_sum.webp" alt="Vector as a sum of other vectors" />
+<LazyImg src="/images/irr-paint-3d/vector_as_a_sum.webp" alt="Vector as a sum of other vectors" />
 
 <p>In the example above, vector <code>p</code> could be represented as a sum of vectors <code>a</code> and <code>b</code>, each multiplied by certain coefficients:
 <code>p = u*a + v*b</code>.</p>
