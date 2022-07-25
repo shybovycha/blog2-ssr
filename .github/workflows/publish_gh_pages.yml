@@ -24,34 +24,40 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-    - run: npm run build
-    - name: Unpack the build files into GH pages branch
+    - name: Prepare the build files into GH pages branch
       run: |
+        echo '[DEBUG] Configure git user'
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
 
-        echo 'Fetching from origin'
+        echo '[DEBUG] Fetching from origin'
         git fetch
 
-        echo 'Checking out gh_pages'
+        echo '[DEBUG] Run npm build'
+        npm run build
+
+        echo '[DEBUG] Checking out gh_pages'
         git checkout gh_pages
 
-        echo 'Rsync dist'
+        echo '[DEBUG] Rsync dist'
         rsync -a --delete dist .
 
-        echo 'Update .gitignore'
+        echo '[DEBUG] Update .gitignore'
         printf 'node_modules\ndist\n' > .gitignore
 
-        echo 'Current dir'
-        ls .
+        echo '[DEBUG] gitignore content:'
+        cat .gitignore
 
-        echo 'Confirming git status'
+        echo '[DEBUG] Current dir:'
+        ls -alh .
+
+        echo '[DEBUG] Confirming git status'
         git status
 
-        echo 'Adding all changes'
+        echo '[DEBUG] Adding all changes'
         git add --all
 
-        echo 'Commit changes'
+        echo '[DEBUG] Commit changes'
         git commit -m "Release $(date)"
 
     - name: Push to GH pages
