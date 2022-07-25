@@ -20,6 +20,7 @@ const StandalonePage = require('../components/StandalonePage.svelte').default;
 const PAGE_SIZE = 10;
 
 const BASE_URL = '/blog2-ssr';
+const DOMAIN = 'https://shybovycha.github.io';
 
 const BASE_DIR = path.join(__dirname, '..', '..');
 const OUTPUT_DIR = path.join(BASE_DIR, 'dist');
@@ -115,3 +116,20 @@ getFilesRec(PUBLIC_DIR).forEach((filePath) => {
 // copy PrismJS theme CSS
 const prismThemePath = path.join(__dirname, '..', '..', 'node_modules', 'prismjs', 'themes', `${PRISM_THEME}.min.css`);
 fs.copyFileSync(prismThemePath, path.join(OUTPUT_DIR, 'prism.css'));
+
+// generate sitemap and robots.txt
+const robots = `
+User-agent: *
+Allow: /
+Sitemap: ${DOMAIN}${BASE_URL}/sitemap.txt
+`;
+
+fs.writeFileSync('robots.txt', robots);
+
+const sitemap = [
+    ...(posts.map(({ link }) => link)),
+    ...(pages.map((pageFilename) => pageFilename.replace(PAGES_DIR, '').replace(/\..+$/, '.html'))),
+    ...(postPages.map((_, pageIdx) => pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`)),
+].map((path) => `${DOMAIN}${BASE_URL}/${path}`).join('\n');
+
+fs.writeFileSync('sitemap.txt', sitemap);
