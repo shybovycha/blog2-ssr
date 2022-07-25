@@ -1,7 +1,2 @@
-node_modules/
-package.json
-package.lock.json
-yarn.lock
-src
-!.nojekyll
+node_modules
 dist
