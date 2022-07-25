@@ -136,7 +136,8 @@ const processSitemap = () => {
 
 // clean
 const clean = () =>
-    fsPromise.rm(OUTPUT_DIR, { recursive: true });
+    fsPromise.rm(OUTPUT_DIR, { recursive: true, force: true })
+        .then(() => fsPromise.mkdir(OUTPUT_DIR, { recursive: true }));
 
 clean().then(() =>
     Promise.all([
@@ -149,4 +150,4 @@ clean().then(() =>
         processSitemap(),
     ]))
     .then(() => console.log('[DEBUG] Done'))
-    .catch(e => console.error('[ERROR] Failed to build', e));
+    .catch(e => console.error('[ERROR] Failed to build', e.stack));
