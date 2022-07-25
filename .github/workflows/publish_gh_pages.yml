@@ -11,19 +11,16 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [17.x]
-
     steps:
     - uses: actions/checkout@v3
 
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 17.x
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 17.x
         cache: 'npm'
     - run: npm ci
+    - run: npm run build
     - name: Prepare the build files into GH pages branch
       run: |
         echo '[DEBUG] Configure git user'
@@ -32,9 +29,6 @@ jobs:
 
         echo '[DEBUG] Fetching from origin'
         git fetch
-
-        echo '[DEBUG] Run npm build'
-        npm run build
 
         echo '[DEBUG] Update .gitignore'
         printf 'node_modules' > .gitignore
@@ -52,7 +46,7 @@ jobs:
         git checkout gh_pages
 
         echo '[DEBUG] Remove everything but dist'
-        rm -r -v !("dist")
+        ls | grep -xv 'dist' | xargs rm -r
 
         echo '[DEBUG] Move everything from dist'
         mv dist/* .
