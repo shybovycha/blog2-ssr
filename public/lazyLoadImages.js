@@ -10,7 +10,7 @@ const onIntersect = entries =>
             imgElt.src = src;
             lazyImgElt.appendChild(imgElt);
 
-            observer.unobserve(imgElt);
+            observer.unobserve(lazyImgElt);
         });
 
 const observer = new IntersectionObserver(onIntersect, {
@@ -20,4 +20,4 @@ const observer = new IntersectionObserver(onIntersect, {
 
 const images = [...document.body.querySelectorAll('lazyimg')];
 
-images.forEach(imgElt => observer.observe(imgElt));
+images.forEach(lazyImgElt => observer.observe(lazyImgElt));
