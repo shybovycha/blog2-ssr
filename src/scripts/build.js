@@ -148,4 +148,5 @@ clean().then(() =>
         processRobots(),
         processSitemap(),
     ]))
-    .then(() => console.log('[DEBUG] Done'));
+    .then(() => console.log('[DEBUG] Done'))
+    .catch(e => console.error('[ERROR] Failed to build', e));
