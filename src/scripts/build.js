@@ -124,7 +124,7 @@ Allow: /
 Sitemap: ${DOMAIN}${BASE_URL}/sitemap.txt
 `;
 
-fs.writeFileSync('robots.txt', robots);
+fs.writeFileSync(path.join(OUTPUT_DIR, 'robots.txt'), robots);
 
 const sitemap = [
     ...(posts.map(({ link }) => link)),
@@ -132,4 +132,4 @@ const sitemap = [
     ...(postPages.map((_, pageIdx) => pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`)),
 ].map((path) => `${DOMAIN}${BASE_URL}/${path}`).join('\n');
 
-fs.writeFileSync('sitemap.txt', sitemap);
+fs.writeFileSync(path.join(OUTPUT_DIR,'sitemap.txt'), sitemap);
