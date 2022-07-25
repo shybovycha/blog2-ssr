@@ -52,6 +52,8 @@ postPages.forEach((posts, pageIdx) => {
     }
 
     fs.writeFileSync(filePath, `<style>${css.code}</style>` + html);
+
+    console.log('Processed index page');
 });
 
 // specific posts
@@ -67,6 +69,8 @@ posts.forEach((post) => {
     }
 
     fs.writeFileSync(filePath, html);
+
+    console.log('Processed post', filePath);
 });
 
 // standalone pages
@@ -90,6 +94,8 @@ pages.forEach((pageFilename) => {
     }
 
     fs.writeFileSync(filePath, html);
+
+    console.log('Processed page', filePath);
 });
 
 // copy public files
