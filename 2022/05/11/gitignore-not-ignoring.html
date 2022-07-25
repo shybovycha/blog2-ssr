@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/blog2-ssr/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/blog2-ssr/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/blog2-ssr/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/blog2-ssr/shared.css">
+    <link rel="stylesheet" href="/blog2-ssr/prism.css">
+
+    <title>.gitignore is not ignoring</title></head>
+<body class="svelte-1gr3n62"><style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+    }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
+    }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
+    }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
+    }a.svelte-1gr3n62.svelte-1gr3n62{color:var(--secondary-color);text-decoration:none
+    }a.svelte-1gr3n62.svelte-1gr3n62:hover,a.svelte-1gr3n62.svelte-1gr3n62:active{color:var(--sub-color)
+    }footer.svelte-1gr3n62.svelte-1gr3n62{grid-area:3/1/4/4;background:#fff;display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side)
+    }nav.top.svelte-1gr3n62.svelte-1gr3n62{background-color:var(--nav-background);display:inline-grid;grid-template:100%/var(--left-side) auto var(--right-side);grid-area:1/1/2/4
+    }main.svelte-1gr3n62.svelte-1gr3n62{grid-area:2/2/3/3;margin-top:1em;display:flex;flex-direction:column
+    }@media screen and (max-width: 1340px){:root{--left-side:0px;--right-side:0px
+        }body.svelte-1gr3n62.svelte-1gr3n62{background:var(--background-color)
+        }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{justify-content:space-around
+        }}
+.btn.svelte-7idbpu{display:inline-flex;font-size:18px;color:#fff;background:var(--primary-color);padding:10px;border-radius:8px
+    }.btn.svelte-7idbpu:hover{background:var(--primary-accent-color);color:#fff
+    }</style>
+
+    <nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/blog2-ssr/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/blog2-ssr/about/">About</a></div>
+        </nav>
+
+    <main class="svelte-1gr3n62"><article><h1>.gitignore is not ignoring</h1>
+
+    <time>11 May 2022 at 00:00</time>
+
+    <div class="content"><p>This is going to be a very short blog. I have been struggling with this issue for few days now - having a seemingly valid <code>.gitignore</code> file which does not make Git ignore any of the files.</p>
+<p>The <code>.gitignore</code> file contents:</p>
+<pre><code>node_modules
+
+**/*.bundle.js
+*.log
+
+*compiled-proto*
+*compiled-bundle*
+</code></pre>
+<p>Running <code>git status</code>:</p>
+<pre><code>$ git st
+On branch master
+Untracked files:
+  (use &quot;git add &lt;file&gt;...&quot; to include in what will be committed)
+        node_modules/
+        test1/flatbuffers-compiled-proto/
+        test5/index.bundle.js
+        test5/test5-avro.bundle.js
+        test5/test5-bson.bundle.js
+        test5/test5-cbor.bundle.js
+        test5/test5-flatbuffers-compiled-proto/
+        test5/test5-flatbuffers-compiled.bundle.js
+        test5/test5-messagepack.bundle.js
+        test5/test5-protobuf-compiled-proto.js
+        test5/test5-protobuf-compiled.bundle.js
+        test5/test5-protobuf.bundle.js
+
+nothing added to commit but untracked files present (use &quot;git add&quot; to track)
+</code></pre>
+<p>Weird, isn’t it?</p>
+<p>There is a command which checks if a given path (whatever you pass as a parameter to the command, so technically just a string) would be ignored by any of the rules in <code>.gitignore</code> file or not:</p>
+<pre><code>git check-ignore --verbose &lt;path&gt;
+</code></pre>
+<p>Let’s run it on my repo:</p>
+<pre><code>$ git check-ignore --verbose node_modules
+</code></pre>
+<p>No output means the path (in this case - <code>node_modules</code>) will <strong>not</strong> be ignored. Which should not be the case - there’s a rule as the first line of the <code>.gitignore</code> file, right?!</p>
+<p>The issue seems to be somewhat hidden - the file was saved in the <code>UTF16-LE</code> encoding, since I have used PowerShell to initialize the file with <code>echo &#39;node_modules&#39; &gt;&gt; .gitignore</code>:</p>
+<img data-src="/images/gitignore-not-ignoring/Screenshot 2022-05-11 093618.webp">
+
+<p>And seems like the valid encoding for <code>.gitignore</code> file would be <code>UTF-8</code>. Let’s use VSCode itself to save it in <code>UTF-8</code> instead and try it again:</p>
+<pre><code>$ git check-ignore --verbose node_modules
+.gitignore:1:node_modules       node_modules
+</code></pre>
+<p>That output tells us the rule in the first line, namely <code>node_modules</code> (no asterisks or slashes) ignores the path <code>node_modules</code>.
+Issue solved!</p>
+</div>
+</article></main>
+
+    
+
+    <script src="/blog2-ssr/lazyLoadImages.js"></script></body>
+</html>

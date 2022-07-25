@@ -1,4 +1,17 @@
-<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+<style>undefined</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/blog2-ssr/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/blog2-ssr/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/blog2-ssr/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/blog2-ssr/shared.css">
+    <link rel="stylesheet" href="/blog2-ssr/prism.css">
+
+    <title>Home</title></head>
+<body class="svelte-1gr3n62"><style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
     }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
     }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
     }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
@@ -19,25 +32,33 @@ nav.bottom.svelte-14ldwbd.svelte-14ldwbd{grid-area:1/2/2/3;display:inline-grid;g
     }footer nav.svelte-14ldwbd .prev.svelte-14ldwbd{grid-area:1/1/2/2;justify-content:flex-start
     }footer nav.svelte-14ldwbd .current.svelte-14ldwbd{grid-area:1/2/2/3;justify-content:center
     }footer nav.svelte-14ldwbd .next.svelte-14ldwbd{grid-area:1/3/2/4;justify-content:flex-end
-    }</style><!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    }</style>
 
-    <link rel="icon" href="/images/favicon-compressed.webp">
-    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
-    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
-
-    <link rel="stylesheet" href="/shared.css">
-    <link rel="stylesheet" href="/prism.css">
-
-    <title>Document</title></head>
-<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
-            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
-                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+    <nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/blog2-ssr/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/blog2-ssr/about/">About</a></div>
         </nav>
 
-    <main class="svelte-1gr3n62"><article><h1><a href="/2019/03/10/casts-in-cpp-explained.html">Type casts in C++, explained</a></h1>
+    <main class="svelte-1gr3n62"><article><h1><a href="/2019/12/11/linq-is-awesome-right.html">Linq is awesome, right?</a></h1>
+
+    <time>11 Dec 2019 at 02:49</time>
+
+    <div class="excerpt"><p>Recently I’ve seen a curious blog on Dev.to, <a href="https://dev.to/sduduzog/c-and-net-core-appreciation-post-the-most-beautiful-piece-of-code-i-have-ever-seen-this-month-49gf">C# and .NET Core Appreciation Post. The most beautiful piece of code I have ever seen… this month!</a>.</p>
+<p>In short, author was amazed by how beautiful Linq is, supporting their feelings with this code snippet:</p>
+<pre><code class="language-csharp"><span class="token keyword">public</span> <span class="token return-type class-name">User</span> <span class="token function">GetUserByToken</span><span class="token punctuation">(</span><span class="token class-name"><span class="token keyword">string</span></span> token<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token class-name"><span class="token keyword">var</span></span> user <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">from</span> u <span class="token keyword">in</span> Users
+              <span class="token keyword">join</span> t <span class="token keyword">in</span> Tokens <span class="token keyword">on</span> u<span class="token punctuation">.</span>Id equals t<span class="token punctuation">.</span>UserId
+              <span class="token keyword">where</span> <span class="token class-name">t</span><span class="token punctuation">.</span>Body <span class="token operator">==</span> token
+              <span class="token keyword">select</span> u<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">SingleOrDefault</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token keyword">return</span> user<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Let’s tear this example apart and check how really <del>performant</del> beautiful Linq is!</p>
+</div>
+
+        <a href="/2019/12/11/linq-is-awesome-right.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/2019/03/10/casts-in-cpp-explained.html">Type casts in C++, explained</a></h1>
 
     <time>21 Mar 2019 at 00:00</time>
 
@@ -307,28 +328,14 @@ to be a <a href="https://stackoverflow.com/a/4526639/330471"><strong>seven-year-
 </div>
 
         <a href="/2017/08/16/floyd-warshall-algorithm.html" class="btn svelte-7idbpu">Read more</a>
-</article><article><h1><a href="/2017/08/15/easy-way-to-understand-big-o-notation.html">Easy way to understand algorithm complexity and big O notation</a></h1>
-
-    <time>15 Aug 2017 at 09:38</time>
-
-    <div class="excerpt"><h2 id="foreword">Foreword</h2>
-<p>Some time ago I’ve published an <a href="2016-08-25-big-o-notation">article about bit O notation</a>. I’ve mentioned its source but never published it. So here it is, the original article.</p>
-<h2 id="the-article">The article</h2>
-<p>Big O notation is the most widely used method which describes algorithm complexity - the execution time required or the space used in memory or in the disk by an algorithm. Often in exams or interviews, you will be asked some questions about algorithm complexity in the following form:</p>
-<blockquote>
-<p>For an algorithm that uses a data structure of size n, what is the run-time complexity or space complexity of the algorithm? The answer to such questions often uses big O notations to describe the algorithm complexity, such as <code>O(1)</code>, <code>O(n)</code>, <code>O(n^2)</code> or <code>O(log(n))</code>.</p>
-</blockquote>
-</div>
-
-        <a href="/2017/08/15/easy-way-to-understand-big-o-notation.html" class="btn svelte-7idbpu">Read more</a>
 </article></main>
 
-    <footer class="svelte-1gr3n62"><nav class="bottom svelte-14ldwbd"><div class="prev svelte-14ldwbd"><a href="/page2.html" class="prev svelte-14ldwbd">← Previous page</a></div>
+    <footer class="svelte-1gr3n62"><nav class="bottom svelte-14ldwbd"><div class="prev svelte-14ldwbd"><a href="/blog2-ssr/page2.html" class="prev svelte-14ldwbd">← Previous page</a></div>
 
     <div class="current svelte-14ldwbd">Page #3 of 9</div>
 
-    <div class="next svelte-14ldwbd"><a href="/page4.html" class="next svelte-14ldwbd">Next page →</a></div>
+    <div class="next svelte-14ldwbd"><a href="/blog2-ssr/page4.html" class="next svelte-14ldwbd">Next page →</a></div>
 </nav></footer>
 
-    <script src="/lazyLoadImages.js"></script></body>
+    <script src="/blog2-ssr/lazyLoadImages.js"></script></body>
 </html>

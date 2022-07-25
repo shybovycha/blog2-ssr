@@ -1,4 +1,17 @@
-<style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
+<style>undefined</style><!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="/blog2-ssr/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="/blog2-ssr/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="/blog2-ssr/images/favicon-compressed.webp">
+
+    <link rel="stylesheet" href="/blog2-ssr/shared.css">
+    <link rel="stylesheet" href="/blog2-ssr/prism.css">
+
+    <title>Home</title></head>
+<body class="svelte-1gr3n62"><style>:root{--left-side:200px;--right-side:200px;--nav-height:64px;--background-color:#FFD166;--primary-color:#06D6A0;--primary-accent-color:#049F76;--secondary-color:#118AB2;--sub-color:#073B4C;--nav-background:#fff;--article-background:#fff
     }body.svelte-1gr3n62.svelte-1gr3n62{padding:0;margin:0;color:var(--sub-color);background:var(--background-color);font-family:Roboto, "Helvetica Neue", Arial, sans-serif;font-size:18px;display:grid;grid-template:var(--nav-height) auto var(--nav-height)/var(--left-side) calc(100% - var(--left-side) - var(--right-side)) var(--right-side)
     }nav.top.svelte-1gr3n62 .links.svelte-1gr3n62{grid-area:1/2/2/3;display:flex;align-items:center
     }nav.top.svelte-1gr3n62 .links a.svelte-1gr3n62{margin-right:1em
@@ -19,25 +32,71 @@ nav.bottom.svelte-14ldwbd.svelte-14ldwbd{grid-area:1/2/2/3;display:inline-grid;g
     }footer nav.svelte-14ldwbd .prev.svelte-14ldwbd{grid-area:1/1/2/2;justify-content:flex-start
     }footer nav.svelte-14ldwbd .current.svelte-14ldwbd{grid-area:1/2/2/3;justify-content:center
     }footer nav.svelte-14ldwbd .next.svelte-14ldwbd{grid-area:1/3/2/4;justify-content:flex-end
-    }</style><!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    }</style>
 
-    <link rel="icon" href="/images/favicon-compressed.webp">
-    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
-    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
-
-    <link rel="stylesheet" href="/shared.css">
-    <link rel="stylesheet" href="/prism.css">
-
-    <title>Document</title></head>
-<body class="svelte-1gr3n62"><nav class="top svelte-1gr3n62">
-            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/">Home</a>
-                <a class="nav-link nav-item svelte-1gr3n62" href="/about/">About</a></div>
+    <nav class="top svelte-1gr3n62">
+            <div class="links svelte-1gr3n62"><a class="nav-link nav-item svelte-1gr3n62" href="/blog2-ssr/">Home</a>
+                <a class="nav-link nav-item svelte-1gr3n62" href="/blog2-ssr/about/">About</a></div>
         </nav>
 
-    <main class="svelte-1gr3n62"><article><h1><a href="/irrlicht-newton-tutorials/2015-08-26-application-architecture.md">Irrlicht Newton GD tutorial: application architecture</a></h1>
+    <main class="svelte-1gr3n62"><article><h1><a href="/irrlicht-newton-tutorials/2015/08/27/first-application.html">Irrlicht Newton GD tutorial: first application</a></h1>
+
+    <time>27 Aug 2015 at 17:05</time>
+
+    <div class="excerpt"><h2 id="install-irrlicht">Install Irrlicht</h2>
+<p>First of all, you will definetely need the Irrlicht engine, so
+<a href="http://irrlicht.sourceforge.net/downloads/"><strong>go get it</strong></a>.</p>
+<p>Then you will need to compile it. Compilation process depends on the operating system you use,
+but it’s really similar on every one.</p>
+<h3 id="linux">Linux</h3>
+<p>Install these dependencies with your system’ package manager:
+<code>libenet-dev libxxf86vm-dev zlib-dev cmake</code>.</p>
+<p>Unzip Irrlicht, go to the directory you unpacked with the terminal and run the following:</p>
+<pre><code class="language-bash"><span class="token builtin class-name">cd</span> source/Irrlicht
+<span class="token function">make</span>
+</code></pre>
+<p>Belive it or not, but that’s all!</p>
+<h3 id="windows">Windows</h3>
+<p>Unzip Irrlicht, go to the directory you unpacked and open the VisualStudio project <em>(depending on
+VisualStudio version, you might want to open a bit different file)</em> in <code>source/Irrlicht</code>:</p>
+<pre><code>Irrlicht10.0.sln
+Irrlicht11.0.sln
+Irrlicht8.0.sln
+Irrlicht9.0.sln
+</code></pre>
+<p>Build it with VisualStudio - and you are done!</p>
+<h3 id="macos-x">MacOS X</h3>
+<p>The steps are a bit complicated. And they require you to install <strong>XCode</strong> and
+<strong>Command-Line Tools</strong> - those could be found either in  AppStore or on the Apple
+website.</p>
+<ul>
+<li><p>First of all, you need to install a bunch of dependencies <em>(I use <code>brew</code> for this purpose)</em>:</p>
+<pre><code class="language-bash">brew <span class="token function">install</span> tinyxml enet lua cmake
+</code></pre>
+</li>
+<li><p>Get a list of all compilers available for your OSX version:</p>
+<pre><code class="language-bash">xcodebuild -showBuildSettings <span class="token operator">|</span> <span class="token function">grep</span> DEFAULT_COMPILER
+</code></pre>
+<p>I got something like this:</p>
+<pre><code class="language-bash">$ xcodebuild -showBuildSettings <span class="token operator">|</span> <span class="token function">grep</span> DEFAULT_COMPILER
+  DEFAULT_COMPILER <span class="token operator">=</span> com.apple.compilers.llvm.clang.1_0
+</code></pre>
+</li>
+<li><p>Now the build process:</p>
+<pre><code class="language-bash"><span class="token builtin class-name">cd</span> source/Irrlicht/MacOSX
+xcodebuild -project MacOSX.xcodeproj <span class="token assign-left variable">GCC_VERSION</span><span class="token operator">=</span>com.apple.compilers.llvm.clang.1_0
+</code></pre>
+</li>
+<li><p>And the final step - copy the library to the <code>lib/MacOSX</code> directory:</p>
+<pre><code class="language-bash"><span class="token function">cp</span> build/Release/libIrrlicht.a <span class="token punctuation">..</span>/<span class="token punctuation">..</span>/<span class="token punctuation">..</span>/lib/MacOSX
+</code></pre>
+</li>
+</ul>
+<p>Phew! That’s a damn bunch of commands, don’t you think?</p>
+</div>
+
+        <a href="/irrlicht-newton-tutorials/2015/08/27/first-application.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/irrlicht-newton-tutorials/2015/08/26/application-architecture.html">Irrlicht Newton GD tutorial: application architecture</a></h1>
 
     <time>26 Aug 2015 at 20:50</time>
 
@@ -85,7 +144,7 @@ Just try it!</p>
 <p>Remember all the three rules for our architecture. And keeping them in mind, let’s get to some coding already!</p>
 <p><a href="2015-08-27-first-application">Next chapter</a></p>
 </div>
-</article><article><h1><a href="/irrlicht-newton-tutorials/2015-08-25-introduction.md">Irrlicht Newton GD tutorial: introduction</a></h1>
+</article><article><h1><a href="/irrlicht-newton-tutorials/2015/08/25/introduction.html">Irrlicht Newton GD tutorial: introduction</a></h1>
 
     <time>25 Aug 2015 at 17:01</time>
 
@@ -124,7 +183,7 @@ asset formats out-of-the-box, user input <em>(keyboard, mouse and joystick event
 <p>Newton Game Dynamics is also very easy to use; it is constantly developed; and it is darn powerful!</p>
 <p>If you are still interested - please proceed to <a href="2015-08-26-application-architecture">the first chapter</a>.</p>
 </div>
-</article><article><h1><a href="/tumblr/2015-06-22-about-bower-webcomponents-and-the-all-the-good.md">About Bower, WebComponents and the all the good</a></h1>
+</article><article><h1><a href="/tumblr/2015/06/22/about-bower-webcomponents-and-the-all-the-good.html">About Bower, WebComponents and the all the good</a></h1>
 
     <time>22 Jun 2015 at 12:23</time>
 
@@ -134,16 +193,16 @@ asset formats out-of-the-box, user input <em>(keyboard, mouse and joystick event
 <p>These days, many web developers use different methodologies to make their web page source look structured and clean. But all those methodologies only work well until you use third-party libraries or involve a new person in your project.</p>
 </div>
 
-        <a href="/tumblr/2015-06-22-about-bower-webcomponents-and-the-all-the-good.md" class="btn svelte-7idbpu">Read more</a>
-</article><article><h1><a href="/tumblr/2015-05-06-memory-allocation-in-asm.md">Memory allocation in ASM</a></h1>
+        <a href="/tumblr/2015/06/22/about-bower-webcomponents-and-the-all-the-good.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/tumblr/2015/05/06/memory-allocation-in-asm.html">Memory allocation in ASM</a></h1>
 
     <time>06 May 2015 at 10:20</time>
 
     <div class="excerpt"><p>Currently I am working on a long arithmetic problem at the university. This problem is much more complicated than I described or than a task I shall be describing now, but here&rsquo;s the thing: I needed some part of memory to be allocated from within my function. And I needed this to be done in assembly.</p>
 </div>
 
-        <a href="/tumblr/2015-05-06-memory-allocation-in-asm.md" class="btn svelte-7idbpu">Read more</a>
-</article><article><h1><a href="/tumblr/2015-04-23-assembly-in-c-programs.md">Assembly in C++ programs</a></h1>
+        <a href="/tumblr/2015/05/06/memory-allocation-in-asm.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/tumblr/2015/04/23/assembly-in-c-programs.html">Assembly in C++ programs</a></h1>
 
     <time>23 Apr 2015 at 11:18</time>
 
@@ -159,8 +218,8 @@ asset formats out-of-the-box, user input <em>(keyboard, mouse and joystick event
 <p>This blog is mostly for academical purposes. People who study something like <em>low-level programming</em> at the university may be interested.</p>
 </div>
 
-        <a href="/tumblr/2015-04-23-assembly-in-c-programs.md" class="btn svelte-7idbpu">Read more</a>
-</article><article><h1><a href="/tumblr/2015-04-06-shootthem.md">ShootThem!</a></h1>
+        <a href="/tumblr/2015/04/23/assembly-in-c-programs.html" class="btn svelte-7idbpu">Read more</a>
+</article><article><h1><a href="/tumblr/2015/04/06/shootthem.html">ShootThem!</a></h1>
 
     <time>06 Apr 2015 at 17:12</time>
 
@@ -177,7 +236,7 @@ asset formats out-of-the-box, user input <em>(keyboard, mouse and joystick event
 <LazyImg src="/images/tumblr/shootthem/tumblr_inline_nmeaa4oVAD1qh5oee_640.png" />
 <LazyImg src="/images/tumblr/shootthem/tumblr_inline_nmeaaiOKq51qh5oee_640.png" />
 </div>
-</article><article><h1><a href="/tumblr/2015-03-29-running-qt-mysql-application.html">Running Qt + MySQL application</a></h1>
+</article><article><h1><a href="/tumblr/2015/03/29/running-qt-mysql-application.html">Running Qt + MySQL application</a></h1>
 
     <time>29 Mar 2015 at 08:47</time>
 
@@ -200,7 +259,7 @@ Plugins=./plugins
 <li>create <code>qt.conf</code> file in build directory and fill it as mentioned above</li>
 </ol><p>And one more hint before the end: to debug why your Qt plugins fail use this application startup switch: <code>QT_DEBUG_PLUGINS=1 ./app_name</code> - this will display plugins debug information.</p>
 </div>
-</article><article><h1><a href="/tumblr/2015-03-27-tinyjavacode-this-one-was-super-easy-so-i-did-a.md">Tiny java code...</a></h1>
+</article><article><h1><a href="/tumblr/2015/03/27/tinyjavacode-this-one-was-super-easy-so-i-did-a.html">Tiny java code...</a></h1>
 
     <time>27 Mar 2015 at 07:10</time>
 
@@ -249,7 +308,7 @@ Count 3: 432188 Time taken: 22
 </code></pre>
 <p><a href="http://tinyjavacode.tumblr.com/post/114715031583/this-one-was-super-easy-so-i-did-a-quick" class="tumblr_blog">tinyjavacode</a>:</p>
 </div>
-</article><article><h1><a href="/tumblr/2015-03-25-the-new-hardcore.md">The new hardcore</a></h1>
+</article><article><h1><a href="/tumblr/2015/03/25/the-new-hardcore.html">The new hardcore</a></h1>
 
     <time>25 Mar 2015 at 18:07</time>
 
@@ -257,80 +316,14 @@ Count 3: 432188 Time taken: 22
 
 <p>Trying some new hardcore - Assembly in Emacs 😁</p>
 </div>
-</article><article><h1><a href="/tumblr/2015-03-24-decorator-pattern-in-python.md">Decorator pattern in Python</a></h1>
-
-    <time>24 Mar 2015 at 09:41</time>
-
-    <div class="content"><p>Just found some interesting way of implementing Decorator design pattern in Python.</p>
-
-<p>As <strong>Jason Smith</strong> said in his book (<strong>Elemental Design Patterns</strong>), <em>“design patterns may be implemened in different ways in different programming languages”</em>.</p>
-
-<p>That’s said, design patterns are not some set of classes which will be implemented in a very similar way in different languages - they are just a way of doing something.</p>
-
-<p>Thus, Decorator pattern is a way of wrapping some method’s or class’ behaviour. In Python it may be done with <strong>Context Managers:</strong></p>
-
-<pre><code class="language-python"><span class="token keyword">from</span> contextlib <span class="token keyword">import</span> contextmanager
-
-<span class="token decorator annotation punctuation">@contextmanager</span>
-<span class="token keyword">def</span> <span class="token function">tag</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">print</span> <span class="token string">"&lt;%s>"</span> <span class="token operator">%</span> name<span class="token punctuation">,</span>
-    <span class="token keyword">yield</span>
-    <span class="token keyword">print</span> <span class="token string">"&lt;/%s>"</span> <span class="token operator">%</span> name<span class="token punctuation">,</span>
-
-<span class="token keyword">with</span> tag<span class="token punctuation">(</span><span class="token string">"h1"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">print</span> <span class="token string">"moo"</span><span class="token punctuation">,</span>
-
-<span class="token keyword">print</span>
-
-<span class="token keyword">with</span> tag<span class="token punctuation">(</span><span class="token string">"div"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">print</span> <span class="token string">"foo"</span><span class="token punctuation">,</span>
-</code></pre>
-<p>This code will end up wrapping <code>print "foo"</code> and <code>print "moo"</code> methods with printing some HTML tags around &lsquo;em:</p>
-
-<pre><code class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h1</span><span class="token punctuation">></span></span>moo<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h1</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span>foo<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
-</code></pre>
-<p>That is interesting as it implements Decorator design pattern in a bit hard-coded way, but using language features, not OOP ones.</p>
-
-<p>Compare it to the <em>"standard"</em> OOP implementation in Python:</p>
-
-<pre><code class="language-python"><span class="token comment"># -*-coding:utf-8 -*-</span>
-<span class="token keyword">class</span> <span class="token class-name">SimpleText</span><span class="token punctuation">(</span><span class="token builtin">object</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> text<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        self<span class="token punctuation">.</span>text <span class="token operator">=</span> text
-
-    <span class="token keyword">def</span> <span class="token function">content</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        <span class="token keyword">return</span> self<span class="token punctuation">.</span>text
-
-    <span class="token keyword">def</span> <span class="token function">__str__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        <span class="token keyword">return</span> self<span class="token punctuation">.</span>content<span class="token punctuation">(</span><span class="token punctuation">)</span>
-
-<span class="token keyword">class</span> <span class="token class-name">TagDecorator</span><span class="token punctuation">(</span>SimpleText<span class="token punctuation">)</span><span class="token punctuation">:</span>
-    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> text<span class="token punctuation">,</span> tag<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        <span class="token builtin">super</span><span class="token punctuation">(</span>TagDecorator<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span>text<span class="token punctuation">)</span>
-        self<span class="token punctuation">.</span>tag <span class="token operator">=</span> tag
-
-    <span class="token keyword">def</span> <span class="token function">content</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
-        <span class="token keyword">return</span> <span class="token string">'&lt;{0}>{1}&lt;/{0}>'</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>tag<span class="token punctuation">,</span> <span class="token builtin">super</span><span class="token punctuation">(</span>TagDecorator<span class="token punctuation">,</span> self<span class="token punctuation">)</span><span class="token punctuation">.</span>content<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-
-a <span class="token operator">=</span> SimpleText<span class="token punctuation">(</span><span class="token string">'moo'</span><span class="token punctuation">)</span>
-<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'SimpleText: %s'</span> <span class="token operator">%</span> a<span class="token punctuation">)</span>
-
-b <span class="token operator">=</span> TagDecorator<span class="token punctuation">(</span><span class="token string">'moo'</span><span class="token punctuation">,</span> <span class="token string">'h1'</span><span class="token punctuation">)</span>
-<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'TagDecorator (h1): %s'</span> <span class="token operator">%</span> b<span class="token punctuation">)</span>
-</code></pre>
-<p>This one looks a bit&hellip; ugly&hellip; right? And though Python does not really care of which type are <code>a</code> and <code>b</code>, we may not need all this class hierarchy.</p>
-
-<p>This is the might of <strong>context managers</strong>!</p>
-</div>
 </article></main>
 
-    <footer class="svelte-1gr3n62"><nav class="bottom svelte-14ldwbd"><div class="prev svelte-14ldwbd"><a href="/page5.html" class="prev svelte-14ldwbd">← Previous page</a></div>
+    <footer class="svelte-1gr3n62"><nav class="bottom svelte-14ldwbd"><div class="prev svelte-14ldwbd"><a href="/blog2-ssr/page5.html" class="prev svelte-14ldwbd">← Previous page</a></div>
 
     <div class="current svelte-14ldwbd">Page #6 of 9</div>
 
-    <div class="next svelte-14ldwbd"><a href="/page7.html" class="next svelte-14ldwbd">Next page →</a></div>
+    <div class="next svelte-14ldwbd"><a href="/blog2-ssr/page7.html" class="next svelte-14ldwbd">Next page →</a></div>
 </nav></footer>
 
-    <script src="/lazyLoadImages.js"></script></body>
+    <script src="/blog2-ssr/lazyLoadImages.js"></script></body>
 </html>
