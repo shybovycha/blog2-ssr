@@ -36,8 +36,8 @@ jobs:
         echo '[DEBUG] Run npm build'
         npm run build
 
-        echo '[DEBUG] Checking out gh_pages'
-        git checkout gh_pages
+        echo '[DEBUG] Confirming git status'
+        git status
 
         echo '[DEBUG] Rsync dist'
         rsync -a --delete dist .
@@ -48,8 +48,11 @@ jobs:
         echo '[DEBUG] gitignore content:'
         cat .gitignore
 
-        echo '[DEBUG] Current dir:'
-        ls -alh .
+        echo '[DEBUG] Confirming git status'
+        git status
+
+        echo '[DEBUG] Checking out gh_pages'
+        git checkout gh_pages
 
         echo '[DEBUG] Confirming git status'
         git status
