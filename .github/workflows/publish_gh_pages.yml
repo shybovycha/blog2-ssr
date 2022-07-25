@@ -36,23 +36,32 @@ jobs:
         echo '[DEBUG] Run npm build'
         npm run build
 
-        echo '[DEBUG] Confirming git status'
-        git status
-
-        echo '[DEBUG] Rsync dist'
-        rsync -a --delete dist .
-
         echo '[DEBUG] Update .gitignore'
-        printf 'node_modules\ndist\n' > .gitignore
+        printf 'node_modules' > .gitignore
 
-        echo '[DEBUG] gitignore content:'
-        cat .gitignore
+        echo '[DEBUG] Stage dist'
+        git add dist
+
+        echo '[DEBUG] Restore .gitignore'
+        git restore .gitignore
 
         echo '[DEBUG] Confirming git status'
         git status
 
         echo '[DEBUG] Checking out gh_pages'
         git checkout gh_pages
+
+        echo '[DEBUG] Remove everything but dist'
+        rm -r -v !("dist")
+
+        echo '[DEBUG] Move everything from dist'
+        mv dist/* .
+
+        echo '[DEBUG] Remove dist'
+        rm -r dist
+
+        echo '[DEBUG] Restore dist'
+        git restore --staged dist
 
         echo '[DEBUG] Confirming git status'
         git status
