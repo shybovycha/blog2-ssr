@@ -40,7 +40,7 @@
         </footer>
     {/if}
 
-    {@html `<script src="{baseUrl}/lazyLoadImages.js"></script>`}
+    {@html `<script src="${baseUrl}/lazyLoadImages.js"></script>`}
 </body>
 </html>
 

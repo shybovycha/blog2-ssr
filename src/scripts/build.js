@@ -19,7 +19,7 @@ const StandalonePage = require('../components/StandalonePage.svelte').default;
 
 const PAGE_SIZE = 10;
 
-const BASE_URL = '/blog2-ssr/';
+const BASE_URL = '/blog2-ssr';
 
 const BASE_DIR = path.join(__dirname, '..', '..');
 const OUTPUT_DIR = path.join(BASE_DIR, 'dist');
