@@ -33,6 +33,7 @@ jobs:
         git fetch
         git checkout gh_pages
         rsync -a --delete dist .
+        echo 'node_modules\n!dist\n' > .gitignore
         git add --all
         git commit -m "Release $(date)"
 
