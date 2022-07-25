@@ -1,4 +1,4 @@
-<Layout title={title} css={css}>
+<Layout title={title} css={css} baseUrl={baseUrl}>
     <article slot="content">
         {@html content}
     </article>
@@ -11,4 +11,6 @@
 
     export let title = 'Page';
     export let css = null;
+
+    export let baseUrl = '';
 </script>

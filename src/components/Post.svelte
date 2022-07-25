@@ -1,7 +1,7 @@
 <article>
     <h1>
         {#if isPreview}
-            <a href="/{link}">{ title }</a>
+            <a href="{baseUrl}/{link}">{ title }</a>
         {:else}
             { title }
         {/if}
@@ -12,7 +12,7 @@
     {#if excerpt && isPreview}
         <div class="excerpt">{@html excerpt}</div>
 
-        <a href="/{link}" class="btn">Read more</a>
+        <a href="{baseUrl}/{link}" class="btn">Read more</a>
     {:else}
         <div class="content">{@html content}</div>
     {/if}
@@ -27,6 +27,7 @@
     export let timestamp;
     export let link;
     export let isPreview = false;
+    export let baseUrl = '';
 </script>
 
 <style>

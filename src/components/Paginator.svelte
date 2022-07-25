@@ -1,7 +1,7 @@
 <nav class="bottom">
     {#if pageIndex > 0}
         <div class="prev">
-            <a href="/page{ pageIndex }.html" class="prev">&larr; Previous page</a>
+            <a href="{baseUrl}/page{ pageIndex }.html" class="prev">&larr; Previous page</a>
         </div>
     {/if}
 
@@ -9,7 +9,7 @@
 
     {#if pageIndex < numPages - 1}
         <div class="next">
-            <a href="/page{ pageIndex + 2 }.html" class="next">Next page &rarr;</a>
+            <a href="{baseUrl}/page{ pageIndex + 2 }.html" class="next">Next page &rarr;</a>
         </div>
     {/if}
 </nav>
@@ -17,6 +17,7 @@
 <script>
     export let pageIndex = 0;
     export let numPages = 0;
+    export let baseUrl = '';
 </script>
 
 <style>

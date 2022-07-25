@@ -19,6 +19,8 @@ const StandalonePage = require('../components/StandalonePage.svelte').default;
 
 const PAGE_SIZE = 10;
 
+const BASE_URL = '/blog2-ssr/';
+
 const BASE_DIR = path.join(__dirname, '..', '..');
 const OUTPUT_DIR = path.join(BASE_DIR, 'dist');
 const PAGES_DIR = path.join(BASE_DIR, 'pages');
@@ -37,8 +39,8 @@ const posts = loadPosts(POSTS_DIR);
 const postPages = chunk(posts, PAGE_SIZE);
 
 postPages.forEach((posts, pageIdx) => {
-    const { css: { code: css } } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length });
-    const { html } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length, css });
+    const { css: { code: css } } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length, baseUrl: BASE_DIR });
+    const { html } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length, baseUrl: BASE_DIR, css });
 
     const fileName = pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`;
     const filePath = path.join(OUTPUT_DIR, fileName);
@@ -54,8 +56,8 @@ postPages.forEach((posts, pageIdx) => {
 
 // specific posts
 posts.forEach((post) => {
-    const { css: { code: css } } = PostPage.render({ ...post });
-    const { html } = PostPage.render({ ...post, css });
+    const { css: { code: css } } = PostPage.render({ ...post, baseUrl: BASE_URL });
+    const { html } = PostPage.render({ ...post, css, baseUrl: BASE_URL });
 
     const filePath = path.join(OUTPUT_DIR, post.link);
     const dir = path.dirname(filePath);
@@ -75,8 +77,8 @@ pages.forEach((pageFilename) => {
 
     const { excerpt: { title }, content } = processContent(pageSrc);
 
-    const { css: { code: css } } = StandalonePage.render({ content });
-    const { html } = StandalonePage.render({ content, css, title });
+    const { css: { code: css } } = StandalonePage.render({ content, baseUrl: BASE_URL });
+    const { html } = StandalonePage.render({ content, css, title, baseUrl: BASE_URL });
 
     const fileName = pageFilename.replace(PAGES_DIR, '').replace(/\..+$/, '.html');
     const filePath = path.join(OUTPUT_DIR, fileName);

@@ -1,7 +1,7 @@
-<Layout title={title} css={css}>
+<Layout title={title} css={css} baseUrl={baseUrl}>
     <Home slot="content" posts={posts} pageIndex={pageIndex} numPages={numPages}/>
 
-    <Paginator pageIndex={pageIndex} numPages={numPages} slot="footer"/>
+    <Paginator pageIndex={pageIndex} numPages={numPages} slot="footer" baseUrl={baseUrl}/>
 </Layout>
 
 <script>
@@ -15,4 +15,6 @@
 
     export let title = 'Home';
     export let css = null;
+    
+    export let baseUrl = '';
 </script>

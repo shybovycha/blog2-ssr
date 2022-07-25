@@ -5,12 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="icon" href="/images/favicon-compressed.webp">
-    <link rel="shortcut icon" href="/images/favicon-compressed.webp">
-    <link rel="apple-touch-icon" href="/images/favicon-compressed.webp">
+    <link rel="icon" href="{baseUrl}/images/favicon-compressed.webp">
+    <link rel="shortcut icon" href="{baseUrl}/images/favicon-compressed.webp">
+    <link rel="apple-touch-icon" href="{baseUrl}/images/favicon-compressed.webp">
 
-    <link rel="stylesheet" href="/shared.css" />
-    <link rel="stylesheet" href="/prism.css" />
+    <link rel="stylesheet" href="{baseUrl}/shared.css" />
+    <link rel="stylesheet" href="{baseUrl}/prism.css" />
 
     <title>{title}</title>
 </head>
@@ -22,8 +22,8 @@
     <nav class="top">
         <slot name="header">
             <div class="links">
-                <a class="nav-link nav-item" href="/">Home</a>
-                <a class="nav-link nav-item" href="/about/">About</a>
+                <a class="nav-link nav-item" href="{baseUrl}/">Home</a>
+                <a class="nav-link nav-item" href="{baseUrl}/about/">About</a>
             </div>
         </slot>
     </nav>
@@ -40,7 +40,7 @@
         </footer>
     {/if}
 
-    {@html `<script src="/lazyLoadImages.js"></script>`}
+    {@html `<script src="{baseUrl}/lazyLoadImages.js"></script>`}
 </body>
 </html>
 
@@ -129,4 +129,5 @@
 <script>
     export let title = 'Page';
     export let css = '';
+    export let baseUrl = '';
 </script>
