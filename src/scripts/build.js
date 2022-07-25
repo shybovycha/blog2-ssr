@@ -39,8 +39,8 @@ const posts = loadPosts(POSTS_DIR);
 const postPages = chunk(posts, PAGE_SIZE);
 
 postPages.forEach((posts, pageIdx) => {
-    const { css: { code: css } } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length, baseUrl: BASE_DIR });
-    const { html } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length, baseUrl: BASE_DIR, css });
+    const { css: { code: css } } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length, baseUrl: BASE_URL });
+    const { html } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length, baseUrl: BASE_URL, css });
 
     const fileName = pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`;
     const filePath = path.join(OUTPUT_DIR, fileName);
