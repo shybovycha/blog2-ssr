@@ -1,5 +1,5 @@
 <Layout title={title} css={css} baseUrl={baseUrl}>
-    <Home slot="content" posts={posts} pageIndex={pageIndex} numPages={numPages}/>
+    <Home slot="content" posts={posts} pageIndex={pageIndex} numPages={numPages} baseUrl={baseUrl}/>
 
     <Paginator pageIndex={pageIndex} numPages={numPages} slot="footer" baseUrl={baseUrl}/>
 </Layout>

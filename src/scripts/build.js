@@ -53,7 +53,7 @@ postPages.forEach((posts, pageIdx) => {
 
     fs.writeFileSync(filePath, `<style>${css.code}</style>` + html);
 
-    console.log('Processed index page');
+    console.log(`Processed index page #${pageIdx + 1} / ${postPages.length}`);
 });
 
 // specific posts
