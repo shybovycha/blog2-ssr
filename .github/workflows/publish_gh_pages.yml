@@ -1,4 +1,4 @@
-name: Publish on GitHub pages
+name: Build & publish on GitHub pages
 
 on:
   push:
@@ -30,14 +30,31 @@ jobs:
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
 
+        echo 'Fetching from origin'
         git fetch
+
+        echo 'Checking out gh_pages'
         git checkout gh_pages
+
+        echo 'Rsync dist'
         rsync -a --delete dist .
+
+        echo 'Update .gitignore'
         printf 'node_modules\ndist\n' > .gitignore
+
+        echo 'Current dir'
+        ls .
+
+        echo 'Confirming git status'
+        git status
+
+        echo 'Adding all changes'
         git add --all
+
+        echo 'Commit changes'
         git commit -m "Release $(date)"
 
-    - name: Publish to GH pages
+    - name: Push to GH pages
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
