@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fsPromise = require('fs/promises');
 const path = require('path');
 
 const { chunk } = require('lodash');
@@ -29,107 +29,123 @@ const POSTS_DIR = path.join(BASE_DIR, 'posts');
 const PUBLIC_DIR = path.join(BASE_DIR, 'public');
 const PRISM_THEME = 'prism';
 
-// clean
-if (fs.existsSync(OUTPUT_DIR)) {
-    fs.rmSync(OUTPUT_DIR, { recursive: true });
-}
-
 // index pages
 const posts = loadPosts(POSTS_DIR);
 
 const postPages = chunk(posts, PAGE_SIZE);
 
-postPages.forEach((posts, pageIdx) => {
-    const { css: { code: css } } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length, baseUrl: BASE_URL });
-    const { html } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length, baseUrl: BASE_URL, css });
-
-    const fileName = pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`;
-    const filePath = path.join(OUTPUT_DIR, fileName);
-
-    const dir = path.dirname(filePath);
-
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-    }
-
-    fs.writeFileSync(filePath, `<style>${css.code}</style>` + html);
-
-    console.log(`Processed index page #${pageIdx + 1} / ${postPages.length}`);
-});
-
-// specific posts
-posts.forEach((post) => {
-    const { css: { code: css } } = PostPage.render({ ...post, baseUrl: BASE_URL });
-    const { html } = PostPage.render({ ...post, css, baseUrl: BASE_URL });
-
-    const filePath = path.join(OUTPUT_DIR, post.link);
-    const dir = path.dirname(filePath);
-
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-    }
-
-    fs.writeFileSync(filePath, html);
-
-    console.log('Processed post', filePath);
-});
-
-// standalone pages
 const pages = getFilesRec(PAGES_DIR);
 
-pages.forEach((pageFilename) => {
-    const pageSrc = fs.readFileSync(pageFilename, 'utf-8');
+const processIndexPages = () =>
+    Promise.all(
+        postPages.map((posts, pageIdx) => {
+            const { css: { code: css } } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length, baseUrl: BASE_URL });
+            const { html } = HomePage.render({ posts, pageIndex: pageIdx, numPages: postPages.length, baseUrl: BASE_URL, css });
 
-    const { excerpt: { title }, content } = processContent(pageSrc);
+            const fileName = pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`;
+            const filePath = path.join(OUTPUT_DIR, fileName);
 
-    const { css: { code: css } } = StandalonePage.render({ content, baseUrl: BASE_URL });
-    const { html } = StandalonePage.render({ content, css, title, baseUrl: BASE_URL });
+            const dir = path.dirname(filePath);
 
-    const fileName = pageFilename.replace(PAGES_DIR, '').replace(/\..+$/, '.html');
-    const filePath = path.join(OUTPUT_DIR, fileName);
+            return fsPromise.mkdir(dir, { recursive: true })
+                .then(() => fsPromise.writeFile(filePath, `<style>${css.code}</style>` + html))
+                .then(() => console.log(`Processed index page #${pageIdx + 1} / ${postPages.length}`));
+        })
+    );
 
-    const dir = path.dirname(filePath);
+// specific posts
+const processPostPages = () =>
+    Promise.all(
+        posts.map((post) => {
+            const { css: { code: css } } = PostPage.render({ ...post, baseUrl: BASE_URL });
+            const { html } = PostPage.render({ ...post, css, baseUrl: BASE_URL });
 
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-    }
+            const filePath = path.join(OUTPUT_DIR, post.link);
+            const dir = path.dirname(filePath);
 
-    fs.writeFileSync(filePath, html);
+            return fsPromise.mkdir(dir, { recursive: true })
+                .then(() => fsPromise.writeFile(filePath, html))
+                .then(() => console.log('Processed post', filePath));
+        })
+    );
 
-    console.log('Processed page', filePath);
-});
+// standalone pages
+const processStandalonePages = () =>
+    Promise.all(
+        pages.map((pageFilename) => {
+            return fsPromise.readFile(pageFilename, 'utf-8')
+                .then(pageSrc => {
+                    const { excerpt: { title }, content } = processContent(pageSrc);
+
+                    const { css: { code: css } } = StandalonePage.render({ content, baseUrl: BASE_URL });
+                    const { html } = StandalonePage.render({ content, css, title, baseUrl: BASE_URL });
+
+                    const fileName = pageFilename.replace(PAGES_DIR, '').replace(/\..+$/, '.html');
+                    const filePath = path.join(OUTPUT_DIR, fileName);
+
+                    const dir = path.dirname(filePath);
+
+                    return fsPromise.mkdir(dir, { recursive: true })
+                        .then(() => fsPromise.writeFile(filePath, html))
+                        .then(() => console.log('Processed page', filePath));
+                });
+        })
+    );
 
 // copy public files
-getFilesRec(PUBLIC_DIR).forEach((filePath) => {
-    const filename = path.basename(filePath);
-    const sourcePath = path.dirname(filePath.replace(PUBLIC_DIR, ''));
-    const outputDirPath = path.join(OUTPUT_DIR, sourcePath);
-    const outputPath = path.join(outputDirPath, filename);
+const processPublicFiles = () =>
+    Promise.all(
+        getFilesRec(PUBLIC_DIR).map((filePath) => {
+            const filename = path.basename(filePath);
+            const sourcePath = path.dirname(filePath.replace(PUBLIC_DIR, ''));
+            const outputDirPath = path.join(OUTPUT_DIR, sourcePath);
+            const outputPath = path.join(outputDirPath, filename);
 
-    if (!fs.existsSync(outputDirPath)) {
-        fs.mkdirSync(outputDirPath, { recursive: true });
-    }
-
-    fs.copyFileSync(filePath, outputPath);
-});
+            fsPromise.mkdir(outputDirPath, { recursive: true })
+                .then(() => fsPromise.copyFile(filePath, outputPath));
+        })
+    );
 
 // copy PrismJS theme CSS
-const prismThemePath = path.join(__dirname, '..', '..', 'node_modules', 'prismjs', 'themes', `${PRISM_THEME}.min.css`);
-fs.copyFileSync(prismThemePath, path.join(OUTPUT_DIR, 'prism.css'));
+const processAdditionalFiles = () => {
+    const prismThemePath = path.join(__dirname, '..', '..', 'node_modules', 'prismjs', 'themes', `${PRISM_THEME}.min.css`);
+
+    fsPromise.copyFile(prismThemePath, path.join(OUTPUT_DIR, 'prism.css'));
+};
 
 // generate sitemap and robots.txt
-const robots = `
-User-agent: *
-Allow: /
-Sitemap: ${DOMAIN}${BASE_URL}/sitemap.txt
-`;
+const processRobots = () => {
+    const robots = `
+    User-agent: *
+    Allow: /
+    Sitemap: ${DOMAIN}${BASE_URL}/sitemap.txt
+    `;
 
-fs.writeFileSync(path.join(OUTPUT_DIR, 'robots.txt'), robots);
+    return fsPromise.writeFile(path.join(OUTPUT_DIR, 'robots.txt'), robots);
+};
 
-const sitemap = [
-    ...(posts.map(({ link }) => link)),
-    ...(pages.map((pageFilename) => pageFilename.replace(PAGES_DIR, '').replace(/\..+$/, '.html'))),
-    ...(postPages.map((_, pageIdx) => pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`)),
-].map((path) => `${DOMAIN}${BASE_URL}/${path}`).join('\n');
+const processSitemap = () => {
+    const sitemap = [
+        ...(posts.map(({ link }) => link)),
+        ...(pages.map((pageFilename) => pageFilename.replace(PAGES_DIR, '').replace(/\..+$/, '.html'))),
+        ...(postPages.map((_, pageIdx) => pageIdx === 0 ? 'index.html' : `page${pageIdx + 1}.html`)),
+    ].map((path) => `${DOMAIN}${BASE_URL}/${path}`).join('\n');
 
-fs.writeFileSync(path.join(OUTPUT_DIR,'sitemap.txt'), sitemap);
+    return fsPromise.writeFile(path.join(OUTPUT_DIR,'sitemap.txt'), sitemap);
+};
+
+// clean
+const clean = () =>
+    fsPromise.rm(OUTPUT_DIR, { recursive: true });
+
+clean().then(() =>
+    Promise.all([
+        processIndexPages(),
+        processPostPages(),
+        processStandalonePages(),
+        processPublicFiles(),
+        processAdditionalFiles(),
+        processRobots(),
+        processSitemap(),
+    ]))
+    .then(() => console.log('[DEBUG] Done'));
