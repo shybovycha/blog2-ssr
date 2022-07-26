@@ -4,7 +4,9 @@ title: Gantt chart with D3. Part 2
 date: '2020-08-02 15:04:24 +10:00'
 ---
 
+<div class="info">
 **UPDATE:** there is a follow-up to this blog, [Gantt chart with Canvas](2021-03-04-gantt-chart-part3).
+</div>
 
 This is a follow-up to the blog I wrote a bit over three years ago, [Gantt chart with D3](2017-04-09-gantt-chart-with-d3)
 

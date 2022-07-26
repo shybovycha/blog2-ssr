@@ -4,6 +4,10 @@ title: Gantt chart with D3
 date: '2017-04-09 11:04:24 +02:00'
 ---
 
+<div class="info">
+**UPDATE:** There are few updates to this original implementation in my [new blog](2020-08-02-gantt-chart-part2).
+</div>
+
 At work, I've had a task to implement a Gantt chart diagram to show dependencies and order of some... let's say, milestones.
 Given this feature is in a very unstable beta in Google Charts, I thought to myself: *"Why don't I implement it on my own?"*.
 And tried to recall my D3 knowledge.
@@ -26,10 +30,6 @@ Here's how the result looked like:
 <LazyImg src="/images/gantt_chart_with_d3/d3-gantt-chart_optimized.webp" alt="" />
 
 The implementation details are under the cut.
-
-## Update August 2020
-
-There are few updates to this original implementation in my [new blog](2020-08-02-gantt-chart-part2).
 
 <!--more-->
 
