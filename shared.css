@@ -1,5 +1,6 @@
 img {
-    max-width: 100%
+    max-width: 100%;
+    margin: 0.5rem 0
 }
 
 pre {
@@ -11,8 +12,19 @@ pre.highlight {
     padding: .5em
 }
 
-button.btn {
-    border: none
+.btn {
+    display: inline-flex;
+    font-size: 18px;
+    color: #fff;
+    background: var(--primary-color);
+    padding: 10px;
+    border: none;
+    border-radius: 8px
+}
+
+.btn:hover {
+    background: var(--primary-accent-color);
+    color: #fff
 }
 
 h1 {
