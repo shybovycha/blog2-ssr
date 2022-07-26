@@ -5,7 +5,7 @@ date: '2017-04-09 11:04:24 +02:00'
 ---
 
 <div class="info">
-**UPDATE:** There are few updates to this original implementation in my [new blog](2020-08-02-gantt-chart-part2).
+  <b>UPDATE:</b> There are few updates to this original implementation in my <a href="2020-08-02-gantt-chart-part2">new blog</a>.
 </div>
 
 At work, I've had a task to implement a Gantt chart diagram to show dependencies and order of some... let's say, milestones.
