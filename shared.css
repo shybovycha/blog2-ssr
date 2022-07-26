@@ -4,12 +4,42 @@ img {
 }
 
 pre {
-    overflow: auto
+    overflow: auto;
+    background-color: #fffcf3;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #ddd
 }
 
-pre.highlight {
-    overflow: auto;
-    padding: .5em
+code:not(pre > code) {
+    background: #fffcf3;
+    padding: 0.25rem;
+    border-radius: 6px;
+    border: 1px solid #ddd
+}
+
+article > time:before {
+    content: '📅'
+}
+
+article > time {
+    background: #f3feff;
+    padding: 0.15rem;
+    border: 1px solid #ddd;
+    border-radius: 6px
+}
+
+.info {
+    display: block;
+    background: #c4f0f4;
+    padding: 0.5rem;
+    border-radius: 6px
+}
+
+.info:before {
+    content: '👉';
+    margin: 0.5rem;
+    font-size: 24px
 }
 
 .btn {
