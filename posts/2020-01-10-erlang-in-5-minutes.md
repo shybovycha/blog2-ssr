@@ -130,4 +130,4 @@ evens(List) -> [ X || X <- List, X rem 2 == 0 ].
 keys(#{ Key => Value, _ => _ })
 ```
 
-There also are few good resources on this: [https://learnxinyminutes.com/docs/erlang/](Learn X in Y minutes (where X = erlang)) and [http://erlang.org/doc/apps/inets/http_client.html](Official Erlang docs).
+There also are few good resources on this: [Learn X in Y minutes (where X = erlang)](https://learnxinyminutes.com/docs/erlang/) and [Official Erlang docs](http://erlang.org/doc/apps/inets/http_client.html).
