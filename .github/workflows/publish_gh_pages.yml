@@ -1,7 +1,7 @@
 name: Build & publish on GitHub pages
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
     
 on:
   push:
