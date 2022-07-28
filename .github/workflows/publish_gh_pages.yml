@@ -1,5 +1,8 @@
 name: Build & publish on GitHub pages
 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
 on:
   push:
     branches: [ master ]
