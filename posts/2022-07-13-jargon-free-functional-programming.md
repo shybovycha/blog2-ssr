@@ -1,5 +1,75 @@
 # Jargon-free functional programming
 
+## TL;DR
+
+In a non-functional world, the code we write depends on anything - a function, aside from its arguments, is free to use environment variables,
+global variables, outer scope, dependency injection - pretty much anything.
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 1.png" />
+
+Moreover, it can modify all of the above (including outer scope, global and environment variables, etc.).
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 2.1.png" />
+
+In a functional programming world we restrict a function to only rely on its arguments (or nothing at all).
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 4.png" />
+
+But what about things like databases, user input, network communication, exceptions?
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 5.png" />
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 6.png" />
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 7.png" />
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 8.png" />
+
+A typical application involving all of the above could be explained algorithmically as the endless loop, waiting for some _input_ to appear
+before doing something (waiting for database query to complete, waiting for user to provide input, waiting for a network request to complete).
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 9.png" />
+
+And every step of the program is described as a sequence of actions (potentially involving some rather trivial decision making).
+This approach is known as "imperative programming" and is very commonly used.
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 10.png" />
+
+In reality, however, every step of this algorithm can go wrong in many different ways - each step is free to modify some global state (think OS and filesystem),
+it can fail terribly with an exception. Moreover, anything from the outside world (think OS or dependency injection) can break into the program and change any value
+or state of the program.
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 11.png" />
+
+In a functional programming world, functions (and thus programs) are not described as sequences of commands - instead, they are more like recipes
+for calculations that will happen once all the requirements are provided. Functions are always guaranteed to return a value. Chains of functions, waiting
+to be executed (again, once the required inputs are filled with values) make up programs.
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 12.png" />
+
+A program is a chain of functions, wrapped in "safe" constructs, which is executed "at the end / edge of the world" - meaning program is thought to be executed only once.
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 15.png" />
+
+All the logic is hidden in those "safe" constructs - it is isolated from the rest of the world. Limited to only its direct arguments. It is guaranteed to never break and always
+return a value (which might be wrapped in another "safe" construct).
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 14.png" />
+
+A program made of these safe recipes on how to calculate the result is just another recipe itself - essentially a series of recipes.
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 20.png" />
+
+This safe set of recipes is then thrown together with a bunch of inputs into a grinder called "real world", where nothing is safe and everything can happen (theoretically).
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 17.png" />
+
+In the grinder, the dish is being cooked from the inputs, following the recipes thrown to the grinder.
+The result of this cooking might be another program itself, which can then be recycled by being thrown back into the grinder -
+that would happen if a program enters the (infinite) loop, waiting for some inputs - it is essentially becomes a new program,
+which also needs to be executed when all the requirements are met.
+
+<LazyImg src="/jargon-free-functional-programming/Functional programming 1 18.png" />
+
+The article below contains an example and explains the above in bloody details, using TypeScript and a (semi-)real-world problem.
+
 ## Basics
 
 Let me introduce you functional programming with as few jargonisms and buzz-words as possible.
@@ -579,7 +649,7 @@ detecting and fixing errors in the code:
 * Pre-production environment (manual testing on dedicated QA / staging environment or even testing on production) - around few hours, may involve other people
 * Production - measured in days or months and risking the reputation with the customers
 
-<img data-src="/jargon-free-functional-programming/cost_of_error.webp" />
+<LazyImg src="/jargon-free-functional-programming/cost_of_error.webp" />
 
 Hence if we could detect the errors while writing the code the first time - we could potentially save ourselves a fortune measured in both time and money.
 
