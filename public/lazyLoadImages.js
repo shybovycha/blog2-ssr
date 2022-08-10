@@ -15,6 +15,8 @@ const observer = new IntersectionObserver(onIntersect, {
     threshold: 0.5
 });
 
-const images = [...document.body.querySelectorAll('img[data-src]')];
+document.addEventListener('DOMContentLoaded', () => {
+    const images = [...document.body.querySelectorAll('img[data-src]')];
 
-images.forEach(lazyImgElt => observer.observe(lazyImgElt));
+    images.forEach(lazyImgElt => observer.observe(lazyImgElt));
+});
