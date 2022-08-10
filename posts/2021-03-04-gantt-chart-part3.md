@@ -8,11 +8,11 @@ I have been writing about and improving on [my Gantt chart implementation](https
 
 It all started with this ([blog](2017-04-09-gantt-chart-with-d3)):
 
-<LazyImg src="/images/gantt_chart_part3/gantt-chart-v1.webp" alt="First revision of Gantt chart" />
+<img data-src="/images/gantt_chart_part3/gantt-chart-v1.webp" alt="First revision of Gantt chart" />
 
 Then I added few features ([blog](2020-08-02-gantt-chart-part2)):
 
-<LazyImg src="/images/gantt_chart_part3/gantt-chart-v2.webp" alt="Second revision of Gantt chart" />
+<img data-src="/images/gantt_chart_part3/gantt-chart-v2.webp" alt="Second revision of Gantt chart" />
 
 Back then I have promised to re-write the implementation in Canvas. And so I did.
 
@@ -33,7 +33,7 @@ Here are few new features and improvements added to the chart:
 
 Here, you can even play around with it now!
 
-<LazyImg src="/images/gantt_chart_part3/screenshot.webp" id="gantt-chart-screenshot" />
+<img data-src="/images/gantt_chart_part3/screenshot.webp" id="gantt-chart-screenshot" />
 
 <div class="chart-container" style="display:none;">
   <div class="controls">
@@ -64,7 +64,7 @@ coordinates on the other).
 
 Here's a visual representation of what I am talking about:
 
-<LazyImg src="/images/gantt_chart_part3/interpolation.png" alt="Interpolation explained" />
+<img data-src="/images/gantt_chart_part3/interpolation.png" alt="Interpolation explained" />
 
 There's a formulae to tell the `y` coordinate of a point on a line by its `x` coordinate if you know two points on that line.
 

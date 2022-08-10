@@ -462,4 +462,4 @@ module Counter = {
 
 TL;DR:
 
-<LazyImg src="/images/strongly-typed-front-end/one-can-not-simply.png" alt="One can't simply..." />
+<img data-src="/images/strongly-typed-front-end/one-can-not-simply.png" alt="One can't simply..." />

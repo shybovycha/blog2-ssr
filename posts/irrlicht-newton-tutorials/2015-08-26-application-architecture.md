@@ -13,7 +13,7 @@ prevent suffering in the future.
 
 Well, there are number of application architecture' levels:
 
-<LazyImg src="/images/irrlicht-newton-tutorials/japan_feudal_system.webp" />
+<img data-src="/images/irrlicht-newton-tutorials/japan_feudal_system.webp" />
 
 The highest level defines which modules will the whole application consist of and what functionality will each of those modules have.
 

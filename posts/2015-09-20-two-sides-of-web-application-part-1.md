@@ -4,7 +4,7 @@ title: "Two sides of web application. Part 1: the tools"
 date: '2015-09-20 20:18:39 +01:00'
 ---
 
-<LazyImg src="/images/two-sides-of-web-application/chocolate_tools.webp" />
+<img data-src="/images/two-sides-of-web-application/chocolate_tools.webp" />
 
 ## Prologue
 
@@ -48,7 +48,7 @@ tracking users' location and browser only. And we'll be displaying those analyti
 
 We will be developing our application with two layers (or two sides) - front-end and back-end:
 
-<LazyImg src="/images/two-sides-of-web-application/general_architecture.webp" />
+<img data-src="/images/two-sides-of-web-application/general_architecture.webp" />
 
 The front-end part is the one the user sees and uses - the web page, mobile or desktop application. The back-end part is the one, which does all the magic - prepares data for the front-end side to display, performs data operations as a reaction on user's actions, etc. Thus we could easily replace either the back-end part or the front-end one or even both and replace them with all brand-new implementation. This architecture allows us to do that really easily.
 

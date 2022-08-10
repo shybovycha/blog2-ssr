@@ -8,6 +8,6 @@ tags:
 tumblr_url: http://shybovycha.tumblr.com/post/114595523471/trying-some-new-porn-3
 ---
 
-<LazyImg src="/tumblr_files/tumblr_nls50x91hr1qio88bo1_1280.png"/>
+<img data-src="/tumblr_files/tumblr_nls50x91hr1qio88bo1_1280.png"/>
 
 Trying some new hardcore - Assembly in Emacs 😁

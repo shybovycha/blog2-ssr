@@ -7,7 +7,7 @@ published: True
 
 ---
 
-<LazyImg src="/images/regex-compressed.webp" />
+<img data-src="/images/regex-compressed.webp" />
 
 At my work we've lately been having a discussions on email validation. I recalled a post on [habrahabr](http://habrahabr.ru/post/55820/), showing different options, including **effective** and **psycho** solutions.
 

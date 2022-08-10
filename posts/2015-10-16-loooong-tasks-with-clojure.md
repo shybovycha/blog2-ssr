@@ -35,7 +35,7 @@ And so we went non-functional way first... We wrote a Java class, having two met
 words recursively. The idea was, to make a new word by appending it with each letter, then appending
 each of the alphabet' letters to this word and so on, until we get all the words of `N` characters.
 
-<LazyImg src="/images/looong-tasks-with-clojure/collaborative-java.webp" />
+<img data-src="/images/looong-tasks-with-clojure/collaborative-java.webp" />
 
 When our pretty class was created and working *(for some cases)*, we decided to do it more
 Java-correct and created two more classes, implementing a single interface, doing the same thing
@@ -258,11 +258,11 @@ Just a simple, plain class' instance.
 But that was not an option - it took nearly `45 minutes` to find all the 6-letter words even
 when using `pmap` and eaten SO much damn memory!..
 
-<LazyImg class="img-responsive" style="max-height: 150px" src="/images/looong-tasks-with-clojure/mem-consumption-1.webp" />
+<lazyimg class="img-responsive" style="max-height: 150px" src="/images/looong-tasks-with-clojure/mem-consumption-1.webp" />
 
 However, idle REPL eats much memory too:
 
-<LazyImg class="img-responsive" style="max-height: 150px" src="/images/looong-tasks-with-clojure/idle-repl-memory.webp" />
+<lazyimg class="img-responsive" style="max-height: 150px" src="/images/looong-tasks-with-clojure/idle-repl-memory.webp" />
 
 ```clojure
 (defn seq-contains? [coll target]
@@ -295,7 +295,7 @@ on the screen is a habit from my student years...
 
 The memory consumption got minimal:
 
-<LazyImg class="img-responsive" style="max-height: 150px" src="/images/looong-tasks-with-clojure/mem-consumption-2.webp" />
+<lazyimg class="img-responsive" style="max-height: 150px" src="/images/looong-tasks-with-clojure/mem-consumption-2.webp" />
 
 And the time consumption was not **that** good, though...
 

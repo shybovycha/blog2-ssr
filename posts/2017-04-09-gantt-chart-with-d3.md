@@ -14,7 +14,7 @@ And tried to recall my D3 knowledge.
 
 I've also found a minimalistic, but helpful example / screenshot of some Gantt chart implementation:
 
-<LazyImg src="/images/gantt_chart_with_d3/gantt-sample_optimized.webp" alt="" />
+<img data-src="/images/gantt_chart_with_d3/gantt-sample_optimized.webp" alt="" />
 
 The challenges I've faced were:
 
@@ -27,7 +27,7 @@ And since D3 is a data-driven library, I've used map/reduce where possible.
 
 Here's how the result looked like:
 
-<LazyImg src="/images/gantt_chart_with_d3/d3-gantt-chart_optimized.webp" alt="" />
+<img data-src="/images/gantt_chart_with_d3/d3-gantt-chart_optimized.webp" alt="" />
 
 The implementation details are under the cut.
 
