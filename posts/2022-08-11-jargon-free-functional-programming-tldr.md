@@ -49,7 +49,7 @@ for calculations that will happen once all the requirements are provided.
 <img data-src="/images/jargon-free-functional-programming/Functional programming 1 12.png" alt="" />
 
 The way to handle all the nifty things such as exceptions, networking, databases, etc. is to wrap a function which works with a _result of the "unsafe" operation_ in a
-safe container. This container won't execute the function - just hold it for a while. However, this conainer would have two special properties: an ability to
+safe container. This container won't execute the function - just hold it for a while. However, this container would have two special properties: an ability to
 run the underlying function when it is deemed safe and an ability to be connected to other containers _of the same type_.
 
 <img data-src="/images/jargon-free-functional-programming/Functional programming 2 3.png" alt="" />
