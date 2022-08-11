@@ -194,12 +194,18 @@ class Try <A> implements Container <A> {
 Then you can write programs using these containers:
 
 ```ts
-const fetchSomeResponse = () => new PromiseIO(() => fetch('url').then(r => r.json()));
+const fetchSomeResponse = () => new PromiseIO(() => fetch('/').then(r => r.text()));
 
-const processResponse = (response: object[]) => new Try(() => new IO(() => response[15]), (e) => new IO(() => console.error(e)));
+const processResponse = (response: string) =>
+    new Try(
+        () => new IO(() => { console.log('OK', response); }),
+        (e) => new IO(() => { console.error('ERR', e); })
+    );
 
 const program = fetchSomeResponse()
     .andThen(processResponse)
+    .andThen(t => t.unsafeRunTry())
+    .andThen(io => (io as IO<void>).unsafeRun())
     .unsafeRun();
 ```
 
