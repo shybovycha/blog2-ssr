@@ -74,10 +74,19 @@ But these chains do not do anything until they are explicitly executed.
 <img data-src="/images/jargon-free-functional-programming/Functional programming 2 8.png" alt="" />
 
 A program is a chain of functions, wrapped in "safe" constructs, which is executed "at the end / edge of the world" - meaning program is thought to be executed only once.
+If all the blocks of this chain of containers succeed - the entire program succeeds.
+
+<img data-src="/images/jargon-free-functional-programming/Functional programming 2 9.png" alt="" />
+
+If any of the blocks fails - the program does not exit or terminates, the failed block simply returns a different value.
+
+<img data-src="/images/jargon-free-functional-programming/Functional programming 2 11.png" alt="" />
+
+All the logic is hidden in those "safe" constructs - it is isolated from the rest of the world.
 
 <img data-src="/images/jargon-free-functional-programming/Functional programming 1 15.png" alt="" />
 
-All the logic is hidden in those "safe" constructs - it is isolated from the rest of the world. Limited to only its direct arguments. It is guaranteed to never break and always
+Those containers are only allowed access to their direct arguments. It is guaranteed to never break and always
 return a value (which might be wrapped in another "safe" construct).
 
 <img data-src="/images/jargon-free-functional-programming/Functional programming 1 14.png" alt="" />
@@ -96,6 +105,103 @@ that would happen if a program enters the (infinite) loop, waiting for some inpu
 which also needs to be executed when all the requirements are met.
 
 <img data-src="/images/jargon-free-functional-programming/Functional programming 1 18.png" alt="" />
+
+In order to build one of those containers, one starts by creating a simple class.
+
+<img data-src="/images/jargon-free-functional-programming/Functional programming 3 5.png" alt="" />
+
+The class must hold a function without running it.
+
+<img data-src="/images/jargon-free-functional-programming/Functional programming 3 4.png" alt="" />
+
+There should be a way to link (chain) this container with some other function, creating a new safe container.
+
+<img data-src="/images/jargon-free-functional-programming/Functional programming 3 3.png" alt="" />
+
+And finally there should be a way to execute the function wrapped by this safe container.
+
+<img data-src="/images/jargon-free-functional-programming/Functional programming 3 7.png" alt="" />
+
+The details of each container' implementation is what makes them different. For few examples, the container which
+makes an arbitrary function safe (in this case we assume it does some input-output stuff) could look like this:
+
+```ts
+class IO <A> {
+    constructor(private f: () => A) {
+    }
+
+    andThen<B>(g: (_: A) => B) {
+        return new IO(() => g(this.f()));
+    }
+
+    unsafeRun() {
+        this.f();
+    }
+}
+```
+
+A container which wraps a function returning a `Promise` might look similar (except all the dancing around `Promise` API):
+
+```ts
+class PromiseIO <A> {
+    constructor(private readonly f: () => Promise<A>) {}
+
+    andThen<B>(g: (_: A) => B) {
+        return new PromiseIO<B>(() => this.unsafeRun().then(g));
+    }
+
+    unsafeRun(): Promise<A> {
+        return this.f();
+    }
+}
+```
+
+You can see the pattern - these classes all have very similar interface. Hence you can extract it:
+
+```ts
+interface Container <A> {
+    andThen<B>(g: (_: A) => B): Container<B>;
+}
+
+class IO <A> implements Container <A> { ... }
+
+class PromiseIO <A> implements Container <A> { ... }
+```
+
+Then you can create a container which wraps a function which might throw an exception:
+
+```ts
+class Try <A> implements Container <A> {
+    constructor(private readonly f: () => Container<A>, private readonly err: (_: unknown) => Container<A>) {}
+
+    andThen<B>(g: (_: A) => B) {
+        return new Try<B, E>(
+            () => this.f().andThen(g),
+            (e) => this.err(e).andThen(g)
+        );
+    }
+
+    unsafeRun(): Container<A> {
+        try {
+            return this.f();
+        } catch (e) {
+            return this.err(e);
+        }
+    }
+}
+```
+
+Then you can write programs using these containers:
+
+```ts
+const fetchSomeResponse = () => new PromiseIO(() => fetch('url').then(r => r.json()));
+
+const processResponse = (response: object[]) => new Try(() => new IO(() => response[15]), (e) => new IO(() => console.error(e)));
+
+const program = fetchSomeResponse()
+    .andThen(processResponse)
+    .unsafeRun();
+```
 
 The <a href="/2022/07/13/jargon-free-functional-programming.html">next article</a> contains a few examples and explains the above in bloody details,
 using TypeScript and a (semi-)real-world problem and a step-by-step approach to arrivin at the above concepts.
