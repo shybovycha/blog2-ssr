@@ -40,11 +40,35 @@ or state of the program.
 
 <img data-src="/images/jargon-free-functional-programming/Functional programming 1 11.png" alt="" />
 
-In a functional programming world, functions (and thus programs) are not described as sequences of commands - instead, they are more like recipes
-for calculations that will happen once all the requirements are provided. Functions are always guaranteed to return a value. Chains of functions, waiting
-to be executed (again, once the required inputs are filled with values) make up programs.
+In a functional programming world, functions (and programs) are not described as sequences of commands - instead, they are more like recipes
+for calculations that will happen once all the requirements are provided.
 
 <img data-src="/images/jargon-free-functional-programming/Functional programming 1 12.png" alt="" />
+
+The way to handle all the nifty things such as exceptions, networking, databases, etc. is to wrap a function which works with a _result of the "unsafe" operation_ in a
+safe container. This container won't execute the function - just hold it for a while. However, this conainer would have two special properties: an ability to
+run the underlying function when it is deemed safe and an ability to be connected to other containers _of the same type_.
+
+<img data-src="/images/jargon-free-functional-programming/Functional programming 2 3.png" alt="" />
+
+Each container will perform its very specific role - handling exceptions to return a value instead of breaking,
+running some input-output operations (incl. networking and databases), etc. We assume containers already do these operations
+in a safe manner - meaning they do not change anything in the program outside of themselves (think global variables, outer scope, etc.)
+and they always return a value. They only execute the function they wrap once requested explicitly.
+
+<img data-src="/images/jargon-free-functional-programming/Functional programming 2 4.png" alt="" />
+<img data-src="/images/jargon-free-functional-programming/Functional programming 2 6.png" alt="" />
+
+By making it so that safe containers of different types can not be chained, we eliminate the chance of unexpected program failure.
+And we make sure at any point in time we can say what a program is doing exactly by just looking at its types.
+
+By connecting such containers in a chain, we make programs.
+
+<img data-src="/images/jargon-free-functional-programming/Functional programming 2 7.png" alt="" />
+
+But these chains do not do anything until they are explicitly executed.
+
+<img data-src="/images/jargon-free-functional-programming/Functional programming 2 8.png" alt="" />
 
 A program is a chain of functions, wrapped in "safe" constructs, which is executed "at the end / edge of the world" - meaning program is thought to be executed only once.
 
